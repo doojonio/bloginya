@@ -1,0 +1,33 @@
+@use '@angular/material' as mat;
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.sidenav-container {
+  position: absolute;
+  top: 60px;
+  // top: 120px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.sidenav {
+  width: 200px;
+}
+
+// mat-sidenav-content mat-toolbar {
+//   @include mat.toolbar-overrides((
+//       container-background-color: var(--mat-sys-primary),
+//       container-text-color: var(--mat-sys-on-primary),
+//   ));
+// }

@@ -1,0 +1,26 @@
+
+.container {
+    height: 100%;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    .fields {
+        flex: 1;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .actions {
+        display: flex;
+        padding: 1rem;
+        justify-content: right;
+        gap: 1rem;
+    }
+    // display: flex;
+    // flex-direction: column;
+    // justify-content: center;
+}

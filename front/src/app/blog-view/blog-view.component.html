@@ -1,0 +1,8 @@
+<div class="blog-container">
+  @if (blog$ && (blog$ | async)?.document) {
+    <div
+      class="blog-content"
+      [innerHTML]="toHTML((blog$ | async)?.document.doc)"
+    ></div>
+  }
+</div>

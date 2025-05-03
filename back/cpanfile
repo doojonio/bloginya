@@ -1,0 +1,13 @@
+requires 'perl', '5.34';
+requires 'Future::AsyncAwait', '0.70';
+requires 'Mojo::Pg', '4.27';
+requires 'Mojolicious', '9.39';
+requires 'Crypt::Argon2', '0.029';
+requires 'Mojo::Redis', '3.29';
+requires 'UUID', '0.37';
+requires 'Time::Piece';
+
+on 'develop' => sub {
+  requires 'DDP';
+}
+

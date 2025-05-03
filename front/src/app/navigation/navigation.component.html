@@ -1,0 +1,51 @@
+<mat-toolbar class="header">
+  @if (isHandset$ | async) {
+    <button
+      type="button"
+      aria-label="Toggle sidenav"
+      mat-icon-button
+      (click)="drawer.toggle()"
+    >
+      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+  }
+  <a href="/">{{ appName }}</a>
+  <span class="flex-spacer"></span>
+  @if (!(isHandset$ | async)) {
+    <a href="/login" mat-flat-button>Login</a>
+    <a mat-icon-button href="https://instagram.com"
+      ><mat-icon svgIcon="insta"></mat-icon
+    ></a>
+    <a mat-icon-button href="https://vk.com"
+      ><mat-icon svgIcon="vk"></mat-icon
+    ></a>
+    <a mat-icon-button href="https://blog.naver.com/ine1103"
+      ><mat-icon svgIcon="naver"></mat-icon
+    ></a>
+    <a mat-icon-button href="https://youtube.com"
+      ><mat-icon svgIcon="youtube"></mat-icon
+    ></a>
+  }
+</mat-toolbar>
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="!(isHandset$ | async)"
+  >
+    <mat-nav-list>
+      <a mat-list-item href="/new">New</a>
+      <a mat-list-item href="/drafts">Drafts</a>
+      @if (colList$) {
+        @for (item of (colList$ | async); track item.id) {
+          <a mat-list-item href="/collection/{{ item.id }}">{{ item.title }}</a>
+        }
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <!-- Add Content Here -->
+    <ng-content></ng-content>
+  </mat-sidenav-content>
+</mat-sidenav-container>
