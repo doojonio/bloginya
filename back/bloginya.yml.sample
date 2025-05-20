@@ -1,3 +1,22 @@
 ---
 secrets:
   - REPLACE_ME
+test: true
+db:
+  pg_dsn: postgresql://postgres:postgres@db:5432/postgres
+  redis_dsn: redis://redis
+
+sessions:
+  cookie_name: sid
+  domain: localhost
+  secure: false
+  httponly: false
+  expires: null
+
+google_oauth:
+  client_id: REPLACE_ME
+  project_id: REPLACE_ME
+  auth_uri: https://accounts.google.com/o/oauth2/auth
+  token_uri: https://oauth2.googleapis.com/token
+  auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+  client_secret: REPLACE_ME

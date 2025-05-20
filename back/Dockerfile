@@ -12,4 +12,6 @@ RUN carmel install && carmel rollout
 
 COPY . .
 
-CMD ["carmel", "exec", "hypnotoad", "-f", "script/bloginya"]
+EXPOSE 8080
+
+ENTRYPOINT ["carmel", "exec", "hypnotoad", "-f", "script/bloginya"]
