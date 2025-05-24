@@ -52,9 +52,15 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"sfodje.perltidy",
 				"sfodje.perlcritic",
-				"redhat.vscode-yaml"
+				"redhat.vscode-yaml",
+				"Kaktus.perltidy-more",
+				"mtxr.sqltools",
+				"mtxr.sqltools-driver-pg",
+				"shardulm94.trailing-spaces",
+				"richterger.perl",
+				"inferrinizzard.prettier-sql-vscode",
+				"esbenp.prettier-vscode"
 			]
 		}
 	}

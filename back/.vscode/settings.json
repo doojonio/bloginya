@@ -1,3 +1,13 @@
 {
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "perltidy.profile": ".../.perltidyrc",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "name": "db",
+            "connectString": "postgresql://postgres:postgres@db:5432/postgres"
+        }
+    ]
 }

@@ -5,3 +5,6 @@ public/
 # Carmel
 .carmel
 local/
+
+# SQL tools
+db.session.sql

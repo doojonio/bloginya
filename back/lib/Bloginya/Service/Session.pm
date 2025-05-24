@@ -4,14 +4,60 @@ use Mojo::Base -base, -signatures, -async_await;
 has db    => undef;
 has redis => undef;
 
-use constant {RDS_KEY_TMPL => 'saram:sessions:%s',};
+async sub create_session_p($self, $user_id, $ip, $user_agent) {
+  my $sid
+    = (await $self->db->insert_p('sessions', {user_id => $user_id, ip => $ip, app => $user_agent}, {returning => 'id'}))
+    ->hash->{id};
 
-async sub create_session_p($self, $user_id, $ip, $app_name = undef) {
-  my ($sid)
-    = (await $self->db->insert_p(
-    'users_sessions', {user_id => $user_id, ip => $ip, app => $app_name}, {returning => 'id'}))->array->@*;
-  await $self->redis->set_p(sprintf(RDS_KEY_TMPL, $sid), $user_id);
+  # Store user in cache for future requests
+  await $self->redis->set_p('sid_user:' . $sid, $user_id);
+
   return $sid;
 }
+
+async sub uid_by_sid_p($self, $sid) {
+
+  # Try to get user from cache
+  my $uid = await $self->redis->get_p('sid_user:' . $sid);
+  return $uid if $uid;
+
+  # If not in cache, get from database
+  $uid = (await $self->db->query_p(
+    'SELECT users.id FROM users
+        JOIN sessions ON users.id = sessions.user_id
+        WHERE sessions.id = (?)', $sid
+  ))->hash->{id};
+  return unless $uid;
+
+  # Store user in cache for future requests
+  await $self->redis->set_p('sid_user:' . $sid, $uid);
+
+  return $uid;
+}
+
+# Todo use
+async sub is_suspicious_activity_p($self, $ip, $user_agent) {
+  my $result = await $self->db->query_p(
+    'SELECT COUNT(*) FROM sessions
+        WHERE ip = (?) AND app = (?) AND created_at > now() - interval \'1 hour\'', $ip, $user_agent
+  );
+  my $count = $result->hash->{count};
+
+  # If there are more than 5 sessions with the same ip and user_agent in the last hour, consider it suspicious
+  return $count > 5;
+}
+
+# TODO use
+async sub is_sid_hijacked_p($self, $sid, $user_agent) {
+  my $result = await $self->db->query_p(
+    'SELECT COUNT(*) FROM sessions
+        WHERE id = (?) AND app != (?)', $sid, $user_agent
+  );
+  my $count = $result->hash->{count};
+
+  # If there are any sessions with the same sid but different user_agent, consider it suspicious
+  return $count > 0;
+}
+
 
 1
