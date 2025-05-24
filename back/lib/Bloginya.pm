@@ -1,8 +1,10 @@
 package Bloginya;
-use Mojo::Base 'Mojolicious', -signatures;
+use Mojo::Base 'Mojolicious', -signatures, -async_await;
 
+use List::Util  qw(first);
 use Mojo::Pg    ();
 use Mojo::Redis ();
+use Mojo::Log   ();
 
 
 sub startup ($self) {
@@ -11,53 +13,22 @@ sub startup ($self) {
 
   # Default helpers
   $self->plugin('DefaultHelpers');
+  $self->plugin('Bloginya::Plugin::WebHelpers');
+  $self->plugin('Bloginya::Plugin::Service');
 
-  # for files 1gb
-  $self->max_request_size(1e+9);
+  # for files 50mb
+  $self->max_request_size(5e+7);
 
   $self->_setup_db;
   $self->_setup_routes;
   $self->_setup_commands;
 
-  $self->helper(
-    real_ip => sub {
-      if (my $fw = $_[0]->req->headers->header('X-Forwarded-For')) {
-        my $ip = (map {chomp} split /,/, $fw)[0];
+  my $log = Mojo::Log->new;
+  $SIG{__WARN__} = sub {
+    $log->warn(shift);
+  };
 
-        return $ip if length($ip) >= 7;
-      }
-
-      return $_[0]->tx->remote_address;
-    }
-  );
-
-  $self->helper(client_app => sub { $_[0]->req->headers->header('User-Agent') });
-
-  $self->helper(
-    'set_sid' => sub ($self, $sid) {
-      my ($name, $secure, $httponly, $domain, $expires)
-        = @{$self->config->{sessions}}{qw(cookie_name secure httponly domain expires)};
-
-      my %conf = (
-        name     => $name,
-        value    => $sid,
-        path     => '/',
-        secure   => $secure,
-        httponly => $httponly,
-        domain   => $domain,
-
-        # (expires => $secure) x !!$secure,
-      );
-
-      $self->res->cookies(\%conf);
-    }
-  );
-
-  $self->helper(
-    'current_user' => sub ($self) {
-      p $self->req->cookies;
-    }
-  );
+  $self->helper(log => sub {$log});
 
   $self->helper(test => sub ($self) { !!$self->config->{test} });
 }
@@ -78,6 +49,8 @@ sub _setup_routes($self) {
   $r->get('/')->to(cb => sub { $_[0]->render(json => {status => 'up'}) });
 
   my $api = $r->any('/api');
+
+  $api->get('/cdata')->to('App#common_data');
 
   $api->get('/oauth/to_google')->to('OAuth#to_google');
   $api->get('/oauth/from_google')->to('OAuth#from_google');

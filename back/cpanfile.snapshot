@@ -480,14 +480,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  File-Type-0.22
-    pathname: P/PM/PMISON/File-Type-0.22.tar.gz
-    provides:
-      File::Type 0.22
-      File::Type::Builder 0.11
-    requirements:
-      IO::File 0.01
-      Test::More 0.01
   Future-0.51
     pathname: P/PE/PEVANS/Future-0.51.tar.gz
     provides:
@@ -732,6 +724,14 @@ DISTRIBUTIONS
       IO::Socket::IP 0.37
       Sub::Util 1.41
       perl 5.016
+  Mojolicious-Plugin-YamlConfig-0.2.4
+    pathname: D/DA/DATA/Mojolicious-Plugin-YamlConfig-0.2.4.tar.gz
+    provides:
+      Mojolicious::Plugin::YamlConfig 0.002004
+    requirements:
+      ExtUtils::MakeMaker 6.31
+      Mojolicious 5.54
+      YAML::Tiny 1.60
   Moo-2.005005
     pathname: H/HA/HAARG/Moo-2.005005.tar.gz
     provides:
@@ -937,3 +937,32 @@ DISTRIBUTIONS
       File::ShareDir 1.00
       Module::Build 0.4004
       perl 5.016
+  YAML-LibYAML-v0.904.0
+    pathname: T/TI/TINITA/YAML-LibYAML-v0.904.0.tar.gz
+    provides:
+      YAML::LibYAML v0.904.0
+      YAML::XS v0.904.0
+    requirements:
+      B::Deparse 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      base 0
+      constant 0
+      perl 5.008001
+      strict 0
+      warnings 0
+  YAML-Tiny-1.76
+    pathname: E/ET/ETHER/YAML-Tiny-1.76.tar.gz
+    provides:
+      YAML::Tiny 1.76
+    requirements:
+      B 0
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Fcntl 0
+      Scalar::Util 0
+      perl 5.008001
+      strict 0
+      warnings 0

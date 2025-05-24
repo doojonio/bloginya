@@ -38,6 +38,10 @@ async sub get($self) {
 }
 
 async sub list($self) {
+  my $cu = await $self->current_user_p($self->db, $self->redis);
+  use DDP;
+  p $cu;
+
   my $parent_id = $self->param('pid');
   return $self->render(status => 400, json => {message => 'Invalid ID'}) if $parent_id && !is_uuid($parent_id);
 

@@ -1,11 +1,14 @@
 -- 1 up
 create extension if not exists "uuid-ossp";
 
+create type user_role as enum ('owner', 'creator', 'visitor');
+
 create table
     users (
         id uuid primary key default uuid_generate_v4 (),
         email text unique not null,
         username text unique not null,
+        role user_role not null default 'visitor',
         google_id text unique,
         google_token jsonb,
         google_userinfo jsonb,
@@ -13,7 +16,7 @@ create table
     );
 
 create table
-    users_sessions (
+    sessions (
         id uuid primary key default uuid_generate_v4 (),
         user_id uuid not null references users (id),
         ip inet not null,
@@ -56,9 +59,11 @@ drop type blog_status;
 
 drop table collections;
 
-drop table users_sessions;
+drop table sessions;
 
 drop table users;
+
+drop type user_role;
 
 -- -- 2 up
 -- select 1 from users;
