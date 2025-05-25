@@ -1,6 +1,9 @@
 package Bloginya::Plugin::DB;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
+use Mojo::Pg    ();
+use Mojo::Redis ();
+
 sub register {
   my ($self, $app) = @_;
 

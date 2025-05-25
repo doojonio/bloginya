@@ -1,5 +1,6 @@
 package Bloginya::Plugin::WebHelpers;
 use Mojo::Base 'Mojolicious::Plugin', -signatures, -async_await;
+use List::Util qw(first);
 
 sub register {
   my ($self, $app) = @_;

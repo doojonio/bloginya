@@ -1,11 +1,7 @@
 package Bloginya;
 use Mojo::Base 'Mojolicious', -signatures, -async_await;
 
-use List::Util  qw(first);
-use Mojo::Pg    ();
-use Mojo::Redis ();
-use Mojo::Log   ();
-
+use Mojo::Log ();
 
 sub startup ($self) {
   my $config = $self->plugin('NotYAMLConfig');
