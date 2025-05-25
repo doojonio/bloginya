@@ -15,11 +15,13 @@ sub startup ($self) {
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::WebHelpers');
   $self->plugin('Bloginya::Plugin::Service');
+  $self->plugin('Bloginya::Plugin::DB');
+
+  # $self->exception_format('json');
 
   # for files 50mb
   $self->max_request_size(5e+7);
 
-  $self->_setup_db;
   $self->_setup_routes;
   $self->_setup_commands;
 
@@ -31,17 +33,6 @@ sub startup ($self) {
   $self->helper(log => sub {$log});
 
   $self->helper(test => sub ($self) { !!$self->config->{test} });
-}
-
-sub _setup_db($self) {
-  $self->helper('pg'  => sub { state $pg = Mojo::Pg->new($_[0]->config->{db}{pg_dsn}) });
-  $self->helper('mig' => sub { $self->pg->migrations->from_file($self->home->child(qw(db pgmig.sql))) });
-  $self->helper('db'  => sub { $_[0]->pg->db });
-
-  $self->helper('redis_pool' => sub { state $rds = Mojo::Redis->new($_[0]->config->{db}{redis_dsn}) });
-  $self->helper('redis'      => sub { $_[0]->redis_pool->db });
-
-  $self->mig->migrate;
 }
 
 sub _setup_routes($self) {

@@ -10,6 +10,7 @@ sub register {
 
   $app->helper(
     'service' => sub ($self, $name, @args) {
+      $self->log->debug('service: ' . $name);
       my $class = 'Bloginya::Service::' . camelize($name);
       return $class->new(@args);
     }

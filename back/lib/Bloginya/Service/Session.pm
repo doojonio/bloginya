@@ -35,6 +35,11 @@ async sub uid_by_sid_p($self, $sid) {
   return $uid;
 }
 
+async sub update_ip_ua_p($self, $sid, $ip, $user_agent) {
+  my $res = await $self->db->update_p('sessions', {ip => $ip, app => $user_agent}, {id => $sid},);
+  return $res->rows;
+}
+
 # Todo use
 async sub is_suspicious_activity_p($self, $ip, $user_agent) {
   my $result = await $self->db->query_p(

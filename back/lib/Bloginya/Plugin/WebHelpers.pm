@@ -53,10 +53,13 @@ sub register {
       my $cname = $self->config->{sessions}{name};
       my $sid   = $self->cookie($cname);
 
-      return if !$sid;
+      return undef if !$sid;
 
       my $serv = $self->service('session', db => $db, redis => $redis);
       my $uid  = await $serv->uid_by_sid_p($sid);
+      return undef unless $uid;
+
+      # await $serv->update_ip_ua_p($sid, $self->real_ip, $self->user_agent);
 
       my $userv = $self->service('user', db => $db, redis => $redis);
 

@@ -31,6 +31,8 @@ create table
         user_id uuid not null references users (id),
         parent_id uuid references collections (id),
         title text,
+        short text unique,
+        priority integer,
         description text,
         img_src text,
         created_at timestamp not null default now ()
@@ -47,6 +49,7 @@ create table
         title text not null,
         img_src text,
         collection_id uuid references collections (id),
+        priority integer,
         created_at timestamp not null default now (),
         modified_at timestamp,
         published_at timestamp,

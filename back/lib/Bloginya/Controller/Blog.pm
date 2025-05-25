@@ -39,7 +39,6 @@ sub _extract_title_n_img($self, $doc) {
   while (my $el = shift @elements) {
     if (!$title && $el->{type} eq 'heading') {
       $title = reduce { $a . $b } map { $_->{text} } $el->{content}->@*;
-      warn $title;
     }
     if (!$img_src && $el->{type} eq 'image') {
       $img_src = $el->{attrs}{src};

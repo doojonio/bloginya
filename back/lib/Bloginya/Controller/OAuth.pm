@@ -23,10 +23,7 @@ async sub to_google($self) {
 async sub from_google($self) {
   my $v    = $self->validation;
   my $code = $v->required('code')->param;
-  warn "BBB";
   return $self->render(status => 400, json => {message => $v->{error}}) if $v->has_error;
-
-  warn "AAA";
 
   my $ua     = Mojo::UserAgent->new;
   my $config = $self->config->{google_oauth};

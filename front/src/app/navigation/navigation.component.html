@@ -12,7 +12,6 @@
   <a href="/">{{ appName }}</a>
   <span class="flex-spacer"></span>
   @if (!(isHandset$ | async)) {
-    <a href="/api/oauth/to_google" mat-flat-button>Login</a>
     <a mat-icon-button href="https://instagram.com"
       ><mat-icon svgIcon="insta"></mat-icon
     ></a>
@@ -26,6 +25,20 @@
       ><mat-icon svgIcon="youtube"></mat-icon
     ></a>
   }
+  @if (user$) {
+    @if (user$ | async; as user) {
+      <button mat-icon-button>
+        <mat-icon>
+          <img [src]="user.picture" alt="User avatar" class="avatar" />
+        </mat-icon>
+      </button>
+    } @else if ((user$ | async) === null) {
+      <a href="/api/oauth/to_google" mat-icon-button>
+        <mat-icon svgIcon="avatar">
+        </mat-icon>
+      </a>
+    }
+  }
 </mat-toolbar>
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav
@@ -35,10 +48,12 @@
     [opened]="!(isHandset$ | async)"
   >
     <mat-nav-list>
-      <a mat-list-item href="/new">New</a>
-      <a mat-list-item href="/drafts">Drafts</a>
-      @if (colList$) {
-        @for (item of (colList$ | async); track item.id) {
+      @if (user$ | async; as user) {
+        <a mat-list-item href="/new">New</a>
+        <a mat-list-item href="/drafts">Drafts</a>
+      }
+      @if (colList$ | async; as items) {
+        @for (item of items; track item.id) {
           <a mat-list-item href="/collection/{{ item.id }}">{{ item.title }}</a>
         }
       }

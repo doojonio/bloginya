@@ -5,7 +5,8 @@ has db    => undef;
 has redis => undef;
 
 async sub find_p($self, $uid) {
-  return (await $self->db->select_p('users', '*', {id => $uid}))->expand->hash;
+  my $res = await $self->db->select_p('users', undef, {id => $uid});
+  return $res->expand->hashes->first;
 }
 
 1;
