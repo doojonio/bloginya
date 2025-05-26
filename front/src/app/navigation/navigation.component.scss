@@ -1,4 +1,4 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 
 a {
   text-decoration: none;
@@ -23,6 +23,13 @@ a {
 
 .sidenav {
   width: 200px;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 // mat-sidenav-content mat-toolbar {

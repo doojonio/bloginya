@@ -13,6 +13,8 @@ import {
   ListCollectionsResponse,
   ListCollectionsResponseItem,
 } from '../collections.service';
+import { TopCollection, User } from '../cdata.service';
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-navigation',
@@ -28,7 +30,8 @@ import {
   ],
 })
 export class NavigationComponent implements OnInit {
-  private collections = inject(CollectionsService);
+  private collService = inject(CollectionsService);
+  private userService = inject(UserService);
 
   appName = 'WORK IN PROGRESS';
 
@@ -40,12 +43,11 @@ export class NavigationComponent implements OnInit {
       shareReplay(),
     );
 
-  colList$?: Observable<ListCollectionsResponseItem[]>;
+  colList$?: Observable<TopCollection[]>;
+  user$?: Observable<User | null | undefined>;
 
   ngOnInit(): void {
-    this.colList$ = this.collections.listCollections(undefined).pipe(
-      map((r) => r.collections),
-      shareReplay(1),
-    );
+    this.colList$ = this.collService.topCollections$;
+    this.user$ = this.userService.getCurrentUser();
   }
 }

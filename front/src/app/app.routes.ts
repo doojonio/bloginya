@@ -6,7 +6,6 @@ import { BlogViewComponent } from './blog-view/blog-view.component';
 import { DraftsComponent } from './drafts/drafts.component';
 import { BlogPublisherComponent } from './blog-publisher/blog-publisher.component';
 import { CollectionComponent } from './collection/collection.component';
-import { LoginComponent } from './login/login.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -16,6 +15,5 @@ export const routes: Routes = [
   { path: 'publish', component: BlogPublisherComponent },
   { path: 'drafts', component: DraftsComponent },
   { path: 'collection/:id', component: CollectionComponent },
-  { path: 'login', component: LoginComponent },
   { path: '**', component: PageNotFoundComponent },
 ];

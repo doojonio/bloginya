@@ -5,9 +5,12 @@ use Bloginya::Util::UUID qw(is_uuid);
 use List::Util           qw(reduce);
 
 async sub save($self) {
+  my ($db, $redis) = ($self->db, $self->redis);
+  my $user = await $self->current_user_p($db, $redis);
+
   my $p = $self->req->json;
 
-  my %vals = (title => $$p{title}, (parent_id => $$p{parent_id}) x !!$$p{parent_id});
+  my %vals = (title => $$p{title}, user_id => $user->{id}, (parent_id => $$p{parent_id}) x !!$$p{parent_id});
   my ($id) = (await $self->db->insert_p('collections', \%vals, {returning => 'id'}))->array->@*;
 
   return $self->render(json => {id => $id});

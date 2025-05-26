@@ -1,4 +1,5 @@
 ---
+site_name: hpotato.io
 secrets:
   - REPLACE_ME
 test: true
@@ -7,13 +8,13 @@ db:
   redis_dsn: redis://redis
 
 sessions:
-  cookie_name: sid
-  domain: localhost
-  secure: false
-  httponly: false
-  expires: null
+  name: sid
+  domain: hpotato.io
+  secure: 1
+  max_age: 604800 # one week
 
 google_oauth:
+  redirect_uri: "https://hpotato.io/api/oauth/from_google"
   client_id: REPLACE_ME
   project_id: REPLACE_ME
   auth_uri: https://accounts.google.com/o/oauth2/auth

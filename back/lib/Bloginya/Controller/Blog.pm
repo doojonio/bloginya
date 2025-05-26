@@ -5,6 +5,13 @@ use Bloginya::Util::UUID qw(is_uuid);
 use List::Util           qw(reduce);
 
 async sub save($self) {
+  my $db    = $self->db;
+  my $redis = $self->redis;
+
+  my $user = await $self->current_user_p($db, $redis);
+
+  return $self->render(status => 401, json => {message => 'not authorized'}) unless $user;
+
   my $payload = $self->req->json;
 
   my $id  = $payload->{id};
@@ -18,7 +25,7 @@ async sub save($self) {
 
     $vals{modified_at} = \'now()';
 
-    my $result = await $self->db->update_p('blogs', \%vals, {id => $id});
+    my $result = await $self->db->update_p('blogs', \%vals, {id => $id, user_id => $user->{id}});
     unless ($result->rows) {
       return $self->render(status => 404, json => {message => 'No blog with such id'});
     }
@@ -26,6 +33,7 @@ async sub save($self) {
     return $self->render(json => {id => $id});
   }
 
+  $vals{user_id} = $user->{id};
   ($id) = (await $self->db->insert_p('blogs', \%vals, {returning => ['id']}))->array->@*;
 
   return $self->render(json => {id => $id});
@@ -39,7 +47,6 @@ sub _extract_title_n_img($self, $doc) {
   while (my $el = shift @elements) {
     if (!$title && $el->{type} eq 'heading') {
       $title = reduce { $a . $b } map { $_->{text} } $el->{content}->@*;
-      warn $title;
     }
     if (!$img_src && $el->{type} eq 'image') {
       $img_src = $el->{attrs}{src};

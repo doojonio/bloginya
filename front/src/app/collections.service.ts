@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { map } from 'rxjs';
+import { inject, Injectable, OnInit } from '@angular/core';
+import { BehaviorSubject, filter, map, tap } from 'rxjs';
+import { CdataService, TopCollection } from './cdata.service';
 
 export interface ListCollectionsResponseItem {
   id: string;
@@ -45,13 +46,27 @@ export interface CreateCollectionRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class CollectionsService {
-  constructor(private http: HttpClient) {}
+export class CollectionsService implements OnInit {
+  private topCollectionsSubject = new BehaviorSubject<TopCollection[]>([]);
+  topCollections$ = this.topCollectionsSubject.asObservable();
+
+  constructor(
+    private http: HttpClient,
+    private cdataService: CdataService,
+  ) {
+    cdataService
+      .getCommonData()
+      .pipe(filter(v => !!v), map((r) => r.collections))
+      .subscribe((c) => this.topCollectionsSubject.next(c));
+  }
+
+  ngOnInit(): void {}
 
   createCollection(col: CreateCollectionRequest) {
-    return this.http
-      .post<{ id: string }>('/api/collections', col)
-      .pipe(map(({ id }) => id));
+    return this.http.post<{ id: string }>('/api/collections', col).pipe(
+      tap(),
+      map(({ id }) => id),
+    );
   }
 
   listCollections(parentId?: string) {

@@ -56,4 +56,11 @@ jobs:
           ANSIBLE_USER: root
           ANSIBLE_HOST_KEY_CHECKING: False
         run: |
-          ansible-playbook -i inventory p.deploy-app.yml --private-key private_key.pem -u root
+          ansible-playbook \
+            -i inventory \
+            --private-key private_key.pem \
+            -u root \
+            -e bloginya_google_client_id=${{ secrets.GOOGLE_CLIENT_ID }} \
+            -e bloginya_google_project_id=${{ secrets.GOOGLE_PROJECT_ID }} \
+            -e bloginya_google_client_secret=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+            p.deploy-app.yml
