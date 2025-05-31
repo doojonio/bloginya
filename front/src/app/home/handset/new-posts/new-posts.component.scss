@@ -3,7 +3,7 @@
   font: var(--mat-sys-title-medium);
   box-shadow: var(--mat-sys-level0);
 }
-.new-post {
+.post {
   margin: 0 8px 0 0;
   width: 250px;
   display: flex;
@@ -18,12 +18,12 @@
   }
 }
 
-.new-posts {
+.posts {
   display: flex;
   overflow-x: auto;
 }
 
-.new-post-descr {
+.post-descr {
   display: flex;
   flex-direction: column;
   p {
@@ -31,14 +31,14 @@
   }
 }
 
-.new-post-subtitle {
+.post-subtitle {
   font: var(--mat-sys-label-small);
 }
-.new-post-title {
+.post-title {
   font: var(--mat-sys-title-medium);
   color: var(--mat-sys-primary);
 }
-.new-post-tags {
+.post-tags {
   font: var(--mat-sys-label-small);
   color: var(--mat-sys-secondary);
 }

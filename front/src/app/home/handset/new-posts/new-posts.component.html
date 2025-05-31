@@ -1,11 +1,11 @@
 <p class="title" i18n>NEW POSTS</p>
-<div class="new-posts noscrollbar">
+<div class="posts noscrollbar">
   @for (item of (newPosts$() | async); track item) {
-  <div class="new-post">
+  <div class="post">
     <img src="{{ item.picture }}" />
-    <div class="new-post-descr">
-      <p class="new-post-title">{{ item.title }}</p>
-      <p class="new-post-subtitle">
+    <div class="post-descr">
+      <p class="post-title">{{ item.title }}</p>
+      <p class="post-subtitle">
         {{ item.category_name | uppercase }}
       </p>
     </div>
