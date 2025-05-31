@@ -1,4 +1,4 @@
-package Bloginya::Controller::Collection;
+package Bloginya::Controller::Category;
 use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
 use Bloginya::Util::UUID qw(is_uuid);
@@ -11,7 +11,7 @@ async sub save($self) {
   my $p = $self->req->json;
 
   my %vals = (title => $$p{title}, user_id => $user->{id}, (parent_id => $$p{parent_id}) x !!$$p{parent_id});
-  my ($id) = (await $self->db->insert_p('collections', \%vals, {returning => 'id'}))->array->@*;
+  my ($id) = (await $self->db->insert_p('categories', \%vals, {returning => 'id'}))->array->@*;
 
   return $self->render(json => {id => $id});
 }
@@ -24,20 +24,20 @@ async sub get($self) {
 
   my $db = $self->db;
 
-  my $collections
-    = (await $db->select_p('collections', [qw(id title img_src)], {-or => {id => $id, parent_id => $id}}))->hashes;
+  my $categories
+    = (await $db->select_p('categories', [qw(id title img_src)], {-or => {id => $id, parent_id => $id}}))->hashes;
 
   # TODO optimize wo double cycle
-  my ($collec) = grep { $_->{id} eq $id } @$collections;
-  return $self->render(status => 404, json => {message => 'Collection not found'}) unless $collec;
+  my ($category) = grep { $_->{id} eq $id } @$categories;
+  return $self->render(status => 404, json => {message => 'category not found'}) unless $category;
 
-  my @subc  = grep { $_->{id} ne $id } @$collections;
-  my $blogs = (await $db->select_p('blogs', [qw(id title img_src)], {collection_id => $id}))->hashes;
+  my @subc  = grep { $_->{id} ne $id } @$categories;
+  my $posts = (await $db->select_p('posts', [qw(id title img_src)], {category_id => $id}))->hashes;
 
-  $collec->{collections} = \@subc;
-  $collec->{blogs}       = $blogs;
+  $category->{categories} = \@subc;
+  $category->{posts}      = $posts;
 
-  return $self->render(json => $collec);
+  return $self->render(json => $category);
 }
 
 async sub list($self) {
@@ -46,16 +46,16 @@ async sub list($self) {
 
   my %filter = (parent_id => $parent_id);
 
-  my $db          = $self->db;
-  my $collections = (await $db->select_p(
-    'collections', ['id', 'title', 'img_src', 'created_at'],
+  my $db         = $self->db;
+  my $categories = (await $db->select_p(
+    'categories', ['id', 'title', 'img_src', 'created_at'],
     \%filter, {order_by => {-desc => 'created_at'}},
   ))->hashes;
 
-  my %resp = (collections => $collections);
+  my %resp = (categories => $categories);
 
   if ($parent_id) {
-    my $res = (await $db->select_p('collections', ['title', 'img_src', 'parent_id'], {id => $parent_id}))->hash;
+    my $res = (await $db->select_p('categories', ['title', 'img_src', 'parent_id'], {id => $parent_id}))->hash;
     @resp{qw(parent_title parent_img_src grandparent_id)} = @$res{qw(title img_src parent_id)};
   }
 

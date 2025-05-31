@@ -44,14 +44,14 @@ sub _setup_routes($self) {
 
   $api->post('/drive')->to('File#put_file');
 
-  $api->post('/blogs')->to('Blog#save');
-  $api->get('/blogs')->to('Blog#get');
-  $api->get('/blogs/list')->to('Blog#list');
-  $api->post('/blogs/publish')->to('Blog#publish');
+  $api->post('/posts')->to('Post#save');
+  $api->get('/posts')->to('Post#get');
+  $api->get('/posts/list')->to('Post#list');
+  $api->post('/posts/publish')->to('Post#publish');
 
-  $api->post('/collections')->to('Collection#save');
-  $api->get('/collections/list')->to('Collection#list');
-  $api->get('/collections')->to('Collection#get');
+  $api->post('/categories')->to('Category#save');
+  $api->get('/categories/list')->to('Category#list');
+  $api->get('/categories')->to('Category#get');
 }
 
 sub _setup_commands($self) {

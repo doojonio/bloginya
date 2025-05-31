@@ -26,29 +26,29 @@ create table
     );
 
 create table
-    collections (
+    categories (
         id uuid primary key default uuid_generate_v4 (),
         user_id uuid not null references users (id),
-        parent_id uuid references collections (id),
+        parent_id uuid references categories (id),
         title text,
         short text unique,
         priority integer,
         description text,
-        img_src text,
+        picture text,
         created_at timestamp not null default now ()
     );
 
-create type blog_status as enum ('draft', 'pub', 'del');
+create type post_status as enum ('draft', 'pub', 'del');
 
 create table
-    blogs (
+    posts (
         id uuid primary key default uuid_generate_v4 (),
         user_id uuid not null references users (id),
         document jsonb not null,
-        status blog_status not null default 'draft',
+        status post_status not null default 'draft',
         title text not null,
-        img_src text,
-        collection_id uuid references collections (id),
+        picture text,
+        category_id uuid references categories (id),
         priority integer,
         created_at timestamp not null default now (),
         modified_at timestamp,
@@ -56,11 +56,11 @@ create table
         deleted_at timestamp
     )
     -- 1 down
-drop table blogs;
+drop table posts;
 
-drop type blog_status;
+drop type post_status;
 
-drop table collections;
+drop table categories;
 
 drop table sessions;
 

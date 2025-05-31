@@ -1,4 +1,4 @@
-package Bloginya::Controller::Blog;
+package Bloginya::Controller::Post;
 use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
 use Bloginya::Util::UUID qw(is_uuid);
@@ -25,16 +25,16 @@ async sub save($self) {
 
     $vals{modified_at} = \'now()';
 
-    my $result = await $self->db->update_p('blogs', \%vals, {id => $id, user_id => $user->{id}});
+    my $result = await $self->db->update_p('posts', \%vals, {id => $id, user_id => $user->{id}});
     unless ($result->rows) {
-      return $self->render(status => 404, json => {message => 'No blog with such id'});
+      return $self->render(status => 404, json => {message => 'No post with such id'});
     }
 
     return $self->render(json => {id => $id});
   }
 
   $vals{user_id} = $user->{id};
-  ($id) = (await $self->db->insert_p('blogs', \%vals, {returning => ['id']}))->array->@*;
+  ($id) = (await $self->db->insert_p('posts', \%vals, {returning => ['id']}))->array->@*;
 
   return $self->render(json => {id => $id});
 }
@@ -68,10 +68,10 @@ async sub get($self) {
   return $self->render(status => 400, json => {message => 'Invalid ID'}) unless is_uuid($id);
 
   # NOTE: expand is not that neeeded acatually
-  my $blog = (await $self->db->select_p('blogs', '*', {id => $id}))->expand->hash;
+  my $post = (await $self->db->select_p('posts', '*', {id => $id}))->expand->hash;
 
-  return $self->render(status => 404, json => {message => 'Blog not found'}) unless $blog;
-  return $self->render(json   => $blog);
+  return $self->render(status => 404, json => {message => 'Blog not found'}) unless $post;
+  return $self->render(json   => $post);
 }
 
 async sub list($self) {
@@ -82,14 +82,14 @@ async sub list($self) {
   $limit = 50 if $limit > 100;
 
   if ($is_drafts) {
-    my $blogs = (await $self->db->select_p(
-      'blogs',
+    my $posts = (await $self->db->select_p(
+      'posts',
       ['id', 'title', 'img_src', 'created_at'],
       {status   => 'draft'},
       {order_by => {-desc => 'created_at'}, limit => $limit, offset => $limit * $page}
     ))->hashes;
 
-    return $self->render(json => $blogs);
+    return $self->render(json => $posts);
   }
 
   return $self->render(json => []);
@@ -98,18 +98,17 @@ async sub list($self) {
 async sub publish($self) {
   my $payload = $self->req->json;
 
-  my $blog_id = $payload->{blog_id};
-  return $self->render(status => 400, json => {message => 'Missing blog_id'}) if !is_uuid($blog_id);
+  my $post_id = $payload->{post_id};
+  return $self->render(status => 400, json => {message => 'Missing post_id'}) if !is_uuid($post_id);
 
-  my $collection_id = $payload->{collection_id};
-  return $self->render(status => 400, json => {message => 'Invalid collection_id'})
-    if $collection_id && !is_uuid($blog_id);
+  my $category_id = $payload->{category_id};
+  return $self->render(status => 400, json => {message => 'Invalid category_id'}) if $category_id && !is_uuid($post_id);
 
   my $res
-    = (await $self->db->update_p('blogs', {status => 'pub', collection_id => $collection_id}, {id => $blog_id},))->rows;
+    = (await $self->db->update_p('posts', {status => 'pub', category_id => $category_id}, {id => $post_id},))->rows;
 
   return $self->render(status => 404, json => {message => 'Blog not found'}) unless $res;
-  return $self->render(json => {id => $blog_id});
+  return $self->render(json => {id => $post_id});
 }
 
 1

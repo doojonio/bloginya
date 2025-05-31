@@ -1,12 +1,12 @@
-package Bloginya::Service::Blog;
+package Bloginya::Service::Post;
 use Mojo::Base -base, -signatures, -async_await;
 
 has db    => undef;
 has redis => undef;
 
-async sub list_site_collections_p($self) {
+async sub list_site_categories_p($self) {
   my $res = await $self->db->select_p(
-    'collections',
+    'categories',
     ['id', 'short', 'title'],
     {parent_id => undef},
     {order_by  => [{-asc => ['priority', 'created_at']}]}

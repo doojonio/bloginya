@@ -13,11 +13,11 @@ async sub common_data ($self) {
     $user{picture} = $user->{google_userinfo}{picture};
   }
 
-  my $s_blog = $self->service('blog', db => $db, redis => $redis);
+  my $s_post = $self->service('post', db => $db, redis => $redis);
 
-  my $colls = await $s_blog->list_site_collections_p();
+  my $colls = await $s_post->list_site_categories_p();
 
-  return $self->render(json => {user => %user ? \%user : undef, collections => $colls});
+  return $self->render(json => {user => %user ? \%user : undef, categories => $colls});
 }
 
 
