@@ -1,1 +1,17 @@
-<p>handset works!</p>
+<div class="content">
+  <p class="slogan" i18n>I Learn Languages!</p>
+  <app-new-posts
+    class="handset-content-block"
+    [newPosts$]="newPosts$()"
+  ></app-new-posts>
+  <app-lang-posts
+    class="handset-content-block"
+    [(selectedLang)]="selectedLang"
+    [langs$]="langs$()"
+    [langPosts$]="langPosts$()"
+  ></app-lang-posts>
+  <app-popular-posts
+    class="handset-content-block"
+    [popularPosts$]="popularPosts$()"
+  ></app-popular-posts>
+</div>

@@ -1,0 +1,24 @@
+@use "@angular/material" as mat;
+.title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-medium);
+  box-shadow: var(--mat-sys-level0);
+}
+
+.popular-image {
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+}
+
+.popular-actions {
+  display: flex;
+  padding: 8px;
+  justify-content: center;
+
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-primary),
+    )
+  );
+}

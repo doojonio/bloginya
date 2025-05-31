@@ -1,0 +1,63 @@
+@use "@angular/material" as mat;
+.title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-medium);
+  box-shadow: var(--mat-sys-level0);
+}
+.langs {
+  overflow-x: auto;
+
+  mat-chip-listbox {
+    padding: 0;
+    width: max-content;
+  }
+
+  @include mat.chips-overrides(
+    (
+      container-shape-radius: 20px,
+      container-height: 45px,
+      outline-color: var(--mat-sys-secondary),
+      label-text-color: var(--mat-sys-secondary),
+    )
+  );
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+
+  padding: 8px 0;
+}
+
+.post {
+  display: flex;
+  margin-bottom: 8px;
+
+  img {
+    width: 135px;
+    height: 125px;
+    object-fit: cover;
+    border-radius: 16px;
+  }
+}
+
+.post-text {
+  margin-left: 8px;
+  & > * {
+    margin: 8px 0;
+  }
+
+  .post-title {
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-title-medium);
+  }
+
+  .post-descr {
+    font: var(--mat-sys-body-small);
+  }
+
+  .post-tags {
+    color: var(--mat-sys-secondary);
+    font: var(--mat-sys-body-small);
+  }
+}
