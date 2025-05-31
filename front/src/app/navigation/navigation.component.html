@@ -1,16 +1,5 @@
 <mat-toolbar class="header">
-  @if (isHandset$ | async) {
-  <button
-    type="button"
-    aria-label="Toggle sidenav"
-    mat-icon-button
-    (click)="drawer.toggle()"
-  >
-    <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-  </button>
-  <a class="title" routerLink="/">{{ appName }}</a>
-  <button mat-icon-button><mat-icon>search</mat-icon></button>
-  } @else { TODO }
+  <app-toolbar [drawer]="drawer"></app-toolbar>
 </mat-toolbar>
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav
@@ -19,33 +8,11 @@
     [mode]="(isHandset$ | async) ? 'over' : 'side'"
     [opened]="!(isHandset$ | async)"
   >
-    <mat-nav-list>
-      @if (user$ | async; as user) {
-      <a mat-list-item routerLink="/new">New</a>
-      <a mat-list-item routerLink="/drafts">Drafts</a>
-      } @if (colList$ | async; as items) { @for (item of items; track item.id) {
-      <a mat-list-item routerLink="/collection/{{ item.id }}">{{
-        item.title
-      }}</a>
-      } }
-    </mat-nav-list>
+    <app-sidenav></app-sidenav>
   </mat-sidenav>
   <mat-sidenav-content>
     <!-- Add Content Here -->
     <ng-content></ng-content>
-    <footer>
-      <div id="footer-image"></div>
-      <div id="footer-info">
-        <p class="footer-title">POLYINE</p>
-        <p class="footer-subtitle" i18n>All Languages are beautiful</p>
-        <p class="footer-subtitle" i18n>But These 5 Languages are something!</p>
-        <div class="footer-spacer"></div>
-        <div class="footer-socials">
-          @for (item of socials; track item.href) {
-            <a><mat-icon [svgIcon]="item.icon"></mat-icon></a>
-          }
-        </div>
-      </div>
-    </footer>
+    <app-footer></app-footer>
   </mat-sidenav-content>
 </mat-sidenav-container>
