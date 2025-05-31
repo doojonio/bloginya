@@ -1,7 +1,7 @@
 package Bloginya::Controller::App;
 use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
-async sub common_data ($self) {
+async sub settings ($self) {
 
   my $db    = $self->db;
   my $redis = $self->redis;
@@ -15,9 +15,9 @@ async sub common_data ($self) {
 
   my $s_post = $self->service('post', db => $db, redis => $redis);
 
-  my $colls = await $s_post->list_site_categories_p();
+  my $categories = await $s_post->list_site_categories_p();
 
-  return $self->render(json => {user => %user ? \%user : undef, categories => $colls});
+  return $self->render(json => {user => %user ? \%user : undef, categories => $categories});
 }
 
 

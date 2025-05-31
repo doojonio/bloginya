@@ -37,7 +37,7 @@ sub _setup_routes($self) {
 
   my $api = $r->any('/api');
 
-  $api->get('/cdata')->to('App#common_data');
+  $api->get('/settings')->to('App#settings');
 
   $api->get('/oauth/to_google')->to('OAuth#to_google');
   $api->get('/oauth/from_google')->to('OAuth#from_google');
