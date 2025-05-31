@@ -47,6 +47,7 @@ create table
         document jsonb not null,
         status post_status not null default 'draft',
         title text not null,
+        description text,
         picture text,
         category_id uuid references categories (id),
         priority integer,

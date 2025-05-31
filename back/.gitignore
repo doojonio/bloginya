@@ -2,9 +2,11 @@
 bloginya.yml
 public/
 
-# Carmel
+# Perl
 .carmel
 local/
+.vscode/perl-lang
+
 
 # SQL tools
 db.session.sql

@@ -17,9 +17,9 @@ async sub save($self) {
   my $id  = $payload->{id};
   my $doc = $payload->{doc};
 
-  my ($title, $img) = $self->_extract_title_n_img($doc);
+  my ($title, $pic) = $self->_extract_title_n_pic($doc);
 
-  my %vals = (title => $title, img_src => $img, document => {-json => $doc});
+  my %vals = (title => $title, picture => $pic, document => {-json => $doc});
   if ($id) {
     return $self->render(status => 400, json => {message => 'Invalid id'}) unless is_uuid($id);
 
@@ -39,8 +39,8 @@ async sub save($self) {
   return $self->render(json => {id => $id});
 }
 
-sub _extract_title_n_img($self, $doc) {
-  my ($title, $img_src) = ('', undef);
+sub _extract_title_n_pic($self, $doc) {
+  my ($title, $picture) = ('', undef);
 
   my @elements = $doc->{doc}{content}->@*;
 
@@ -48,18 +48,18 @@ sub _extract_title_n_img($self, $doc) {
     if (!$title && $el->{type} eq 'heading') {
       $title = reduce { $a . $b } map { $_->{text} } $el->{content}->@*;
     }
-    if (!$img_src && $el->{type} eq 'image') {
-      $img_src = $el->{attrs}{src};
+    if (!$picture && $el->{type} eq 'image') {
+      $picture = $el->{attrs}{src};
     }
 
-    last if $title && $img_src;
+    last if $title && $picture;
 
     if (my $content = $el->{content}) {
       unshift @elements, $content->@*;
     }
   }
 
-  return $title, $img_src;
+  return $title, $picture;
 }
 
 async sub get($self) {
@@ -84,7 +84,7 @@ async sub list($self) {
   if ($is_drafts) {
     my $posts = (await $self->db->select_p(
       'posts',
-      ['id', 'title', 'img_src', 'created_at'],
+      ['id', 'title', 'picture', 'created_at'],
       {status   => 'draft'},
       {order_by => {-desc => 'created_at'}, limit => $limit, offset => $limit * $page}
     ))->hashes;

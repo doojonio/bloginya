@@ -25,14 +25,14 @@ async sub get($self) {
   my $db = $self->db;
 
   my $categories
-    = (await $db->select_p('categories', [qw(id title img_src)], {-or => {id => $id, parent_id => $id}}))->hashes;
+    = (await $db->select_p('categories', [qw(id title picture)], {-or => {id => $id, parent_id => $id}}))->hashes;
 
   # TODO optimize wo double cycle
   my ($category) = grep { $_->{id} eq $id } @$categories;
   return $self->render(status => 404, json => {message => 'category not found'}) unless $category;
 
   my @subc  = grep { $_->{id} ne $id } @$categories;
-  my $posts = (await $db->select_p('posts', [qw(id title img_src)], {category_id => $id}))->hashes;
+  my $posts = (await $db->select_p('posts', [qw(id title picture)], {category_id => $id}))->hashes;
 
   $category->{categories} = \@subc;
   $category->{posts}      = $posts;
@@ -48,15 +48,15 @@ async sub list($self) {
 
   my $db         = $self->db;
   my $categories = (await $db->select_p(
-    'categories', ['id', 'title', 'img_src', 'created_at'],
+    'categories', ['id', 'title', 'picture', 'created_at'],
     \%filter, {order_by => {-desc => 'created_at'}},
   ))->hashes;
 
   my %resp = (categories => $categories);
 
   if ($parent_id) {
-    my $res = (await $db->select_p('categories', ['title', 'img_src', 'parent_id'], {id => $parent_id}))->hash;
-    @resp{qw(parent_title parent_img_src grandparent_id)} = @$res{qw(title img_src parent_id)};
+    my $res = (await $db->select_p('categories', ['title', 'picture', 'parent_id'], {id => $parent_id}))->hash;
+    @resp{qw(parent_title parent_picture grandparent_id)} = @$res{qw(title picture parent_id)};
   }
 
   return $self->render(json => \%resp);
