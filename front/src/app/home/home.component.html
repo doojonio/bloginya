@@ -1,0 +1,66 @@
+@if (isHandset$ | async) {
+<div class="handset-content">
+  <p class="slogan" i18n>I Learn Languages!</p>
+  <div class="handset-content-block">
+    <p class="title" i18n>NEW POSTS</p>
+    <div class="new-posts noscrollbar">
+      @for (item of newPosts; track item) {
+      <div class="new-post">
+        <img src="{{ item.picture }}" />
+        <div class="new-post-descr">
+          <p class="new-post-title">{{ item.title }}</p>
+          <p class="new-post-subtitle">
+            {{ item.category_name | uppercase }}
+          </p>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  <div class="handset-content-block">
+    <p class="title" i18n>5 LANGUAGES</p>
+    <div class="langs noscrollbar">
+      <mat-chip-listbox>
+        @for (lang of langs; track lang) {
+        <mat-chip-option selected="{{ lang == selected }}">{{
+          lang | uppercase
+        }}</mat-chip-option>
+        }
+      </mat-chip-listbox>
+    </div>
+    <div class="lang-blogs">
+      @for (item of langBlogs; track item.id) {
+      <div class="lang-blog">
+        <img src="{{ item.picture }}" />
+        <div class="lang-blog-text">
+          <p class="blog-title">{{ item.title }}</p>
+          <p class="blog-descr">{{ item.descr }}</p>
+          <p class="blog-tags">
+            @for (tag of item.tags; track tag) {
+            <a>#{{ tag }} </a>
+            }
+          </p>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  <div class="handset-content-block">
+    <p class="title" i18n>POPULAR</p>
+    <mat-grid-list gutterSize="2" cols="3" rowHeight="1:1">
+      @for (item of popular; track item) {
+      <mat-grid-tile
+      class="popular-image"
+        [style]="{ 'background-image': 'url(' + item.picture + ')' }"
+        ></mat-grid-tile
+      >
+      }
+    </mat-grid-list>
+    <div class="popular-actions">
+      <button mat-icon-button><mat-icon>navigate_next</mat-icon></button>
+    </div>
+  </div>
+</div>
+} @else {
+<p>TODO</p>
+}

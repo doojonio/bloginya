@@ -1,0 +1,149 @@
+@use "@angular/material" as mat;
+.handset-content {
+  padding: 20px;
+
+  .slogan {
+    height: 125px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font: var(--mat-sys-title-medium);
+    box-shadow: var(--mat-sys-level0);
+  }
+
+  .title {
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-title-medium);
+    box-shadow: var(--mat-sys-level0);
+  }
+
+  .handset-content-block {
+    margin-bottom: 8px;
+  }
+  .noscrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .new-post {
+    margin: 0 8px 0 0;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    img {
+      width: 185px;
+      height: 165px;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+  }
+
+  .new-posts {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .new-post-descr {
+    display: flex;
+    flex-direction: column;
+    p {
+      margin: 0;
+    }
+  }
+
+  .new-post-subtitle {
+    font: var(--mat-sys-label-small);
+  }
+  .new-post-title {
+    font: var(--mat-sys-title-medium);
+    color: var(--mat-sys-primary);
+  }
+  .new-post-tags {
+    font: var(--mat-sys-label-small);
+    color: var(--mat-sys-secondary);
+  }
+
+  .langs {
+    overflow-x: auto;
+
+    mat-chip-listbox {
+      padding: 0;
+      width: max-content;
+    }
+
+    @include mat.chips-overrides(
+      (
+        container-shape-radius: 20px,
+        container-height: 45px,
+        outline-color: var(--mat-sys-secondary),
+        label-text-color: var(--mat-sys-secondary),
+      )
+    );
+  }
+
+  .lang-blogs {
+    display: flex;
+    flex-direction: column;
+
+    padding: 8px 0;
+  }
+
+  .lang-blog {
+    display: flex;
+    margin-bottom: 8px;
+
+    img {
+      width: 135px;
+      height: 125px;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+  }
+
+  .lang-blog-text {
+    margin-left: 8px;
+    & > * {
+      margin: 8px 0;
+    }
+
+    .blog-title {
+      color: var(--mat-sys-primary);
+      font: var(--mat-sys-title-medium);
+    }
+
+    .blog-descr {
+      font: var(--mat-sys-body-small);
+    }
+
+    .blog-tags {
+      color: var(--mat-sys-secondary);
+      font: var(--mat-sys-body-small);
+    }
+  }
+
+  .popular-image {
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+  }
+
+  .popular-actions {
+    display: flex;
+    padding: 8px;
+    justify-content: center;
+
+    @include mat.icon-overrides(
+      (
+        color: var(--mat-sys-primary),
+      )
+    );
+  }
+}

@@ -1,44 +1,16 @@
 <mat-toolbar class="header">
   @if (isHandset$ | async) {
-    <button
-      type="button"
-      aria-label="Toggle sidenav"
-      mat-icon-button
-      (click)="drawer.toggle()"
-    >
-      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-    </button>
-  }
-  <a href="/">{{ appName }}</a>
-  <span class="flex-spacer"></span>
-  @if (!(isHandset$ | async)) {
-    <a mat-icon-button href="https://instagram.com"
-      ><mat-icon svgIcon="insta"></mat-icon
-    ></a>
-    <a mat-icon-button href="https://vk.com"
-      ><mat-icon svgIcon="vk"></mat-icon
-    ></a>
-    <a mat-icon-button href="https://blog.naver.com/ine1103"
-      ><mat-icon svgIcon="naver"></mat-icon
-    ></a>
-    <a mat-icon-button href="https://youtube.com"
-      ><mat-icon svgIcon="youtube"></mat-icon
-    ></a>
-  }
-  @if (user$) {
-    @if (user$ | async; as user) {
-      <button mat-icon-button>
-        <mat-icon>
-          <img [src]="user.picture" alt="User avatar" class="avatar" />
-        </mat-icon>
-      </button>
-    } @else if ((user$ | async) === null) {
-      <a href="/api/oauth/to_google" mat-icon-button>
-        <mat-icon svgIcon="avatar">
-        </mat-icon>
-      </a>
-    }
-  }
+  <button
+    type="button"
+    aria-label="Toggle sidenav"
+    mat-icon-button
+    (click)="drawer.toggle()"
+  >
+    <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+  </button>
+  <a class="title" routerLink="/">{{ appName }}</a>
+  <button mat-icon-button><mat-icon>search</mat-icon></button>
+  } @else { TODO }
 </mat-toolbar>
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav
@@ -49,18 +21,31 @@
   >
     <mat-nav-list>
       @if (user$ | async; as user) {
-        <a mat-list-item href="/new">New</a>
-        <a mat-list-item href="/drafts">Drafts</a>
-      }
-      @if (colList$ | async; as items) {
-        @for (item of items; track item.id) {
-          <a mat-list-item href="/collection/{{ item.id }}">{{ item.title }}</a>
-        }
-      }
+      <a mat-list-item routerLink="/new">New</a>
+      <a mat-list-item routerLink="/drafts">Drafts</a>
+      } @if (colList$ | async; as items) { @for (item of items; track item.id) {
+      <a mat-list-item routerLink="/collection/{{ item.id }}">{{
+        item.title
+      }}</a>
+      } }
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
     <!-- Add Content Here -->
     <ng-content></ng-content>
+    <footer>
+      <div id="footer-image"></div>
+      <div id="footer-info">
+        <p class="footer-title">POLYINE</p>
+        <p class="footer-subtitle" i18n>All Languages are beautiful</p>
+        <p class="footer-subtitle" i18n>But These 5 Languages are something!</p>
+        <div class="footer-spacer"></div>
+        <div class="footer-socials">
+          @for (item of socials; track item.href) {
+            <a><mat-icon [svgIcon]="item.icon"></mat-icon></a>
+          }
+        </div>
+      </div>
+    </footer>
   </mat-sidenav-content>
 </mat-sidenav-container>

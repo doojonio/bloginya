@@ -15,6 +15,12 @@ import {
 } from '../collections.service';
 import { TopCollection, User } from '../cdata.service';
 import { UserService } from '../user.service';
+import { Router, RouterModule } from '@angular/router';
+
+export interface Social {
+  href: string;
+  icon: string;
+}
 
 @Component({
   selector: 'app-navigation',
@@ -27,13 +33,21 @@ import { UserService } from '../user.service';
     MatListModule,
     MatIconModule,
     AsyncPipe,
+    RouterModule,
   ],
 })
 export class NavigationComponent implements OnInit {
   private collService = inject(CollectionsService);
   private userService = inject(UserService);
 
-  appName = 'WORK IN PROGRESS';
+  socials: Social[] = [
+    {"href": "https://facebook.com", "icon": "facebook"},
+    {"href": "https://instagram.com", "icon": "instagram"},
+    {"href": "https://x.com", "icon": "twitter"},
+    {"href": "https://tiktok.com", "icon": "tiktok"},
+  ]
+
+  appName = 'POLYINE';
 
   private breakpointObserver = inject(BreakpointObserver);
   isHandset$: Observable<boolean> = this.breakpointObserver

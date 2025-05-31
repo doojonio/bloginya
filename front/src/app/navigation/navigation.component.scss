@@ -10,6 +10,15 @@ a {
   top: 0;
   left: 0;
   right: 0;
+
+  display: flex;
+  justify-content: space-between;
+
+  .title {
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-title-large);
+    font-weight: bold;
+  }
 }
 
 .sidenav-container {
@@ -25,11 +34,21 @@ a {
   width: 200px;
 }
 
-.avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
+#footer-image {
+  background-image: url('/assets/images/wallpaper.png');
+  background-size: cover;
+  background-position: center;
+  height: 230px;
+}
+
+#footer-info {
+  // TODO Mat primary
+  background-color: #FF76C5;
+  height: 320px;
+}
+
+.footer-socials {
+  color: black;
 }
 
 // mat-sidenav-content mat-toolbar {
