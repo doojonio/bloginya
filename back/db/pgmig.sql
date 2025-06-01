@@ -55,8 +55,21 @@ create table
         modified_at timestamp,
         published_at timestamp,
         deleted_at timestamp
-    )
-    -- 1 down
+    );
+
+create table
+    files (
+        id uuid primary key default uuid_generate_v4 (),
+        user_id uuid not null references users (id),
+        post_id uuid not null references posts (id),
+        file_path text not null,
+        file_type text not null,
+        created_at timestamp not null default now ()
+    );
+
+-- 1 down
+drop table files;
+
 drop table posts;
 
 drop type post_status;

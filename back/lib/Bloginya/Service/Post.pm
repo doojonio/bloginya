@@ -1,8 +1,8 @@
 package Bloginya::Service::Post;
 use Mojo::Base -base, -signatures, -async_await;
 
-has db    => undef;
-has redis => undef;
+has 'db';
+has 'redis';
 
 async sub list_site_categories_p($self) {
   my $res = await $self->db->select_p(

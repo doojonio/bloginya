@@ -10,8 +10,8 @@ sub startup ($self) {
   # Default helpers
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::WebHelpers');
-  $self->plugin('Bloginya::Plugin::Service');
   $self->plugin('Bloginya::Plugin::DB');
+  $self->plugin('Bloginya::Plugin::Service', {'di_tokens' => [qw(db redis)]});
 
   # $self->exception_format('json');
 

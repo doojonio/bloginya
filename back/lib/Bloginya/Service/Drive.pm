@@ -5,6 +5,8 @@ use Time::Piece ();
 use File::Path  qw( make_path );
 use UUID        qw(uuid4);
 
+has 'db';
+
 async sub put($self, $file) {
   my $ext = (split /\./, $file->filename)[-1] // '';
   $ext = '.' . $ext if $ext;
