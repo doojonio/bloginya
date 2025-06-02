@@ -4,6 +4,33 @@ use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 use Bloginya::Util::UUID qw(is_uuid);
 use List::Util           qw(reduce);
 
+async sub list_home ($self) {
+  my $s_post = $self->service('post');
+  my $s_cat  = $self->service('category');
+
+  my $new_posts = await $s_post->list_new_posts_p();
+
+  my $cats = await $s_cat->list_site_priority_categories_p;
+  my @top_cat_posts;
+  my $top_cat;
+  if (@$cats) {
+    $top_cat       = $cats->[0];
+    @top_cat_posts = (await $s_post->list_posts_by_category_p($top_cat->{id}))->@*;
+  }
+
+  my $popular = await $s_post->list_popular_posts_p();
+
+  return $self->render(
+    json => {
+      new_posts     => $new_posts,
+      cats          => $cats,
+      top_cat       => $top_cat,
+      top_cat_posts => \@top_cat_posts,
+      popular_posts => $popular
+    }
+  );
+}
+
 async sub save($self) {
   my $db    = $self->db;
   my $redis = $self->redis;

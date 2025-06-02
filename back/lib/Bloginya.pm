@@ -41,6 +41,7 @@ sub _setup_routes($self) {
 
   $api->post('/posts')->to('Post#save');
   $api->get('/posts')->to('Post#get');
+  $api->get('/posts/home')->to('Post#list_home');
   $api->get('/posts/list')->to('Post#list');
   $api->post('/posts/publish')->to('Post#publish');
 
