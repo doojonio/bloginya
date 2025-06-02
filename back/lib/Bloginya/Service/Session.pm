@@ -36,7 +36,7 @@ async sub uid_by_sid_p($self, $sid) {
 }
 
 async sub update_ip_ua_p($self, $sid, $ip, $user_agent) {
-  my $res = await $self->db->update_p('sessions', {ip => $ip, app => $user_agent}, {id => $sid},);
+  my $res = await $self->db->update_p('sessions', {ip => $ip, app => $user_agent, used_at => \'now()'}, {id => $sid},);
   return $res->rows;
 }
 

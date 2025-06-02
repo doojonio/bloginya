@@ -6,7 +6,7 @@ use List::Util           qw(reduce);
 
 async sub save($self) {
   my ($db, $redis) = ($self->db, $self->redis);
-  my $user = await $self->current_user_p($db, $redis);
+  my $user = await $self->current_user_p;
 
   my $p = $self->req->json;
 

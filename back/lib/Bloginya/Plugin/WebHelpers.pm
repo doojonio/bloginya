@@ -39,8 +39,8 @@ sub register {
   );
 
   $app->helper(
-    'create_session_p' => async sub ($self, $user_id, $db, $redis) {
-      my $service = $self->service('session', db => $db, redis => $redis);
+    'create_session_p' => async sub ($self, $user_id) {
+      my $service = $self->service('session');
       my $sid     = await $service->create_session_p($user_id, $self->real_ip, $self->user_agent);
 
       $self->set_sid($sid);
@@ -50,19 +50,19 @@ sub register {
   );
 
   $app->helper(
-    'current_user_p' => async sub ($self, $db, $redis) {
+    'current_user_p' => async sub ($self) {
       my $cname = $self->config->{sessions}{name};
       my $sid   = $self->cookie($cname);
 
       return undef if !$sid;
 
-      my $serv = $self->service('session', db => $db, redis => $redis);
+      my $serv = $self->service('session');
       my $uid  = await $serv->uid_by_sid_p($sid);
       return undef unless $uid;
 
-      # await $serv->update_ip_ua_p($sid, $self->real_ip, $self->user_agent);
+      await $serv->update_ip_ua_p($sid, $self->real_ip, $self->user_agent);
 
-      my $userv = $self->service('user', db => $db, redis => $redis);
+      my $userv = $self->service('user');
 
       return $userv->find_p($uid);
     }

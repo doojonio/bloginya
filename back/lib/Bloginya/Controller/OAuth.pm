@@ -70,7 +70,7 @@ async sub from_google($self) {
     $user = (await $db->insert_p('users', \%user, {returning => 'id'}))->hash;
   }
 
-  await $self->create_session_p($user->{id}, $db, $self->redis);
+  await $self->create_session_p($user->{id});
 
   return $self->redirect_to($site);
 }

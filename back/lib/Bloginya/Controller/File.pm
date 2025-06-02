@@ -7,7 +7,7 @@ sub put_file($self) {
   return $self->render(json => {message => 'Missing file'}, status => 400) unless my $file = $self->param('file');
 
   my $db    = $self->db;
-  my $drive = $self->service('drive', db => $db);
+  my $drive = $self->service('drive');
   my $path  = $drive->put($file);
 
   $self->render(json => {path => $path});

@@ -8,12 +8,12 @@ async sub settings ($self) {
 
   my %user;
 
-  my $user = await $self->current_user_p($db, $redis);
+  my $user = await $self->current_user_p;
   if ($user) {
     $user{picture} = $user->{google_userinfo}{picture};
   }
 
-  my $s_post = $self->service('post', db => $db, redis => $redis);
+  my $s_post = $self->service('post');
 
   my $categories = await $s_post->list_site_categories_p();
 

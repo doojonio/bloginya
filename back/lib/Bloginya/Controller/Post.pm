@@ -8,7 +8,7 @@ async sub save($self) {
   my $db    = $self->db;
   my $redis = $self->redis;
 
-  my $user = await $self->current_user_p($db, $redis);
+  my $user = await $self->current_user_p;
 
   return $self->render(status => 401, json => {message => 'not authorized'}) unless $user;
 

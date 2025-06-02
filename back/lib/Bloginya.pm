@@ -21,12 +21,7 @@ sub startup ($self) {
   $self->_setup_routes;
   $self->_setup_commands;
 
-  my $log = Mojo::Log->new;
-  $SIG{__WARN__} = sub {
-    $log->warn(shift);
-  };
-
-  $self->helper(log => sub {$log});
+  $self->helper(log => sub { Mojo::Log->new });
 
   $self->helper(test => sub ($self) { !!$self->config->{test} });
 }
