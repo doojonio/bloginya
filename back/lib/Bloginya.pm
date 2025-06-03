@@ -10,8 +10,8 @@ sub startup ($self) {
   # Default helpers
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::WebHelpers');
-  $self->plugin('Bloginya::Plugin::Service');
   $self->plugin('Bloginya::Plugin::DB');
+  $self->plugin('Bloginya::Plugin::Service', {'di_tokens' => [qw(db redis)]});
 
   # $self->exception_format('json');
 
@@ -21,12 +21,7 @@ sub startup ($self) {
   $self->_setup_routes;
   $self->_setup_commands;
 
-  my $log = Mojo::Log->new;
-  $SIG{__WARN__} = sub {
-    $log->warn(shift);
-  };
-
-  $self->helper(log => sub {$log});
+  $self->helper(log => sub { Mojo::Log->new });
 
   $self->helper(test => sub ($self) { !!$self->config->{test} });
 }
@@ -37,21 +32,22 @@ sub _setup_routes($self) {
 
   my $api = $r->any('/api');
 
-  $api->get('/cdata')->to('App#common_data');
+  $api->get('/settings')->to('App#settings');
 
   $api->get('/oauth/to_google')->to('OAuth#to_google');
   $api->get('/oauth/from_google')->to('OAuth#from_google');
 
   $api->post('/drive')->to('File#put_file');
 
-  $api->post('/blogs')->to('Blog#save');
-  $api->get('/blogs')->to('Blog#get');
-  $api->get('/blogs/list')->to('Blog#list');
-  $api->post('/blogs/publish')->to('Blog#publish');
+  $api->post('/posts')->to('Post#save');
+  $api->get('/posts')->to('Post#get');
+  $api->get('/posts/home')->to('Post#list_home');
+  $api->get('/posts/list')->to('Post#list');
+  $api->post('/posts/publish')->to('Post#publish');
 
-  $api->post('/collections')->to('Collection#save');
-  $api->get('/collections/list')->to('Collection#list');
-  $api->get('/collections')->to('Collection#get');
+  $api->post('/categories')->to('Category#save');
+  $api->get('/categories/list')->to('Category#list');
+  $api->get('/categories')->to('Category#get');
 }
 
 sub _setup_commands($self) {

@@ -1,0 +1,12 @@
+@if (isHandset$ | async) {
+<app-handset
+  [newPosts$]="newPosts$"
+  [langPosts$]="langPosts$()"
+  [popularPosts$]="popularPosts$"
+  [langs$]="langs$"
+  [(selectedLang)]="selectedLang"
+></app-handset>
+
+} @else {
+<p>TODO</p>
+}

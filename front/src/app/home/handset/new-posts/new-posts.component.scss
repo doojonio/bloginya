@@ -1,0 +1,44 @@
+.title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-medium);
+  box-shadow: var(--mat-sys-level0);
+}
+.post {
+  margin: 0 8px 0 0;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  img {
+    width: 185px;
+    height: 165px;
+    object-fit: cover;
+    border-radius: 16px;
+  }
+}
+
+.posts {
+  display: flex;
+  overflow-x: auto;
+}
+
+.post-descr {
+  display: flex;
+  flex-direction: column;
+  p {
+    margin: 0;
+  }
+}
+
+.post-subtitle {
+  font: var(--mat-sys-label-small);
+}
+.post-title {
+  font: var(--mat-sys-title-medium);
+  color: var(--mat-sys-primary);
+}
+.post-tags {
+  font: var(--mat-sys-label-small);
+  color: var(--mat-sys-secondary);
+}

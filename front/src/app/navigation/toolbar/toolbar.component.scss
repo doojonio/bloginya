@@ -1,0 +1,21 @@
+:host {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-decoration: none;
+  color: inherit;
+}
+
+.title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-large);
+  font-weight: bold;
+  line-height: 100%;
+  text-align: center;
+}

@@ -1,0 +1,18 @@
+.content {
+  padding: 0 20px;
+}
+
+.slogan {
+  height: 125px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font: var(--mat-sys-title-medium);
+  box-shadow: var(--mat-sys-level0);
+}
+
+.handset-content-block {
+  margin-bottom: 8px;
+}

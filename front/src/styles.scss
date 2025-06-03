@@ -41,4 +41,13 @@ body {
   flex: 1 1;
 }
 
+.noscrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 // Customize the entire app. Change :root to your selector if you want to scope the styles.

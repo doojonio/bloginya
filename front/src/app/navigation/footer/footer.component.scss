@@ -1,0 +1,34 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+.image {
+  background-image: url("/assets/images/wallpaper.png");
+  background-size: cover;
+  background-position: center;
+  height: 230px;
+}
+
+.info {
+  // TODO Mat primary
+  background-color: #ff76c5;
+  height: 320px;
+  color: #601D4B;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & > * {
+    margin: 0;
+  }
+}
+
+.title {
+  font: var(--mat-sys-headline-large);
+  font-weight: bold;
+}
+
+.socials {
+  color: black;
+}

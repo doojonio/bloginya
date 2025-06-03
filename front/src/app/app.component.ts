@@ -20,7 +20,7 @@ export class AppComponent {
   title = '인해의 블로그';
 
   constructor(matIconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
-    for (const icon of ['insta', 'naver', 'vk', 'youtube', 'avatar']) {
+    for (const icon of ['facebook', 'instagram', 'twitter', 'tiktok']) {
       matIconRegistry.addSvgIcon(
         icon,
         sanitizer.bypassSecurityTrustResourceUrl(`../assets/icons/${icon}.svg`)
