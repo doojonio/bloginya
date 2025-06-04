@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @use "@angular/material" as mat;
+@use '_theme-colors.scss' as ptheme;
 
 :root {
   --blog-max-width: 80ch;
@@ -23,9 +24,10 @@
 html {
   height: 100%;
   color-scheme: light dark;
+
   @include mat.theme(
     (
-      color: mat.$violet-palette,
+      color: ptheme.$primary-palette,
       typography: Roboto,
       density: 0,
     )

@@ -1,6 +1,8 @@
 package Bloginya::Service::Post;
 use Mojo::Base -base, -signatures, -async_await;
 
+use Bloginya::Model::Post qw(POST_STATUS_PUB);
+
 has 'db';
 has 'redis';
 
@@ -8,7 +10,8 @@ async sub list_new_posts_p($self, $limit = 8) {
   my $res = await $self->db->select_p(
     ['posts',    ['shortnames', 'posts.id' => 'shortnames.post_id']],
     ['posts.id', 'posts.picture', 'posts.title', 'posts.created_at', 'shortnames.name'],
-    undef, {order_by => [{-desc => 'posts.created_at'}], limit => $limit}
+    {'status' => POST_STATUS_PUB},
+    {order_by => [{-desc => 'posts.created_at'}], limit => $limit}
   );
 
   return $res->hashes;
@@ -24,8 +27,8 @@ async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
       ['tags',       'post_tags.tag_id' => 'tags.id']
     ],
     [@p_fields, [\'array_agg(tags.name)' => 'tags'],],
-    {'p.category_id' => $category_id},
-    {group_by        => \@p_fields, order_by => {-desc => 'p.created_at'}}
+    {'p.category_id' => $category_id, 'status' => POST_STATUS_PUB},
+    {group_by        => \@p_fields,   order_by => {-desc => 'p.created_at'}}
   );
 
   my %posts_by_category;
@@ -54,7 +57,7 @@ async sub list_popular_posts_p($self, $limit = 18, $offset = 0) {
           => 'popularity'
       ]
     ],
-    undef,
+    {'status' => POST_STATUS_PUB},
     {
       group_by => [
         'posts.id', 'shortnames.name', 'posts.picture', 'post_stats.short_views',
