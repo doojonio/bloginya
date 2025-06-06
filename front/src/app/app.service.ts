@@ -1,6 +1,6 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable, of, shareReplay } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, shareReplay } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -14,12 +14,24 @@ export class AppService {
       shareReplay(1)
     );
 
+  private isShowingToolbarTitle$ = new BehaviorSubject(
+    window.location.pathname != '/'
+  );
+
   isHandset() {
     return this.isHandset$;
   }
 
   getAppName() {
     return of('POLYINE');
+  }
+
+  isShowingToolbarTitle() {
+    return this.isShowingToolbarTitle$.asObservable();
+  }
+
+  setIsShowingToolbarTitle(val: boolean) {
+    this.isShowingToolbarTitle$.next(val);
   }
 
   getSocials(): Observable<Social[]> {

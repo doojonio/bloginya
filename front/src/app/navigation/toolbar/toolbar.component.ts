@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,4 +17,6 @@ export class ToolbarComponent {
   appService = inject(AppService);
   appName$ = this.appService.getAppName();
   isHandset$ = this.appService.isHandset();
+
+  isShowTitle$ = this.appService.isShowingToolbarTitle();
 }

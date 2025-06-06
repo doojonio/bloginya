@@ -3,14 +3,28 @@
 }
 
 .slogan {
-  height: 125px;
+  height: 180px;
 
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
-  font: var(--mat-sys-title-medium);
   box-shadow: var(--mat-sys-level0);
+
+  p {
+    margin: 0;
+  }
+
+  .title {
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-headline-small);
+    font-weight: bold;
+  }
+
+  .text {
+    font: var(--mat-sys-label-small);
+  }
 }
 
 .handset-content-block {

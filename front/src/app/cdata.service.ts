@@ -38,8 +38,8 @@ export class CdataService {
   }
 
   private fetchCommonData() {
-    this.http
-      .get<CommonData>('/api/cdata')
-      .subscribe((commonData) => this.commonDataSubject.next(commonData));
+    // this.http
+    //   .get<CommonData>('/api/cdata')
+    //   .subscribe((commonData) => this.commonDataSubject.next(commonData));
   }
 }

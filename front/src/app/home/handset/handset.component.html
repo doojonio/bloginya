@@ -1,5 +1,16 @@
 <div class="content">
-  <p class="slogan" i18n>I Learn Languages!</p>
+  <div class="slogan" i18n>
+    <p
+      class="title"
+      appVisibility
+      [threshold]="0"
+      [debounceTime]="50"
+      (isIntersecting)="onSloganIntersecting($event)"
+    >
+      POLYINE
+    </p>
+    <p class="text">I Learn Languages!</p>
+  </div>
   <app-new-posts
     class="handset-content-block"
     [newPosts$]="newPosts$()"
