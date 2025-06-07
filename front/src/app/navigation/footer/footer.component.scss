@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
 }
+
 .image {
   background: url("/assets/images/m_wp_footer.webp");
 
@@ -19,11 +20,25 @@
   padding: 64px 45px;
 }
 
+@keyframes titleAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .title {
   color: var(--mat-sys-on-secondary);
   font: var(--mat-sys-title-large);
   font-weight: bold;
   margin: 0 0 60px 0;
+
+  animation: titleAnimation 3s infinite;
 }
 
 .subtitle {
