@@ -12,17 +12,19 @@
     <p class="text">I Learn Languages!</p>
   </div>
   <app-new-posts
-    class="handset-content-block"
+    class="content-block"
     [newPosts$]="newPosts$()"
   ></app-new-posts>
+  <mat-divider></mat-divider>
   <app-lang-posts
-    class="handset-content-block"
+    class="content-block"
     [(selectedLang)]="selectedLang"
     [langs$]="langs$()"
     [langPosts$]="langPosts$()"
   ></app-lang-posts>
+  <mat-divider></mat-divider>
   <app-popular-posts
-    class="handset-content-block"
+    class="content-block"
     [popularPosts$]="popularPosts$()"
   ></app-popular-posts>
 </div>

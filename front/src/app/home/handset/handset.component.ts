@@ -1,4 +1,5 @@
 import { Component, inject, input, model, OnDestroy } from '@angular/core';
+import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AppService } from '../../app.service';
@@ -16,6 +17,7 @@ import { PopularPostsComponent } from './popular-posts/popular-posts.component';
     PopularPostsComponent,
     RouterModule,
     VisibilityDirective,
+    MatDividerModule,
   ],
   templateUrl: './handset.component.html',
   styleUrl: './handset.component.scss',

@@ -3,6 +3,7 @@
   color: var(--mat-sys-primary);
   font: var(--mat-sys-title-medium);
   box-shadow: var(--mat-sys-level0);
+  margin-bottom: 20px;
 }
 
 .image {
@@ -13,7 +14,7 @@
 
 .actions {
   display: flex;
-  padding: 8px;
+  padding: 30px 0;
   justify-content: center;
 
   @include mat.icon-overrides(
@@ -21,4 +22,10 @@
       color: var(--mat-sys-primary),
     )
   );
+
+  button {
+      // font-size: 45px;
+      height: 60px;
+      width: 100%;
+  }
 }

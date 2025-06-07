@@ -1,5 +1,5 @@
 <p class="title" i18n>POPULAR</p>
-<mat-grid-list gutterSize="2" cols="3" rowHeight="1:1">
+<mat-grid-list gutterSize="2" cols="3" rowHeight="130">
   @for (item of (popularPosts$() | async); track item) {
   <mat-grid-tile
     class="image"
@@ -8,5 +8,6 @@
   }
 </mat-grid-list>
 <div class="actions">
-  <button mat-icon-button><mat-icon>navigate_next</mat-icon></button>
+  <!-- <button matButton>AAA</button> -->
+  <button mat-button >Basic</button>
 </div>
