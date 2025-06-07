@@ -30,20 +30,20 @@
   --ngx-editor-click-pointer: default;
 }
 
-.blog-editor-container {
+.post-editor-container {
   margin: 20px;
 
   mat-spinner {
     margin: auto;
   }
 
-  .blog-editor-content {
+  .post-editor-content {
     margin: auto;
     max-width: var(--blog-max-width);
     word-wrap: break-word;
   }
 
-  .blog-editor {
+  .post-editor {
     margin-bottom: 1rem;
   }
 
@@ -53,7 +53,7 @@
     }
   }
 
-  .blog-editor-buttons {
+  .post-editor-buttons {
     display: flex;
     justify-content: center;
     gap: 1rem;

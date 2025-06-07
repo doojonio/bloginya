@@ -1,8 +1,5 @@
 <mat-nav-list>
-  @if (user$ | async; as user) {
   <a mat-list-item routerLink="/new">New</a>
   <a mat-list-item routerLink="/drafts">Drafts</a>
-  } @if (colList$ | async; as items) { @for (item of items; track item.id) {
-  <a mat-list-item routerLink="/collection/{{ item.id }}">{{ item.title }}</a>
-  } }
+  <!-- <a mat-list-item routerLink="/collection/{{ item.id }}">{{ item.title }}</a> -->
 </mat-nav-list>

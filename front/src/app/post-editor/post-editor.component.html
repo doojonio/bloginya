@@ -1,8 +1,8 @@
-<div class="blog-editor-container">
-  <div class="blog-editor-content">
+<div class="post-editor-container">
+  <div class="post-editor-content">
     @if (this.form) {
       <form [formGroup]="form">
-        <div class="blog-editor">
+        <div class="post-editor">
           <ngx-editor-menu [editor]="editor" [toolbar]="toolbar">
           </ngx-editor-menu>
           <ngx-editor [editor]="editor" formControlName="editorContent">
@@ -22,7 +22,7 @@
           #filesUpload
         />
 
-        <div class="blog-editor-buttons">
+        <div class="post-editor-buttons">
           <button mat-icon-button (click)="filesUpload.click()">
             <mat-icon>attachment</mat-icon>
           </button>

@@ -23,7 +23,7 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { concat, Subject, throwError } from 'rxjs';
 import { catchError, finalize, map, takeUntil } from 'rxjs/operators';
-import { BlogsService, GetBlogResponse } from '../blogs.service';
+import { PostsService } from '../posts.service';
 import { DriveService } from '../drive.service';
 import { findPlaceholder, placeholderPlugin } from './placeholder-plugin';
 
@@ -41,7 +41,7 @@ import { findPlaceholder, placeholderPlugin } from './placeholder-plugin';
 //   }
 
 @Component({
-  selector: 'app-blog-editor',
+  selector: 'app-post-editor',
   imports: [
     MatProgressSpinnerModule,
     NgxEditorModule,
@@ -51,13 +51,13 @@ import { findPlaceholder, placeholderPlugin } from './placeholder-plugin';
     MatIconModule,
     MatProgressBarModule,
   ],
-  templateUrl: './blog-editor.component.html',
-  styleUrl: './blog-editor.component.scss',
+  templateUrl: './post-editor.component.html',
+  styleUrl: './post-editor.component.scss',
 })
-export class BlogEditorComponent implements OnInit, OnDestroy {
+export class PostEditorComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private drive = inject(DriveService);
-  private blogs = inject(BlogsService);
+  private posts: any = inject(PostsService);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private router = inject(Router);
@@ -80,19 +80,19 @@ export class BlogEditorComponent implements OnInit, OnDestroy {
   editor = new Editor({ plugins: [placeholderPlugin] });
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.blogId = params.get('id');
-      if (!this.blogId) {
-        this.createEditor(null);
-        return;
-      }
-      this.blogs
-        .getBlog(this.blogId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((blog) => {
-          this.createEditor(blog);
-        });
-    });
+    // this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+    //   this.blogId = params.get('id');
+    //   if (!this.blogId) {
+    //     this.createEditor(null);
+    //     return;
+    //   }
+    //   this.posts
+    //     .get(this.blogId)
+    //     .pipe(takeUntil(this.destroy$))
+    //     .subscribe((blog) => {
+    //       this.createEditor(blog);
+    //     });
+    // });
   }
 
   ngOnDestroy(): void {
@@ -102,7 +102,7 @@ export class BlogEditorComponent implements OnInit, OnDestroy {
     this.editor?.destroy();
   }
 
-  createEditor(blog: GetBlogResponse | null) {
+  createEditor(blog: any) {
     let jsonDoc = { type: 'doc', content: [] };
     if (blog != null) {
       jsonDoc = blog.document.doc;
@@ -118,56 +118,56 @@ export class BlogEditorComponent implements OnInit, OnDestroy {
 
   publish() {
     // TODO join save login with save() method
-    this.blogs
-      .saveBlog(
-        this.editor.view.state.toJSON(),
-        this.blogId ? this.blogId : undefined
-      )
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          this.snackBar.open('An error occurred when saving document', 'OK', {
-            duration: 5000,
-          });
-          return throwError(() => err);
-        })
-      )
-      .subscribe((id) => {
-        this.router.navigate(['/publish'], {queryParams: {id}});
-      });
+    // this.posts
+    //   .save(
+    //     this.editor.view.state.toJSON(),
+    //     this.blogId ? this.blogId : undefined
+    //   )
+    //   .pipe(
+    //     takeUntil(this.destroy$),
+    //     catchError((err) => {
+    //       this.snackBar.open('An error occurred when saving document', 'OK', {
+    //         duration: 5000,
+    //       });
+    //       return throwError(() => err);
+    //     })
+    //   )
+    //   .subscribe((id) => {
+    //     this.router.navigate(['/publish'], { queryParams: { id } });
+    //   });
   }
 
   save() {
-    if (this.form?.invalid) {
-      return;
-    }
+    // if (this.form?.invalid) {
+    //   return;
+    // }
 
-    this.blogs
-      .saveBlog(
-        this.editor.view.state.toJSON(),
-        this.blogId ? this.blogId : undefined
-      )
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          this.snackBar.open('An error occurred when saving document', 'OK', {
-            duration: 5000,
-          });
-          return throwError(() => err);
-        })
-      )
-      .subscribe((rId) => {
-        if (!this.blogId) {
-          this.blogId = rId;
-          this.location.replaceState(`/edit/${this.blogId}`);
-        }
+    // this.posts
+    //   .save(
+    //     this.editor.view.state.toJSON(),
+    //     this.blogId ? this.blogId : undefined
+    //   )
+    //   .pipe(
+    //     takeUntil(this.destroy$),
+    //     catchError((err) => {
+    //       this.snackBar.open('An error occurred when saving document', 'OK', {
+    //         duration: 5000,
+    //       });
+    //       return throwError(() => err);
+    //     })
+    //   )
+    //   .subscribe((rId) => {
+    //     if (!this.blogId) {
+    //       this.blogId = rId;
+    //       this.location.replaceState(`/edit/${this.blogId}`);
+    //     }
 
-        this.snackBar.open(
-          (this.isBlogPublic ? 'Blog' : 'Draft') + ' saved',
-          'OK',
-          { duration: 5000 }
-        );
-      });
+    //     this.snackBar.open(
+    //       (this.isBlogPublic ? 'Blog' : 'Draft') + ' saved',
+    //       'OK',
+    //       { duration: 5000 }
+    //     );
+    //   });
   }
 
   @HostListener('document:keydown.control.s', ['$event'])
