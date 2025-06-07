@@ -1,18 +1,18 @@
 
 :host {
-  --ngx-editor-border-radius: --var(--blog-border-radius);
-  --ngx-editor-background-color: var(--blog-background-color);
-  --ngx-editor-text-color: var(--blog-text-color);
-  --ngx-editor-placeholder-color: var(--blog-placeholder-color);
-  --ngx-editor-border-color: var(--blog-border-color);
-  --ngx-editor-wrapper-border-color: var(--blog-wrapper-border-color);
+  --ngx-editor-border-radius: --var(--post-border-radius);
+  --ngx-editor-background-color: var(--post-background-color);
+  --ngx-editor-text-color: var(--post-text-color);
+  --ngx-editor-placeholder-color: var(--post-placeholder-color);
+  --ngx-editor-border-color: var(--post-border-color);
+  --ngx-editor-wrapper-border-color: var(--post-wrapper-border-color);
 
-  --ngx-editor-menubar-bg-color: var(--blog-menubar-bg-color);
-  --ngx-editor-menubar-padding: var(--blog-menubar-padding);
-  --ngx-editor-menubar-height: var(--blog-menubar-height);
+  --ngx-editor-menubar-bg-color: var(--post-menubar-bg-color);
+  --ngx-editor-menubar-padding: var(--post-menubar-padding);
+  --ngx-editor-menubar-height: var(--post-menubar-height);
 
-  --ngx-editor-blockquote-color: var(--blog-blockquote-color);
-  --ngx-editor-blockquote-border-width: var(--blog-blockquote-border-width);
+  --ngx-editor-blockquote-color: var(--post-blockquote-color);
+  --ngx-editor-blockquote-border-width: var(--post-blockquote-border-width);
 
   --ngx-editor-icon-size: 30px;
   --ngx-editor-popup-bg-color: var(--mat-sys-surface);
@@ -39,7 +39,7 @@
 
   .post-editor-content {
     margin: auto;
-    max-width: var(--blog-max-width);
+    max-width: var(--post-max-width);
     word-wrap: break-word;
   }
 

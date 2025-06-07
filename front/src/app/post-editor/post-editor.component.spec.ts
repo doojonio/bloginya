@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PostEditorComponent } from './post-editor.component';
 
-describe('BlogEditorComponent', () => {
+describe('PostEditorComponent', () => {
   let component: PostEditorComponent;
   let fixture: ComponentFixture<PostEditorComponent>;
 

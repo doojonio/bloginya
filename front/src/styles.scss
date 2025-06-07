@@ -4,21 +4,21 @@
 @use '_theme-colors.scss' as ptheme;
 
 :root {
-  --blog-max-width: 80ch;
+  --post-max-width: 80ch;
 
-  --blog-background-color: var(--mat-sys-surface);
-  --blog-text-color: var(--mat-sys-on-surface);
-  --blog-placeholder-color: var(--mat-sys-on-surface);
-  --blog-border-radius: 4px;
-  --blog-border-color: var(--mat-sys-outline-variant);
-  --blog-wrapper-border-color: var(--mat-sys-outline-variant);
+  --post-background-color: var(--mat-sys-surface);
+  --post-text-color: var(--mat-sys-on-surface);
+  --post-placeholder-color: var(--mat-sys-on-surface);
+  --post-border-radius: 4px;
+  --post-border-color: var(--mat-sys-outline-variant);
+  --post-wrapper-border-color: var(--mat-sys-outline-variant);
 
-  --blog-menubar-bg-color: var(--mat-sys-surface);
-  --blog-menubar-padding: 3px;
-  --blog-menubar-height: 30px;
+  --post-menubar-bg-color: var(--mat-sys-surface);
+  --post-menubar-padding: 3px;
+  --post-menubar-height: 30px;
 
-  --blog-blockquote-color: var(--mat-sys-primary);
-  --blog-blockquote-border-width: 3px;
+  --post-blockquote-color: var(--mat-sys-primary);
+  --post-blockquote-border-width: 3px;
 }
 
 html {

@@ -62,8 +62,8 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private router = inject(Router);
 
-  blogId: string | null | undefined;
-  isBlogPublic: boolean = false;
+  postId: string | null | undefined;
+  isPostPublic: boolean = false;
 
   attachmentLoading = false;
   toolbar: Toolbar = [
@@ -81,16 +81,16 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-    //   this.blogId = params.get('id');
-    //   if (!this.blogId) {
+    //   this.postId = params.get('id');
+    //   if (!this.postId) {
     //     this.createEditor(null);
     //     return;
     //   }
     //   this.posts
-    //     .get(this.blogId)
+    //     .get(this.postId)
     //     .pipe(takeUntil(this.destroy$))
-    //     .subscribe((blog) => {
-    //       this.createEditor(blog);
+    //     .subscribe((post) => {
+    //       this.createEditor(post);
     //     });
     // });
   }
@@ -102,10 +102,10 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     this.editor?.destroy();
   }
 
-  createEditor(blog: any) {
+  createEditor(post: any) {
     let jsonDoc = { type: 'doc', content: [] };
-    if (blog != null) {
-      jsonDoc = blog.document.doc;
+    if (post != null) {
+      jsonDoc = post.document.doc;
     }
 
     this.form = new FormGroup({
@@ -121,7 +121,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     // this.posts
     //   .save(
     //     this.editor.view.state.toJSON(),
-    //     this.blogId ? this.blogId : undefined
+    //     this.postId ? this.postId : undefined
     //   )
     //   .pipe(
     //     takeUntil(this.destroy$),
@@ -145,7 +145,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     // this.posts
     //   .save(
     //     this.editor.view.state.toJSON(),
-    //     this.blogId ? this.blogId : undefined
+    //     this.postId ? this.postId : undefined
     //   )
     //   .pipe(
     //     takeUntil(this.destroy$),
@@ -157,13 +157,13 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     //     })
     //   )
     //   .subscribe((rId) => {
-    //     if (!this.blogId) {
-    //       this.blogId = rId;
-    //       this.location.replaceState(`/edit/${this.blogId}`);
+    //     if (!this.postId) {
+    //       this.postId = rId;
+    //       this.location.replaceState(`/edit/${this.postId}`);
     //     }
 
     //     this.snackBar.open(
-    //       (this.isBlogPublic ? 'Blog' : 'Draft') + ' saved',
+    //       (this.isPostPublic ? 'Post' : 'Draft') + ' saved',
     //       'OK',
     //       { duration: 5000 }
     //     );
