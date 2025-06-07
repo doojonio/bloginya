@@ -1,12 +1,10 @@
 <div class="image"></div>
 <div class="info">
-  <p class="title">POLYINE</p>
-  <p class="subtitle" i18n>All Languages are beautiful</p>
   <p class="subtitle" i18n>But These 5 Languages are something!</p>
-  <div class="spacer"></div>
+  <p class="title">POLYINE</p>
   <div class="socials">
     @for (item of (socials$|async); track item.href) {
-    <a><mat-icon [svgIcon]="item.icon"></mat-icon></a>
+    <a href="{{ item.href }}"><mat-icon [svgIcon]="item.icon"></mat-icon></a>
     }
   </div>
 </div>

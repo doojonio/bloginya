@@ -36,9 +36,22 @@
 mat-divider {
   margin: 30px 0;
 
+  &.divider-footer {
+    margin-bottom: 60px;
+  }
+
   @include mat.divider-overrides(
     (
       color: var(--mat-sys-outline-variant),
     )
   );
+}
+
+.footer-slogan {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0;
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-primary);
+  font-weight: bold;
 }

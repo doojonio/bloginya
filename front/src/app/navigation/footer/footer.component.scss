@@ -3,32 +3,45 @@
   flex-direction: column;
 }
 .image {
-  background-image: url("/assets/images/wallpaper.png");
+  background: url("/assets/images/m_wp_footer.webp");
+
   background-size: cover;
   background-position: center;
   height: 230px;
 }
 
 .info {
-  // TODO Mat primary
-  background-color: #ff76c5;
-  height: 320px;
-  color: #601D4B;
+  background-image: url("/assets/images/text_paper.webp");
 
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  & > * {
-    margin: 0;
-  }
+  padding: 64px 45px;
 }
 
 .title {
-  font: var(--mat-sys-headline-large);
+  color: var(--mat-sys-on-secondary);
+  font: var(--mat-sys-title-large);
   font-weight: bold;
+  margin: 0 0 60px 0;
+}
+
+.subtitle {
+  color: var(--mat-sys-on-secondary-fixed);
+  font: var(--mat-sys-label-small);
+  font-weight: bold;
+  text-align: center;
+  width: 130px;
 }
 
 .socials {
-  color: black;
+  a {
+    margin: 0px 16px;
+  }
+  mat-icon {
+    color: black;
+    height: 45px;
+    width: 45px;
+    font-size: 45px;
+  }
 }
