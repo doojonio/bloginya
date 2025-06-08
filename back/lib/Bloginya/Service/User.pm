@@ -9,4 +9,21 @@ async sub find_p($self, $uid) {
   return $res->expand->hashes->first;
 }
 
+async sub find_or_create_by_google_id_p($self, $userinfo, $token) {
+  my %user = (
+    email           => $userinfo->{email},
+    username        => (split(/@/, $userinfo->{email}))[0],
+    google_id       => $userinfo->{id},
+    google_token    => {-json => $token},
+    google_userinfo => {-json => $userinfo},
+  );
+
+  my $user
+    = (await $self->db->insert_p('users', \%user, {on_conflict => [['google_id'] => \%user]}, {returning => 'id'}))
+    ->hash;
+
+  return $user;
+}
+
+
 1;

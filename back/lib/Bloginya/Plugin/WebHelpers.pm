@@ -2,6 +2,8 @@ package Bloginya::Plugin::WebHelpers;
 use Mojo::Base 'Mojolicious::Plugin', -signatures, -async_await;
 use List::Util qw(first);
 
+use constant {CURRENT_USER_STASH_NAME => '_current_user',};
+
 sub register {
   my ($self, $app) = @_;
 
@@ -51,6 +53,8 @@ sub register {
 
   $app->helper(
     'current_user_p' => async sub ($self) {
+      return $self->stash(CURRENT_USER_STASH_NAME) if exists $self->stash->{&CURRENT_USER_STASH_NAME};
+
       my $cname = $self->config->{sessions}{name};
       my $sid   = $self->cookie($cname);
 
@@ -64,7 +68,9 @@ sub register {
 
       my $userv = $self->service('user');
 
-      return $userv->find_p($uid);
+      my $user = $userv->find_p($uid);
+      $self->stash(CURRENT_USER_STASH_NAME, $user);
+      return $user;
     }
   );
 }

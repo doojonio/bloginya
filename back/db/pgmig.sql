@@ -126,8 +126,11 @@ create table
         id uuid primary key default uuid_generate_v4 (),
         user_id uuid not null references users (id),
         post_id uuid not null references posts (id),
-        file_path text not null,
-        file_type text not null,
+        original_path text not null,
+        original_type text not null,
+        thumbnail_path text,
+        medium_path text,
+        large_path text,
         created_at timestamp not null default now ()
     );
 
