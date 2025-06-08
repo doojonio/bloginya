@@ -2,6 +2,8 @@ name: Deploy backend using Ansible
 
 on:
   push:
+    branches:
+      - master
     paths:
       - "back/**"
 
@@ -39,8 +41,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: 'doojonio/bloginya_config'
-          ssh-key: '${{ secrets.SSH_PRIVATE_KEY }}'
+          repository: "doojonio/bloginya_config"
+          ssh-key: "${{ secrets.SSH_PRIVATE_KEY }}"
 
       - name: Set up SSH
         run: |
