@@ -37,8 +37,6 @@ async sub save($self) {
 
   my $user = await $self->current_user_p;
 
-  return $self->render(status => 401, json => {message => 'not authorized'}) unless $user;
-
   my $payload = $self->req->json;
 
   my $id  = $payload->{id};

@@ -13,4 +13,5 @@ import { MatDividerModule } from '@angular/material/divider';
 export class FooterComponent {
   private appService = inject(AppService);
   socials$ = this.appService.getSocials();
+  appName$ = this.appService.getAppName();
 }

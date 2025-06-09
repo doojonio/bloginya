@@ -50,9 +50,10 @@
 }
 
 .socials {
-  a {
-    margin: 0px 16px;
-  }
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+
   mat-icon {
     color: black;
     height: 45px;

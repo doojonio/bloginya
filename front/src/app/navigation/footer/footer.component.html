@@ -4,7 +4,7 @@
 <div class="image"></div>
 <div class="info">
   <p class="subtitle" i18n>But These 5 Languages are something!</p>
-  <p class="title">POLYINE</p>
+  <p class="title">{{ appName$ | async }}</p>
   <div class="socials">
     @for (item of (socials$|async); track item.href) {
     <a href="{{ item.href }}"><mat-icon [svgIcon]="item.icon"></mat-icon></a>
