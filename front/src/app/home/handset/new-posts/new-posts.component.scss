@@ -1,3 +1,5 @@
+@import '../../../../mixins.scss';
+
 .title {
   color: var(--mat-sys-primary);
   font: var(--mat-sys-title-medium);
@@ -32,20 +34,10 @@
 
 .post-subtitle {
   font: var(--mat-sys-label-small);
-
-  display: -webkit-box;
-  line-clamp: 1;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @include line-clamp(1);
 }
 .post-title {
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-
+  @include line-clamp(2);
   font: var(--mat-sys-headline-small);
   color: var(--mat-sys-primary);
 }
