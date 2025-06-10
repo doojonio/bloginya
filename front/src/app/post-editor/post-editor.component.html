@@ -6,6 +6,7 @@
           <ngx-editor-menu [editor]="editor" [toolbar]="toolbar">
           </ngx-editor-menu>
           <ngx-editor [editor]="editor" formControlName="editorContent">
+              <!-- <ngx-editor-floating-menu [editor]="editor"></ngx-editor-floating-menu> -->
           </ngx-editor>
           @if (attachmentLoading) {
             <mat-progress-bar mode="buffer"></mat-progress-bar>
@@ -16,7 +17,7 @@
 
         <input
           type="file"
-          accept="video/*,image/*"
+          accept="image/*"
           (change)="onFilesSelected($event)"
           multiple="multiple"
           #filesUpload

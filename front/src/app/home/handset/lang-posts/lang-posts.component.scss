@@ -1,5 +1,5 @@
 @use "@angular/material" as mat;
-@import '../../../../mixins';
+@use "../../../../mixins.scss" as mixs;
 
 .title {
   color: var(--mat-sys-primary);
@@ -57,18 +57,18 @@
   }
 
   .post-title {
-    @include line-clamp(1);
+    @include mixs.line-clamp(1);
     color: var(--mat-sys-primary);
     font: var(--mat-sys-title-large);
   }
 
   .post-descr {
-    @include line-clamp(2);
+    @include mixs.line-clamp(2);
     font: var(--mat-sys-body-medium);
   }
 
   .post-tags {
-    @include line-clamp(1);
+    @include mixs.line-clamp(1);
     color: var(--mat-sys-secondary);
     font: var(--mat-sys-body-small);
   }

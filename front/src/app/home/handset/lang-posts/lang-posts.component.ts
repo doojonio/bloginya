@@ -2,7 +2,7 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Component, input, model } from '@angular/core';
 import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { Observable } from 'rxjs';
-import { LangPost } from '../../../posts.service';
+import { Category, CatPost } from '../../../posts.service';
 
 @Component({
   selector: 'app-lang-posts',
@@ -15,7 +15,7 @@ export class LangPostsComponent {
     this.selectedLang.update((old) => newLang.value);
   }
 
-  langs$ = input.required<Observable<string[]>>();
-  langPosts$ = input.required<Observable<LangPost[]>>();
-  selectedLang = model<string>();
+  langs$ = input.required<Observable<Category[]>>();
+  langPosts$ = input.required<Observable<CatPost[]>>();
+  selectedLang = model<Category>();
 }

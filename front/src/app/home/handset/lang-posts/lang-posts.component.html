@@ -1,9 +1,9 @@
 <p class="title" i18n>5 LANGUAGES</p>
 <div class="langs noscrollbar">
   <mat-chip-listbox (change)="onChange($event)">
-    @for (lang of ( langs$() |async ); track lang) {
-    <mat-chip-option selected="{{ lang == selectedLang() }}">{{
-      lang | uppercase
+    @for (lang of ( langs$() |async ); track lang.id) {
+    <mat-chip-option selected="{{ lang.id == selectedLang()?.id }}">{{
+      lang.title| uppercase
     }}</mat-chip-option>
     }
   </mat-chip-listbox>

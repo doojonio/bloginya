@@ -2,17 +2,17 @@ package Bloginya::Service::Google;
 use Mojo::Base -base, -signatures, -async_await;
 
 has 'config';
+has ua   => sub { Mojo::UserAgent->new };
+has _cfg => sub { $_[0]->config->{google_oauth} };
 
 async sub get_token_p($self, $code) {
-  my $ua = Mojo::UserAgent->new;
-
-  my $tx = await $ua->post_p(
-    $self->config->{token_uri} => json => {
-      client_id     => $self->config->{client_id},
-      client_secret => $self->config->{client_secret},
+  my $tx = await $self->ua->post_p(
+    $self->_cfg->{token_uri} => json => {
+      client_id     => $self->_cfg->{client_id},
+      client_secret => $self->_cfg->{client_secret},
       code          => $code,
       grant_type    => 'authorization_code',
-      redirect_uri  => $self->config->{redirect_uri},
+      redirect_uri  => $self->_cfg->{redirect_uri},
     }
   );
 
@@ -22,9 +22,7 @@ async sub get_token_p($self, $code) {
 }
 
 async sub get_userinfo_p($self, $token) {
-  my $ua = Mojo::UserAgent->new;
-
-  my $tx = await $ua->get_p(
+  my $tx = await $self->ua->get_p(
     'https://www.googleapis.com/userinfo/v2/me' => {'Authorization' => 'Bearer ' . $token->{access_token}});
 
   die 'Failed to get user info' unless $tx->res->is_success;

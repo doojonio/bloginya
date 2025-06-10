@@ -23,8 +23,9 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { concat, Subject, throwError } from 'rxjs';
 import { catchError, finalize, map, takeUntil } from 'rxjs/operators';
-import { PostsService } from '../posts.service';
+import { AppService } from '../app.service';
 import { DriveService } from '../drive.service';
+import { PostsService } from '../posts.service';
 import { findPlaceholder, placeholderPlugin } from './placeholder-plugin';
 
 // https://prosemirror.net/examples/upload/
@@ -55,12 +56,15 @@ import { findPlaceholder, placeholderPlugin } from './placeholder-plugin';
   styleUrl: './post-editor.component.scss',
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
+  private appService = inject(AppService);
   private snackBar = inject(MatSnackBar);
   private drive = inject(DriveService);
-  private posts: any = inject(PostsService);
+  private posts = inject(PostsService);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private router = inject(Router);
+
+  isHandset$ = this.appService.isHandset();
 
   postId: string | null | undefined;
   isPostPublic: boolean = false;
@@ -70,6 +74,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     ['bold', 'italic', 'underline', 'strike'],
     ['blockquote', 'ordered_list', 'bullet_list'],
     [{ heading: ['h1', 'h2', 'h3'] }],
+    ['text_color', 'background_color'],
     ['link'],
     ['align_left', 'align_center', 'align_right', 'align_justify'],
   ];
@@ -77,22 +82,24 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   form: FormGroup | undefined;
-  editor = new Editor({ plugins: [placeholderPlugin] });
+  editor = new Editor({
+    plugins: [placeholderPlugin],
+  });
 
   ngOnInit(): void {
-    // this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-    //   this.postId = params.get('id');
-    //   if (!this.postId) {
-    //     this.createEditor(null);
-    //     return;
-    //   }
-    //   this.posts
-    //     .get(this.postId)
-    //     .pipe(takeUntil(this.destroy$))
-    //     .subscribe((post) => {
-    //       this.createEditor(post);
-    //     });
-    // });
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      this.postId = params.get('id');
+      if (!this.postId) {
+        this.createEditor(null);
+        return;
+      }
+      this.posts
+        .get(this.postId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((post) => {
+          this.createEditor(post);
+        });
+    });
   }
 
   ngOnDestroy(): void {
@@ -141,7 +148,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     // if (this.form?.invalid) {
     //   return;
     // }
-
     // this.posts
     //   .save(
     //     this.editor.view.state.toJSON(),
@@ -161,7 +167,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     //       this.postId = rId;
     //       this.location.replaceState(`/edit/${this.postId}`);
     //     }
-
     //     this.snackBar.open(
     //       (this.isPostPublic ? 'Post' : 'Draft') + ' saved',
     //       'OK',

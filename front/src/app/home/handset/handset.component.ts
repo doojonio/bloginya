@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AppService } from '../../app.service';
 import { VisibilityDirective } from '../../directives/visibility.directive';
-import { LangPost, NewPost, PopularPost } from '../../posts.service';
+import { Category, CatPost, NewPost, PopularPost } from '../../posts.service';
 import { LangPostsComponent } from './lang-posts/lang-posts.component';
 import { NewPostsComponent } from './new-posts/new-posts.component';
 import { PopularPostsComponent } from './popular-posts/popular-posts.component';
@@ -24,9 +24,9 @@ import { PopularPostsComponent } from './popular-posts/popular-posts.component';
 })
 export class HandsetComponent implements OnDestroy {
   newPosts$ = input.required<Observable<NewPost[]>>();
-  langs$ = input.required<Observable<string[]>>();
-  langPosts$ = input.required<Observable<LangPost[]>>();
-  selectedLang = model<string>();
+  langs$ = input.required<Observable<Category[]>>();
+  langPosts$ = input.required<Observable<CatPost[]>>();
+  selectedLang = model<Category>();
   popularPosts$ = input.required<Observable<PopularPost[]>>();
 
   private appService = inject(AppService);

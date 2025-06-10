@@ -1,12 +1,12 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AsyncPipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
-import { map, Observable, shareReplay } from 'rxjs';
-import { PostsService } from '../posts.service';
+import { Observable, of, tap } from 'rxjs';
+import { AppService } from '../app.service';
+import { Category, PostsService } from '../posts.service';
 import { HandsetComponent } from './handset/handset.component';
 
 @Component({
@@ -23,22 +23,25 @@ import { HandsetComponent } from './handset/handset.component';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-  private breakpointObserver = inject(BreakpointObserver);
-  isHandset$: Observable<boolean> = this.breakpointObserver
-    .observe(Breakpoints.Handset)
-    .pipe(
-      map((result) => result.matches),
-      shareReplay()
-    );
+  appService = inject(AppService);
+  isHandset$: Observable<boolean> = this.appService.isHandset();
 
   postsService = inject(PostsService);
 
   newPosts$ = this.postsService.getNewPosts();
-  langs$ = this.postsService.getLangs();
-  selectedLang = signal('ENGLISH');
-  langPosts$ = computed(() =>
-    this.postsService.getLangPosts(this.selectedLang())
+  langs$ = this.postsService.getLangs().pipe(
+    tap((langs) => {
+      this.selectedLang.set(langs[0]);
+    })
   );
+  selectedLang = signal<Category | undefined>(undefined);
+  langPosts$ = computed(() => {
+    const lang = this.selectedLang();
+    if (!lang) {
+      return of([]);
+    }
+    return this.postsService.getLangPosts(lang.id);
+  });
   popularPosts$ = this.postsService.getPopularPosts();
 
   ngOnInit() {}

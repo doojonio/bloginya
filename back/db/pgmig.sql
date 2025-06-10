@@ -43,12 +43,12 @@ create table
     posts (
         id uuid primary key default uuid_generate_v4 (),
         user_id uuid not null references users (id),
+        category_id uuid references categories (id),
         document jsonb not null,
         status post_status not null default 'draft',
         title text not null,
         description text,
         picture text,
-        category_id uuid references categories (id),
         priority integer,
         created_at timestamp not null default now (),
         modified_at timestamp,
