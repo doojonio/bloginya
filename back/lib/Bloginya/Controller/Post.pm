@@ -5,6 +5,9 @@ use Bloginya::Util::UUID qw(is_uuid);
 use List::Util           qw(reduce);
 
 async sub list_home ($self) {
+  my $u = await $self->current_user_p;
+  use DDP;
+  p $u;
   my $s_post = $self->service('post');
   my $s_cat  = $self->service('category');
 

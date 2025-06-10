@@ -1,4 +1,4 @@
-@import '../../../../mixins.scss';
+@use "../../../../mixins.scss" as mixs;
 
 .title {
   color: var(--mat-sys-primary);
@@ -34,10 +34,10 @@
 
 .post-subtitle {
   font: var(--mat-sys-label-small);
-  @include line-clamp(1);
+  @include mixs.line-clamp(1);
 }
 .post-title {
-  @include line-clamp(2);
+  @include mixs.line-clamp(2);
   font: var(--mat-sys-headline-small);
   color: var(--mat-sys-primary);
 }

@@ -18,7 +18,7 @@ sub startup ($self) {
   # $self->exception_format('json');
 
   # for files 50mb
-  $self->max_request_size(5e+7);
+  # $self->max_request_size(5e+7);
 
   $self->_setup_routes;
   $self->_setup_commands;
@@ -47,7 +47,7 @@ sub _setup_routes($self) {
   # Authorized routes
   my $api_A = $api->under(
     '/' => sub ($c) {
-      $self->current_user_p->then(sub ($u) {
+      $c->current_user_p->then(sub ($u) {
 
         unless ($u) {
           $c->render(json => {message => 'Unauthorized'}, status => 401);

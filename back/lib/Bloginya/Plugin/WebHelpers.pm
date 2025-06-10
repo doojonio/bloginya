@@ -23,6 +23,8 @@ sub register {
 
   $app->helper('user_agent' => sub { $_[0]->req->headers->header('User-Agent') });
 
+  $app->helper('msg' => sub ($self, $msg, $code = 200) { $self->render(status => $code, json => {message => $msg}) });
+
   $app->helper(
     'set_sid' => sub ($self, $sid) {
       my ($name, $secure, $domain, $max_age) = @{$self->config->{sessions}}{qw(name secure domain max_age)};

@@ -2,7 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 export interface PutFileResponse {
-  path: string;
+  original: string;
+  original_type: string;
+  large?: string;
+  medium?: string;
+  thumbnail?: string;
 }
 
 @Injectable({

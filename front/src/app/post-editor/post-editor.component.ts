@@ -228,7 +228,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
             .replaceWith(
               pos,
               pos,
-              schema.nodes['image'].create({ src: result.path })
+              schema.nodes['image'].create({
+                src: result.medium || result.original,
+              })
             )
             .setMeta(placeholderPlugin, { remove: { id: result.id } })
         );
@@ -255,8 +257,8 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         );
         return throwError(() => err);
       }),
-      map(({ path }) => {
-        return { id: pholdId, path };
+      map((res) => {
+        return { id: pholdId, path: res.medium || res.original };
       })
     );
 
