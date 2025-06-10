@@ -1,13 +1,13 @@
 package Bloginya::Service::Session;
 use Mojo::Base -base, -signatures, -async_await;
 
-has db    => undef;
-has redis => undef;
+has 'db';
+has 'redis';
 
 async sub create_session_p($self, $user_id, $ip, $user_agent) {
   my $sid
     = (await $self->db->insert_p('sessions', {user_id => $user_id, ip => $ip, app => $user_agent}, {returning => 'id'}))
-    ->hash->{id};
+    ->hashes->first->{id};
 
   # Store user in cache for future requests
   await $self->redis->set_p('sid_user:' . $sid, $user_id);
@@ -36,7 +36,7 @@ async sub uid_by_sid_p($self, $sid) {
 }
 
 async sub update_ip_ua_p($self, $sid, $ip, $user_agent) {
-  my $res = await $self->db->update_p('sessions', {ip => $ip, app => $user_agent}, {id => $sid},);
+  my $res = await $self->db->update_p('sessions', {ip => $ip, app => $user_agent, used_at => \'now()'}, {id => $sid},);
   return $res->rows;
 }
 

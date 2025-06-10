@@ -1,0 +1,61 @@
+
+:host {
+  --ngx-editor-border-radius: --var(--post-border-radius);
+  --ngx-editor-background-color: var(--post-background-color);
+  --ngx-editor-text-color: var(--post-text-color);
+  --ngx-editor-placeholder-color: var(--post-placeholder-color);
+  --ngx-editor-border-color: var(--post-border-color);
+  --ngx-editor-wrapper-border-color: var(--post-wrapper-border-color);
+
+  --ngx-editor-menubar-bg-color: var(--post-menubar-bg-color);
+  --ngx-editor-menubar-padding: var(--post-menubar-padding);
+  --ngx-editor-menubar-height: var(--post-menubar-height);
+
+  --ngx-editor-blockquote-color: var(--post-blockquote-color);
+  --ngx-editor-blockquote-border-width: var(--post-blockquote-border-width);
+
+  --ngx-editor-icon-size: 30px;
+  --ngx-editor-popup-bg-color: var(--mat-sys-surface);
+  --ngx-editor-popup-border-radius: 4px;
+  --ngx-editor-popup-shadow: var(--mat-sys-outline) 0px 2px 6px 2px;
+
+  --ngx-editor-menu-item-border-radius: 2px;
+  --ngx-editor-menu-item-active-color: var(--mat-sys-on-primary);
+  --ngx-editor-menu-item-hover-bg-color: var(--mat-sys-primary);
+  --ngx-editor-menu-item-active-bg-color: var(--mat-sys-primary);
+  --ngx-editor-seperator-color: var(--mat-sys-outline-variant);
+
+  --ngx-editor-focus-ring-color: var(--mat-sys-primary);
+  --ngx-editor-error-color: var(--mat-sys-error);
+  --ngx-editor-click-pointer: default;
+}
+
+.post-editor-container {
+  margin: 20px;
+
+  mat-spinner {
+    margin: auto;
+  }
+
+  .post-editor-content {
+    margin: auto;
+    max-width: var(--post-max-width);
+    word-wrap: break-word;
+  }
+
+  .post-editor {
+    margin-bottom: 1rem;
+  }
+
+  input {
+    &[type="file"] {
+      display: none;
+    }
+  }
+
+  .post-editor-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+}

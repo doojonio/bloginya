@@ -1,0 +1,17 @@
+<p class="title" i18n>NEW POSTS</p>
+<div class="posts noscrollbar">
+  @for (item of (newPosts$() | async); track item) {
+  <div class="post">
+    <img src="{{ item.picture }}" />
+    <div class="post-descr">
+      <p class="post-title" #postTitle
+      [style.minHeight]="maxTitleHeight >= 65 ? '64px' : ''"
+
+      >{{ item.title }}</p>
+      <p class="post-subtitle">
+        {{ item.category_name | uppercase }}
+      </p>
+    </div>
+  </div>
+  }
+</div>

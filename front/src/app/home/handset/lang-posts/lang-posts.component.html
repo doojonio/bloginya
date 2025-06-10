@@ -1,0 +1,26 @@
+<p class="title" i18n>5 LANGUAGES</p>
+<div class="langs noscrollbar">
+  <mat-chip-listbox (change)="onChange($event)">
+    @for (lang of ( langs$() |async ); track lang.id) {
+    <mat-chip-option selected="{{ lang.id == selectedLang()?.id }}">{{
+      lang.title| uppercase
+    }}</mat-chip-option>
+    }
+  </mat-chip-listbox>
+</div>
+<div class="posts">
+  @for (item of ( langPosts$()| async ); track item.id) {
+  <div class="post">
+    <img src="{{ item.picture }}" />
+    <div class="post-text">
+      <p class="post-title">{{ item.title }}</p>
+      <p class="post-descr">{{ item.descr }}</p>
+      <p class="post-tags">
+        @for (tag of item.tags; track tag) {
+        <a>#{{ tag }} </a>
+        }
+      </p>
+    </div>
+  </div>
+  }
+</div>

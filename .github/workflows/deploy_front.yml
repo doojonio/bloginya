@@ -2,6 +2,8 @@ name: Deploy front using Ansible
 
 on:
   push:
+    branches:
+      - master
     paths:
       - "front/**"
 

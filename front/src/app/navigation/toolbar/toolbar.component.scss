@@ -1,0 +1,50 @@
+@use "@angular/material" as mat;
+:host {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-primary),
+    )
+  );
+}
+a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-decoration: none;
+  color: inherit;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+
+.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.5s linear;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.5s, opacity 0.5s linear;
+}
+
+.title {
+  font: var(--mat-sys-title-large);
+  color: var(--mat-sys-primary);
+  font-weight: bold;
+  line-height: 100%;
+  text-align: center;
+}

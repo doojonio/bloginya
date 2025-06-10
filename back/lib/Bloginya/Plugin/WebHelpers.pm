@@ -2,6 +2,8 @@ package Bloginya::Plugin::WebHelpers;
 use Mojo::Base 'Mojolicious::Plugin', -signatures, -async_await;
 use List::Util qw(first);
 
+use constant {CURRENT_USER_STASH_NAME => '_current_user',};
+
 sub register {
   my ($self, $app) = @_;
 
@@ -39,8 +41,8 @@ sub register {
   );
 
   $app->helper(
-    'create_session_p' => async sub ($self, $user_id, $db, $redis) {
-      my $service = $self->service('session', db => $db, redis => $redis);
+    'create_session_p' => async sub ($self, $user_id) {
+      my $service = $self->service('session');
       my $sid     = await $service->create_session_p($user_id, $self->real_ip, $self->user_agent);
 
       $self->set_sid($sid);
@@ -50,21 +52,25 @@ sub register {
   );
 
   $app->helper(
-    'current_user_p' => async sub ($self, $db, $redis) {
+    'current_user_p' => async sub ($self) {
+      return $self->stash(CURRENT_USER_STASH_NAME) if exists $self->stash->{&CURRENT_USER_STASH_NAME};
+
       my $cname = $self->config->{sessions}{name};
       my $sid   = $self->cookie($cname);
 
       return undef if !$sid;
 
-      my $serv = $self->service('session', db => $db, redis => $redis);
+      my $serv = $self->service('session');
       my $uid  = await $serv->uid_by_sid_p($sid);
       return undef unless $uid;
 
-      # await $serv->update_ip_ua_p($sid, $self->real_ip, $self->user_agent);
+      await $serv->update_ip_ua_p($sid, $self->real_ip, $self->user_agent);
 
-      my $userv = $self->service('user', db => $db, redis => $redis);
+      my $userv = $self->service('user');
 
-      return $userv->find_p($uid);
+      my $user = $userv->find_p($uid);
+      $self->stash(CURRENT_USER_STASH_NAME, $user);
+      return $user;
     }
   );
 }
