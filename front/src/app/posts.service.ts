@@ -27,11 +27,19 @@ export class PostsService {
     return this.home$.pipe(map((res) => res.new_posts));
   }
 
-  getLangPosts(langId: string) {
-    return this.home$.pipe(map((res) => res.top_cat_posts));
+  getHomeCatPosts(catId: string) {
+    return this.home$.pipe(
+      map((res) => {
+        if (res.top_cat.id == catId) {
+          return res.top_cat.posts || [];
+        }
+
+        return [];
+      })
+    );
   }
 
-  getLangs() {
+  getHomeCats() {
     return this.home$.pipe(map((res) => res.cats));
   }
 
@@ -52,6 +60,8 @@ export interface Category {
   id: string;
   title: string;
   name: string;
+  // only in top cat
+  posts?: CatPost[];
 }
 export interface CatPost {
   id: string;

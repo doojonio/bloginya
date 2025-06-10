@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
   postsService = inject(PostsService);
 
   newPosts$ = this.postsService.getNewPosts();
-  langs$ = this.postsService.getLangs().pipe(
+  langs$ = this.postsService.getHomeCats().pipe(
     tap((langs) => {
       this.selectedLang.set(langs[0]);
     })
@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
     if (!lang) {
       return of([]);
     }
-    return this.postsService.getLangPosts(lang.id);
+    return this.postsService.getHomeCatPosts(lang.id);
   });
   popularPosts$ = this.postsService.getPopularPosts();
 
