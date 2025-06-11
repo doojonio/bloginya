@@ -8,10 +8,10 @@ sub register {
   my ($self, $app) = @_;
 
   $app->helper(
-    'real_ip' => sub {
-      my $phys_ip = $_[0]->tx->remote_address;
+    'real_ip' => sub ($c) {
+      my $phys_ip = $c->tx->remote_address;
 
-      if (my $fw = $_[0]->req->headers->header('X-Forwarded-For')) {
+      if (my $fw = $c->req->headers->header('X-Forwarded-For')) {
         my $ip = first { $_ ne $phys_ip } map {chomp} split /,/, $fw;
 
         return $ip if length($ip) >= 7;
@@ -21,20 +21,20 @@ sub register {
     }
   );
 
-  $app->helper('user_agent' => sub { $_[0]->req->headers->header('User-Agent') });
+  $app->helper('user_agent' => sub ($c) { $c->req->headers->header('User-Agent') });
 
-  $app->helper('msg' => sub ($self, $msg, $code = 200) { $self->render(status => $code, json => {message => $msg}) });
+  $app->helper('msg' => sub ($c, $msg, $code = 200) { $c->render(status => $code, json => {message => $msg}) });
 
   $app->helper(
-    'set_sid' => sub ($self, $sid) {
-      my ($name, $secure, $domain, $max_age) = @{$self->config->{sessions}}{qw(name secure domain max_age)};
-      $self->cookie(
+    'set_sid' => sub ($c, $sid) {
+      my ($name, $secure, $domain, $max_age) = @{$c->config->{sessions}}{qw(name secure domain max_age)};
+      $c->cookie(
         $name => $sid,
         {
           max_age  => $max_age // 60 * 60,
           path     => '/',
           secure   => $secure // 1,
-          domain   => $domain // $self->config->{site_name},
+          domain   => $domain // $c->config->{site_name},
           httponly => 1,
           samesite => 'strict'
         }
@@ -43,35 +43,35 @@ sub register {
   );
 
   $app->helper(
-    'create_session_p' => async sub ($self, $user_id) {
-      my $service = $self->service('session');
-      my $sid     = await $service->create_session_p($user_id, $self->real_ip, $self->user_agent);
+    'create_session_p' => async sub ($c, $user_id) {
+      my $service = $c->service('session');
+      my $sid     = await $service->create_session_p($user_id, $c->real_ip, $c->user_agent);
 
-      $self->set_sid($sid);
+      $c->set_sid($sid);
 
       return $sid;
     }
   );
 
   $app->helper(
-    'current_user_p' => async sub ($self) {
-      return $self->stash(CURRENT_USER_STASH_NAME) if exists $self->stash->{&CURRENT_USER_STASH_NAME};
+    'current_user_p' => async sub ($c) {
+      return $c->stash(CURRENT_USER_STASH_NAME) if exists $c->stash->{&CURRENT_USER_STASH_NAME};
 
-      my $cname = $self->config->{sessions}{name};
-      my $sid   = $self->cookie($cname);
+      my $cname = $c->config->{sessions}{name};
+      my $sid   = $c->cookie($cname);
 
       return undef if !$sid;
 
-      my $serv = $self->service('session');
+      my $serv = $c->service('session');
       my $uid  = await $serv->uid_by_sid_p($sid);
       return undef unless $uid;
 
-      await $serv->update_ip_ua_p($sid, $self->real_ip, $self->user_agent);
+      await $serv->update_ip_ua_p($sid, $c->real_ip, $c->user_agent);
 
-      my $userv = $self->service('user');
+      my $userv = $c->service('user');
 
       my $user = $userv->find_p($uid);
-      $self->stash(CURRENT_USER_STASH_NAME, $user);
+      $c->stash(CURRENT_USER_STASH_NAME, $user);
       return $user;
     }
   );
