@@ -1,4 +1,4 @@
-
+@use "@angular/material" as mat;
 :host {
   --ngx-editor-border-radius: --var(--post-border-radius);
   --ngx-editor-background-color: var(--post-background-color);
@@ -30,32 +30,76 @@
   --ngx-editor-click-pointer: default;
 }
 
-.post-editor-container {
-  margin: 20px;
+:host {
+  display: flex;
+  justify-content: center;
+}
 
+.spin-container {
+  height: 100%;
   mat-spinner {
     margin: auto;
   }
+}
 
-  .post-editor-content {
-    margin: auto;
-    max-width: var(--post-max-width);
-    word-wrap: break-word;
-  }
+form {
+  width: 900px;
+}
 
-  .post-editor {
-    margin-bottom: 1rem;
-  }
+.title-bordered {
+  border: 1px dashed var(--mat-sys-outline-variant);
+}
+.title-imaged {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.title {
+  position: relative;
+  height: 250px;
+  margin-bottom: 2rem;
+
+  display: flex;
+
+  border-radius: 1rem;
+
+  justify-content: center;
+  align-items: center;
 
   input {
-    &[type="file"] {
-      display: none;
-    }
+    all: unset;
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-display-medium);
+    text-align: center;
+    text-wrap: wrap;
+    width: 80%;
+    font-weight: bold;
   }
 
-  .post-editor-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
+  button {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    @include mat.icon-overrides(
+      (
+        color: var(--mat-sys-outline),
+      )
+    );
+  }
+}
+
+.menu-container {
+  display: flex;
+  justify-content: center;
+}
+
+.editor-acts {
+  .attachment-btn {
+    @include mat.icon-overrides(
+      (
+        color: var(--mat-sys-on-surface),
+      )
+    );
   }
 }

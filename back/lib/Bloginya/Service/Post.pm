@@ -2,9 +2,26 @@ package Bloginya::Service::Post;
 use Mojo::Base -base, -signatures, -async_await;
 
 use Bloginya::Model::Post qw(POST_STATUS_PUB);
+use Time::Piece           ();
 
 has 'db';
 has 'redis';
+has 'user';
+
+async sub create_draft_p($self) {
+  my $t = Time::Piece->new;
+  $t = join ' ', ($t->mday, $t->monname);
+
+  my $user_id = $self->user->{id};
+
+  my $res = await $self->db->insert_p(
+    'posts',
+    {user_id   => $user_id, document => {-json => {type => 'doc', content => []}}, title => "Draft $t"},
+    {returning => 'id'},
+  );
+
+  return $res->hashes->first->{id};
+}
 
 async sub list_new_posts_p($self, $limit = 8) {
   my $res = await $self->db->select_p(

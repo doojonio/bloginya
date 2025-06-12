@@ -44,8 +44,39 @@ export class PostsService {
   }
 
   get(postId: string) {
-    return this.http.get('/api/posts', { params: { id: postId } });
+    return this.http.get<GetPostResponse>('/api/posts', {
+      params: { id: postId },
+    });
   }
+
+  createDraft() {
+    return this.http
+      .post<{ id: string }>('/api/posts', null)
+      .pipe(map((r) => r.id));
+  }
+}
+
+export interface GetPostResponse {
+  id: string;
+  user_id: string;
+  category_id?: string;
+  document: any;
+  draft?: any;
+  status: PostStatuses;
+  title: string;
+  description?: string;
+  picture?: string;
+  priority?: number;
+  created_at: Date;
+  modified_at?: Date;
+  published_at?: Date;
+  deleted_at?: Date;
+}
+
+export enum PostStatuses {
+  Draft = 'draft',
+  Pub = 'pub',
+  Del = 'del',
 }
 
 export interface HomeResponse {

@@ -45,6 +45,7 @@ create table
         user_id uuid not null references users (id),
         category_id uuid references categories (id),
         document jsonb not null,
+        draft jsonb,
         status post_status not null default 'draft',
         title text not null,
         description text,

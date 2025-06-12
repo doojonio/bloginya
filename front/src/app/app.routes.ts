@@ -6,6 +6,6 @@ import { PostEditorComponent } from './post-editor/post-editor.component';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'new', component: PostEditorComponent },
-  { path: 'edit/:id', component: PostEditorComponent },
+  { path: 'edit/:postId', component: PostEditorComponent },
   { path: '**', component: PageNotFoundComponent },
 ];
