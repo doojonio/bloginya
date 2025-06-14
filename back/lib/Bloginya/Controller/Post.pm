@@ -35,7 +35,7 @@ async sub save($self) {
   my $payload = $self->req->json;
 
   unless (defined($payload)) {
-    my $id = await $self->service('post', user => $user)->create_draft_p();
+    my $id = await $self->service('post')->create_draft_p();
     return $self->render(json => {id => $id});
   }
 

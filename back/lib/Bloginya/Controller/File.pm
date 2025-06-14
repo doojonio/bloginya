@@ -11,20 +11,7 @@ async sub put_file($self) {
   my $drive = $self->service('drive');
   my $paths = await $drive->put($file);
 
-  my $upload = await $db->insert_p(
-    'uploads',
-    {
-      user_id        => (await $self->current_user_p)->{id},
-      post_id        => $post_id,
-      original_path  => $paths->{original},
-      original_type  => $paths->{original_type},
-      thumbnail_path => $paths->{thumbnail},
-      medium_path    => $paths->{medium},
-      large_path     => $paths->{large},
-    },
-    {returning => 'id'}
-  );
-
+  await $self->service('post')->link_upload_to_post_p($post_id, $paths->{path});
   $self->render(json => $paths);
 }
 

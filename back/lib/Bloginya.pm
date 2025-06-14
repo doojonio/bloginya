@@ -1,7 +1,9 @@
 package Bloginya;
 use Mojo::Base 'Mojolicious', -signatures, -async_await;
 
-use Mojo::Log ();
+use Mojo::Log    ();
+use Carp         ();
+use Scalar::Util qw(blessed);
 
 sub startup ($self) {
   my $config = $self->plugin('NotYAMLConfig');
@@ -11,9 +13,17 @@ sub startup ($self) {
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::WebHelpers');
   $self->plugin('Bloginya::Plugin::DB');
-  $self->plugin('Bloginya::Plugin::Service', {'di_tokens' => [qw(app config db redis)]});
+  $self->plugin('Bloginya::Plugin::Service', {'di_tokens' => [qw(app config db redis current_user)]});
 
   $self->exception_format('json');    # Enable JSON format for exceptions
+
+  $self->hook(
+    'around_action' => sub {
+      my ($next, $c, $action, $last) = @_;
+      my $res = $next->();
+      $res->catch(\&Carp::cluck) if blessed($res) && $res->isa('Mojo::Promise');
+    }
+  );
 
   # $self->exception_format('json');
 

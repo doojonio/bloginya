@@ -148,7 +148,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     this.drive
       .putFile(postId, files[0])
       .pipe(takeUntil(this.destroy$))
-      .subscribe((resp) => this.picture.set(resp.large || resp.original));
+      .subscribe((resp) => this.picture.set(resp.large || resp.path));
   }
 
   // @HostListener('document:keydown.control.s', ['$event'])
@@ -234,7 +234,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         return throwError(() => err);
       }),
       map((res) => {
-        return { id: pholdId, path: res.medium || res.original };
+        return { id: pholdId, path: res.medium || res.path };
       })
     );
 

@@ -70,9 +70,16 @@ sub register {
 
       my $userv = $c->service('user');
 
-      my $user = $userv->find_p($uid);
+      my $user = await $userv->find_p($uid);
       $c->stash(CURRENT_USER_STASH_NAME, $user);
       return $user;
+    }
+  );
+
+  $app->helper(
+    'current_user' => sub ($c) {
+      die 'No current user fetched' unless exists $c->stash->{&CURRENT_USER_STASH_NAME};
+      return $c->stash(CURRENT_USER_STASH_NAME);
     }
   );
 }

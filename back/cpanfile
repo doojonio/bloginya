@@ -6,6 +6,7 @@ requires 'Mojo::Redis', '3.29';
 requires 'UUID', '0.37';
 requires 'Time::Piece';
 requires 'MIME::Types';
+requires 'Carp::Always';
 # Installed by system
 # requires 'Image::Magick';
 

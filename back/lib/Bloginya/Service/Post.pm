@@ -6,13 +6,26 @@ use Time::Piece           ();
 
 has 'db';
 has 'redis';
-has 'user';
+has 'current_user';
+
+async sub user_can_read_post($self, $post_id) {
+}
+
+async sub find_p($self, $post_id) {
+
+}
+
+async sub link_upload_to_post_p($self, $post_id, $upload_path) {
+  await $self->db->insert_p('post_uploads', {post_id => $post_id, path => $upload_path}, {on_conflict => undef});
+}
 
 async sub create_draft_p($self) {
   my $t = Time::Piece->new;
   $t = join ' ', ($t->mday, $t->monname);
 
-  my $user_id = $self->user->{id};
+  use DDP;
+  p $self->current_user;
+  my $user_id = $self->current_user->{id};
 
   my $res = await $self->db->insert_p(
     'posts',

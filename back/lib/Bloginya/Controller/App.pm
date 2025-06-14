@@ -8,16 +8,15 @@ async sub settings ($self) {
 
   my %user;
 
-  my $user = await $self->current_user_p;
-  if ($user) {
+  if (my $user = await $self->current_user_p) {
     $user{picture} = $user->{google_userinfo}{picture};
   }
 
   my $s_post = $self->service('post');
 
-  my $categories = await $s_post->list_site_categories_p();
+  # my $categories = await $s_post->list_site_categories_p();
 
-  return $self->render(json => {user => %user ? \%user : undef, categories => $categories});
+  return $self->render(json => {user => %user ? \%user : undef});
 }
 
 
