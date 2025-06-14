@@ -103,3 +103,43 @@ form {
     );
   }
 }
+
+mat-divider {
+  margin: 2rem 0;
+}
+
+.opt-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  padding: 0.5rem 0;
+}
+.opt-title {
+  font: var(--mat-sys-title-medium);
+  min-width: 15rem;
+}
+.opt-value {
+  flex: 1;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.opt-toggles {
+  display: flex;
+  flex-flow: column;
+
+  mat-slide-toggle {
+    margin: 0.5rem 0;
+  }
+}
+
+.tags-field {
+  width: 100%;
+}
+
+.general-actions {
+  margin: 1rem;
+  display: flex;
+  justify-content: center;
+}

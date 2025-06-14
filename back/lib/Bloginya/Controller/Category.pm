@@ -6,14 +6,12 @@ use List::Util           qw(reduce);
 
 async sub save($self) {
   my ($db, $redis) = ($self->db, $self->redis);
-  my $user = await $self->current_user_p;
 
-  my $p = $self->req->json;
+  my $cat = $self->req->json;
 
-  my %vals = (title => $$p{title}, user_id => $user->{id}, (parent_id => $$p{parent_id}) x !!$$p{parent_id});
-  my ($id) = (await $self->db->insert_p('categories', \%vals, {returning => 'id'}))->array->@*;
+  my $id = await $self->service('category')->create_p($cat);
 
-  return $self->render(json => {id => $id});
+  return $self->render(json => {id => $id, title => $cat->{title}});
 }
 
 
@@ -41,25 +39,8 @@ async sub get($self) {
 }
 
 async sub list($self) {
-  my $parent_id = $self->param('pid');
-  return $self->render(status => 400, json => {message => 'Invalid ID'}) if $parent_id && !is_uuid($parent_id);
-
-  my %filter = (parent_id => $parent_id);
-
-  my $db         = $self->db;
-  my $categories = (await $db->select_p(
-    'categories', ['id', 'title', 'picture', 'created_at'],
-    \%filter, {order_by => {-desc => 'created_at'}},
-  ))->hashes;
-
-  my %resp = (categories => $categories);
-
-  if ($parent_id) {
-    my $res = (await $db->select_p('categories', ['title', 'picture', 'parent_id'], {id => $parent_id}))->hash;
-    @resp{qw(parent_title parent_picture grandparent_id)} = @$res{qw(title picture parent_id)};
-  }
-
-  return $self->render(json => \%resp);
+  my $cats = await $self->service('category')->list_all_categories_p();
+  return $self->render(json => $cats);
 }
 
 1

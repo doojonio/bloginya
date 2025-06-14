@@ -1,6 +1,8 @@
 package Bloginya::Controller::Post;
 use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
+use experimental 'try';
+
 use Bloginya::Util::UUID qw(is_uuid);
 use List::Util           qw(reduce);
 
@@ -91,13 +93,95 @@ sub _extract_title_n_pic($self, $doc) {
 async sub get($self) {
   my $id = $self->param('id');
 
-  return $self->render(status => 400, json => {message => 'Invalid ID'}) unless is_uuid($id);
+  return $self->msg('Invalid Id', 400) unless is_uuid($id);
 
-  # NOTE: expand is not that neeeded acatually
-  my $post = (await $self->db->select_p('posts', '*', {id => $id}))->expand->hash;
+  my $post;
+  try {
+    $post = await $self->service('post')->read_p($id);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      $post = undef;
+    }
+    else {
+      die $e;
+    }
+  }
 
   return $self->render(status => 404, json => {message => 'Blog not found'}) unless $post;
   return $self->render(json   => $post);
+}
+
+async sub get_for_edit($self) {
+  my $id = $self->param('id');
+
+  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+
+  my $post;
+  try {
+    $post = await $self->service('post')->get_for_edit_p($id);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      $post = undef;
+    }
+    else {
+      die $e;
+    }
+  }
+
+  return $self->render(status => 404, json => {message => 'Post not found'}) unless $post;
+  return $self->render(json   => $post);
+}
+
+async sub update_draft ($self) {
+  my $id = $self->param('id');
+  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+
+  # TODO validate
+  my $payload = $self->req->json;
+
+  my $ok;
+  try {
+    $ok = await $self->service('post')->update_draft_p($id, $payload);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      $ok = undef;
+    }
+    else {
+      die $e;
+    }
+  }
+
+  return $self->msg('OK');
+}
+
+async sub apply_changes ($self) {
+  my $id = $self->param('id');
+  my $id = $self->param('id');
+  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+
+  # TODO validate
+  my $payload = $self->req->json;
+
+  # TODO ok stuff
+  my $ok;
+  use DDP;
+  p $payload;
+  try {
+    $ok = await $self->service('post')->apply_changes_p($id, $payload);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      $ok = undef;
+    }
+    else {
+      die $e;
+    }
+  }
+
+  return $self->msg('OK');
 }
 
 async sub list($self) {

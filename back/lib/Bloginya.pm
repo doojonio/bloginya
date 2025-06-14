@@ -44,15 +44,26 @@ sub _setup_routes($self) {
 
   my $api = $r->any('/api');
 
+  # detect user
+  my $api_U = $api->under(
+    '/' => sub ($c) {
+      $c->current_user_p->then(sub {
+        $c->continue;
+      });
+
+      return undef;
+    }
+  );
+
   # Unauthorized routes
-  $api->get('/settings')->to('App#settings');
-  $api->get('/oauth/to_google')->to('OAuth#to_google');
-  $api->get('/oauth/from_google')->to('OAuth#from_google');
-  $api->get('/posts')->to('Post#get');
-  $api->get('/posts/home')->to('Post#list_home');
-  $api->get('/posts/list')->to('Post#list');
-  $api->get('/categories/list')->to('Category#list');
-  $api->get('/categories')->to('Category#get');
+  $api_U->get('/settings')->to('App#settings');
+  $api_U->get('/oauth/to_google')->to('OAuth#to_google');
+  $api_U->get('/oauth/from_google')->to('OAuth#from_google');
+  $api_U->get('/posts')->to('Post#get');
+  $api_U->get('/posts/home')->to('Post#list_home');
+  $api_U->get('/posts/list')->to('Post#list');
+  $api_U->get('/categories/list')->to('Category#list');
+  $api_U->get('/categories')->to('Category#get');
 
   # Authorized routes
   my $api_A = $api->under(
@@ -72,6 +83,9 @@ sub _setup_routes($self) {
 
   $api_A->post('/drive')->to('File#put_file');
   $api_A->post('/posts')->to('Post#save');
+  $api_A->get('/posts/for_edit')->to('Post#get_for_edit');
+  $api_A->put('/posts/draft')->to('Post#update_draft');
+  $api_A->put('posts')->to('Post#apply_changes');
   $api_A->post('/posts/publish')->to('Post#publish');
   $api_A->post('/categories')->to('Category#save');
 }

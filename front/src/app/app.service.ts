@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Toolbar } from 'ngx-editor';
 import { BehaviorSubject, map, Observable, of, share, shareReplay } from 'rxjs';
-import { Category } from './posts.service';
+import { Category, PostStatuses } from './posts.service';
 
 @Injectable({
   providedIn: 'root',
@@ -64,6 +64,14 @@ export class AppService {
       ['link'],
       ['align_left', 'align_center', 'align_right', 'align_justify'],
     ]);
+  }
+
+  getPostStatuses() {
+    const statuses = [];
+    for (const [k, v] of Object.entries(PostStatuses)) {
+      statuses.push(v);
+    }
+    return of(statuses);
   }
 
   getEditorColorPallete() {

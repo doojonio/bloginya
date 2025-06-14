@@ -54,10 +54,9 @@ create table
         id uuid primary key default uuid_generate_v4 (),
         user_id uuid not null references users (id),
         category_id uuid references categories (id),
-        document jsonb not null,
-        draft jsonb,
-        status post_status not null default 'draft',
         title text not null,
+        document jsonb not null,
+        status post_status not null default 'draft',
         description text,
         priority integer,
         picture_wp text references uploads (path),
@@ -68,6 +67,15 @@ create table
         modified_at timestamp,
         published_at timestamp,
         deleted_at timestamp
+    );
+
+create table
+    post_drafts (
+        post_id uuid primary key references posts (id),
+        title text not null,
+        document jsonb not null,
+        picture_wp text references uploads (path),
+        picture_pre text references uploads (path)
     );
 
 create table
@@ -158,6 +166,8 @@ drop table post_tags;
 drop table tags;
 
 drop table post_uploads;
+
+drop table post_drafts;
 
 drop table posts;
 
