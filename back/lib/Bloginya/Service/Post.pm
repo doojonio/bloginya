@@ -45,7 +45,7 @@ async sub get_for_edit_p($self, $post_id) {
     = (\'posts p', [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t', 'pt.tag_id' => 't.id'],);
   my @select = (
     qw(p.user_id p.category_id p.status p.description p.enable_likes p.enable_comments),
-    [\'array_agg(t.name)' => 'tags']
+    [\'array_remove(array_agg(t.name), NULL)' => 'tags']
   );
   my @group_by = ('p.id');
 
@@ -120,7 +120,7 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   await $self->db->delete_p('post_drafts', {post_id => $post_id});
 
   if (my $tags = $meta->{tags}) {
-    await $self->s_tags->apply_tags_p($post_id, $tags);
+    await $self->s_tags->apply_tags_p($post_id, $tags) if @$tags;
   }
 
   if (my $sn = $meta->{shortname}) {

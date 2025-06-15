@@ -121,11 +121,15 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   });
   meta = new FormGroup({
     tags: new FormControl<string[]>([]),
-    status: new FormControl(PostStatuses.Draft),
+    status: new FormControl(PostStatuses.Draft, [Validators.required]),
     category_id: new FormControl<string | null>(null),
     shortname: new FormControl<null | string>(
       null,
-      [Validators.minLength(3), Validators.maxLength(16)],
+      [
+        Validators.minLength(3),
+        Validators.maxLength(16),
+        Validators.pattern(/^\w+$/),
+      ],
       this.validateUniqueShortname.bind(this)
     ),
     enableLikes: new FormControl(true, [Validators.required]),
@@ -151,7 +155,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     )
   );
 
-  shortname = this.meta.get('shortname')!;
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
 
   validateUniqueShortname(control: AbstractControl) {
@@ -278,11 +281,14 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   applyChanges() {
+    if (this.meta.invalid) {
+      return;
+    }
+
     this.saveDraft(this.draft.value)
       .pipe(
         switchMap((res) => {
           const meta = this.meta.value;
-          console.log(meta);
           return this.posts.applyChanges(this.postId(), {
             tags: meta.tags || [],
             status: meta.status || PostStatuses.Draft,

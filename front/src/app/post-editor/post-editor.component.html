@@ -95,9 +95,18 @@
               formControlName="shortname"
               placeholder="Shortname"
             />
-            <!-- @if (isShortnameTaken$ | async) { -->
+            @if (this.meta.getError('minlength', 'shortname')) {
+            <mat-error i18n>Too short</mat-error>
+            }
+            @else if (this.meta.getError('maxlength', 'shortname')) {
+            <mat-error i18n>Too long</mat-error>
+            }
+            @else if (this.meta.getError('pattern', 'shortname')) {
+            <mat-error i18n>Invalid characters</mat-error>
+            }
+            @else if (this.meta.getError('taken', 'shortname')) {
             <mat-error i18n>This shortname is already taken</mat-error>
-            <!-- } -->
+            }
           </mat-form-field>
         </div>
       </div>
