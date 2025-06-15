@@ -159,7 +159,6 @@ async sub update_draft ($self) {
 
 async sub apply_changes ($self) {
   my $id = $self->param('id');
-  my $id = $self->param('id');
   return $self->msg('Invalid Id', 400) unless is_uuid($id);
 
   # TODO validate
@@ -167,8 +166,6 @@ async sub apply_changes ($self) {
 
   # TODO ok stuff
   my $ok;
-  use DDP;
-  p $payload;
   try {
     $ok = await $self->service('post')->apply_changes_p($id, $payload);
   }

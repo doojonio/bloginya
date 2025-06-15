@@ -85,8 +85,8 @@ export class PostsService {
 export interface UpdateDraftPayload {
   title?: string;
   document?: any;
-  picture_wp?: string;
-  picture_pre?: string;
+  picture_wp?: string | null;
+  picture_pre?: string | null;
 }
 
 export interface ApplyChangesPayload {
@@ -100,11 +100,11 @@ export interface ApplyChangesPayload {
 
 export interface GetForEditResponse {
   user_id: string;
-  category_id?: string;
+  category_id: string | null;
   title: string;
   document: any;
-  picture_wp?: string;
-  picture_pre?: string;
+  picture_wp: string | null;
+  picture_pre: string | null;
   status: PostStatuses;
   description: string;
   enable_likes: boolean;
