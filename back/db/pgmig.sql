@@ -33,7 +33,17 @@ create table
         title text,
         priority integer,
         description text,
-        picture text,
+        created_at timestamp not null default now ()
+    );
+
+create table
+    uploads (
+        path text primary key,
+        type text not null,
+        user_id uuid not null references users (id),
+        thumbnail_path text,
+        medium_path text,
+        large_path text,
         created_at timestamp not null default now ()
     );
 
@@ -44,17 +54,38 @@ create table
         id uuid primary key default uuid_generate_v4 (),
         user_id uuid not null references users (id),
         category_id uuid references categories (id),
+        title text not null,
         document jsonb not null,
         status post_status not null default 'draft',
-        title text not null,
         description text,
-        picture text,
         priority integer,
+        picture_wp text references uploads (path),
+        picture_pre text references uploads (path),
+        enable_likes boolean not null default true,
+        enable_comments boolean not null default true,
         created_at timestamp not null default now (),
         modified_at timestamp,
         published_at timestamp,
         deleted_at timestamp
     );
+
+create table
+    post_drafts (
+        post_id uuid primary key references posts (id),
+        title text not null,
+        document jsonb not null,
+        picture_wp text references uploads (path),
+        picture_pre text references uploads (path)
+    );
+
+create table
+    post_uploads (
+        path text not null references uploads (path),
+        post_id uuid not null references posts (id),
+        primary key (path, post_id)
+    );
+
+create index post_uploads_post_id_idx on post_uploads (post_id);
 
 create table
     tags (
@@ -121,21 +152,6 @@ create table
         long_views integer not null default 0
     );
 
-create table
-    uploads (
-        id uuid primary key default uuid_generate_v4 (),
-        user_id uuid not null references users (id),
-        post_id uuid not null references posts (id),
-        original_path text not null,
-        original_type text not null,
-        thumbnail_path text,
-        medium_path text,
-        large_path text,
-        created_at timestamp not null default now ()
-    );
-
-create index uploads_post_id_idx on uploads (post_id);
-
 -- 1 down
 drop table post_stats;
 
@@ -143,15 +159,19 @@ drop table post_likes;
 
 drop table comments;
 
-drop table uploads;
-
 drop table shortnames;
 
 drop table post_tags;
 
 drop table tags;
 
+drop table post_uploads;
+
+drop table post_drafts;
+
 drop table posts;
+
+drop table uploads;
 
 drop type post_status;
 

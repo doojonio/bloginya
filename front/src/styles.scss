@@ -10,7 +10,7 @@
   --post-text-color: var(--mat-sys-on-surface);
   --post-placeholder-color: var(--mat-sys-on-surface);
   --post-border-radius: 4px;
-  --post-border-color: var(--mat-sys-outline-variant);
+  --post-border-color: ''; // var(--mat-sys-outline-variant);
   --post-wrapper-border-color: var(--mat-sys-outline-variant);
 
   --post-menubar-bg-color: var(--mat-sys-surface);

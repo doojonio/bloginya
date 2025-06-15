@@ -14,4 +14,9 @@
   >{{ appName$ | async }}</a
 >
 <button matIconButton><mat-icon>search</mat-icon></button>
-} @else { TODO }
+} @else {
+
+<a class="title" routerLink="/">{{ appName$ | async }}</a>
+<app-search version="desktop"></app-search>
+<div></div>
+}

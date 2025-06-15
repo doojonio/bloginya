@@ -27,17 +27,111 @@ export class PostsService {
     return this.home$.pipe(map((res) => res.new_posts));
   }
 
-  getLangPosts(langId: string) {
-    return this.home$.pipe(map((res) => res.top_cat_posts));
+  getHomeCatPosts(catId: string) {
+    return this.home$.pipe(
+      map((res) => {
+        if (res.top_cat.id == catId) {
+          return res.top_cat.posts || [];
+        }
+
+        return [];
+      })
+    );
   }
 
-  getLangs() {
+  getHomeCats() {
     return this.home$.pipe(map((res) => res.cats));
   }
 
   get(postId: string) {
-    return this.http.get('/api/posts', { params: { id: postId } });
+    return this.http.get<GetPostResponse>('/api/posts', {
+      params: { id: postId },
+    });
   }
+
+  getForEdit(postId: string) {
+    return this.http.get<GetForEditResponse>('/api/posts/for_edit', {
+      params: { id: postId },
+    });
+  }
+
+  updateDraft(postId: string, fields: UpdateDraftPayload) {
+    return this.http.put('/api/posts/draft', fields, {
+      params: { id: postId },
+    });
+  }
+
+  applyChanges(id: string, meta: ApplyChangesPayload) {
+    return this.http
+      .put<{ message: string }>('/api/posts', meta, { params: { id } })
+      .pipe(map((_) => 'OK'));
+  }
+
+  createDraft() {
+    return this.http
+      .post<{ id: string }>('/api/posts', null)
+      .pipe(map((r) => r.id));
+  }
+
+  getCategories() {
+    return this.http.get<Category[]>('/api/categories/list');
+  }
+
+  addCategory(title: string) {
+    return this.http.post<Category>('/api/categories', { title });
+  }
+}
+
+export interface UpdateDraftPayload {
+  title?: string;
+  document?: any;
+  picture_wp?: string;
+  picture_pre?: string;
+}
+
+export interface ApplyChangesPayload {
+  tags: string[];
+  status: PostStatuses;
+  category_id: string | null;
+  shortname: string | null;
+  enable_likes: boolean;
+  enable_comments: boolean;
+}
+
+export interface GetForEditResponse {
+  user_id: string;
+  category_id?: string;
+  title: string;
+  document: any;
+  picture_wp?: string;
+  picture_pre?: string;
+  status: PostStatuses;
+  description: string;
+  enable_likes: boolean;
+  enable_comments: boolean;
+  tags: string[];
+}
+
+export interface GetPostResponse {
+  id: string;
+  user_id: string;
+  category_id?: string;
+  document: any;
+  status: PostStatuses;
+  title: string;
+  description?: string;
+  picture?: string;
+  priority?: number;
+  created_at: Date;
+  modified_at?: Date;
+  published_at?: Date;
+  deleted_at?: Date;
+}
+
+export enum PostStatuses {
+  Draft = 'draft',
+  Pub = 'pub',
+  Del = 'del',
 }
 
 export interface HomeResponse {
@@ -52,6 +146,8 @@ export interface Category {
   id: string;
   title: string;
   name: string;
+  // only in top cat
+  posts?: CatPost[];
 }
 export interface CatPost {
   id: string;

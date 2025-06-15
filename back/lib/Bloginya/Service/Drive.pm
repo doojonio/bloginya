@@ -12,6 +12,8 @@ use constant SIZES =>
 
 has 'app';
 has 'db';
+has 'current_user';
+
 has 'im' => sub { Image::Magick->new };
 has 'mt' => sub { MIME::Types->new };
 
@@ -37,9 +39,21 @@ async sub put($self, $file) {
   }
 
   my %files = (
-    original      => _path($path),
-    original_type => $self->mt->mimeTypeOf($path),
+    path => _path($path),
+    type => $self->mt->mimeTypeOf($path),
     map { $_ => _path($$var_paths{$_}) } keys %$var_paths,
+  );
+
+  await $self->db->insert_p(
+    'uploads',
+    {
+      path           => $files{path},
+      type           => $files{type},
+      user_id        => $self->current_user->{id},
+      thumbnail_path => $files{thumbnail},
+      medium_path    => $files{medium},
+      large_path     => $files{large},
+    },
   );
 
   return \%files;

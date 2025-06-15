@@ -1,7 +1,14 @@
 FROM perl:5.40
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends postgresql-server-dev-all
+    && apt-get -y install --no-install-recommends \
+        cpanminus \
+        postgresql-server-dev-all \
+        pkg-config \
+        libperl-dev \
+        libimage-magick-perl \
+        libwebp-dev \
+
 
 RUN cpanm -n Carmel
 

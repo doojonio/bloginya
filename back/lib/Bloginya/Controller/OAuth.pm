@@ -28,8 +28,8 @@ async sub from_google($self) {
   my $token          = await $google_service->get_token_p($code);
   my $userinfo       = await $google_service->get_userinfo_p($token);
 
-  my $user = await $self->service('user')->find_or_create_by_google_id_p($userinfo, $token);
-  await $self->create_session_p($user->{id});
+  my $id = await $self->service('user')->find_or_create_by_google_id_p($userinfo, $token);
+  await $self->create_session_p($id);
 
   return $self->redirect_to('/');
 }

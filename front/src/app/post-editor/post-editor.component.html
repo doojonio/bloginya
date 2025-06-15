@@ -1,39 +1,121 @@
-<div class="post-editor-container">
-  <div class="post-editor-content">
-    @if (this.form) {
-      <form [formGroup]="form">
-        <div class="post-editor">
-          <ngx-editor-menu [editor]="editor" [toolbar]="toolbar">
-          </ngx-editor-menu>
-          <ngx-editor [editor]="editor" formControlName="editorContent">
-              <!-- <ngx-editor-floating-menu [editor]="editor"></ngx-editor-floating-menu> -->
-          </ngx-editor>
-          @if (attachmentLoading) {
-            <mat-progress-bar mode="buffer"></mat-progress-bar>
-          } @else {
-            <div style="height: 4px"></div>
+@if (!(savedPost$() | async)) {
+<div class="spin-container"><mat-spinner></mat-spinner></div>
+} @else {
+<form [formGroup]="form">
+  <div
+    class="title"
+    [class]="picture() ? 'title-imaged' : 'title-bordered'"
+    [style]="
+      picture()
+        ? {
+            background:
+              'linear-gradient(to right, rgba(0,0,0, 0.4)), url(' +
+              picture() +
+              ') no-repeat center / cover'
           }
-        </div>
+        : ''
+    "
+  >
+    <div class="dimmed-background"></div>
 
-        <input
-          type="file"
-          accept="image/*"
-          (change)="onFilesSelected($event)"
-          multiple="multiple"
-          #filesUpload
-        />
-
-        <div class="post-editor-buttons">
-          <button mat-icon-button (click)="filesUpload.click()">
-            <mat-icon>attachment</mat-icon>
-          </button>
-          <span class="flex-spacer"></span>
-          <button mat-button (click)="save()">Save</button>
-          <button mat-flat-button (click)="publish()">Publish</button>
-        </div>
-      </form>
-    } @else {
-      <mat-spinner></mat-spinner>
-    }
+    <input type="text" formControlName="title" placeholder="Title..." />
+    <button matIconButton (click)="wpInput.click()">
+      <mat-icon>image</mat-icon>
+    </button>
+    <input
+      type="file"
+      accept="image/"
+      #wpInput
+      (change)="onWpSelected($event)"
+      style="display: none"
+    />
   </div>
-</div>
+  <div class="menu-container">
+    <ngx-editor-menu
+      [editor]="editor"
+      [toolbar]="(toolbar$ | async)!"
+      [colorPresets]="(colorPresets$ | async) || []"
+    ></ngx-editor-menu>
+  </div>
+  <ngx-editor [editor]="editor" formControlName="document"></ngx-editor>
+  <div class="editor-acts">
+    <button class="attachment-btn" matIconButton (click)="atInput.click()">
+      <mat-icon>attachment</mat-icon>
+    </button>
+    <input
+      type="file"
+      accept="image/"
+      #atInput
+      (change)="onAttachmentsSelected($event)"
+      style="display: none"
+    />
+  </div>
+  <mat-divider></mat-divider>
+  <div class="opts">
+    <div class="opt-row">
+      <div class="opt-title"><p i18n>Tags</p></div>
+      <div class="opt-value">
+        <mat-form-field class="tags-field">
+          <mat-chip-grid #chipGrid formControlName="tags">
+            @for (tag of tags(); track tag) {
+            <mat-chip-row (removed)="removeTag(tag)">
+              {{ tag }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            }
+            <input
+              placeholder="New tag..."
+              [matChipInputFor]="chipGrid"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              (matChipInputTokenEnd)="addTag($event)"
+            />
+          </mat-chip-grid>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-title"><p i18n>Settings</p></div>
+      <div class="opt-value">
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Status</mat-label>
+          <mat-select formControlName="status">
+            @for (status of STATUSES; track status.value ) {
+            <mat-option [value]="status.value">{{ status.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Category</mat-label>
+          <mat-select formControlName="category_id">
+            @for (category of (categories$ |async); track category.id ) {
+            <mat-option [value]="category.id">{{ category.title }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Shortname</mat-label>
+          <input matInput formControlName="shortname" placeholder="Shortname" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-title"><p i18n>Society</p></div>
+      <div class="opt-value">
+        <div class="opt-toggles">
+          <mat-slide-toggle formControlName="enableLikes" i18n
+            >Enable likes</mat-slide-toggle
+          >
+          <mat-slide-toggle formControlName="enableComments" i18n
+            >Enable comments</mat-slide-toggle
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="general-actions">
+    <button matButton="filled" (click)="applyChanges()" i18n>Apply</button>
+  </div>
+</form>
+}

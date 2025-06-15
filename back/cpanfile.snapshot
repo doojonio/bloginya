@@ -1,5 +1,13 @@
 # carton snapshot format: version 1.0
 DISTRIBUTIONS
+  Carp-Always-0.16
+    pathname: F/FE/FERREIRA/Carp-Always-0.16.tar.gz
+    provides:
+      Carp::Always 0.16
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      perl 5.006
   Class-Inspector-1.36
     pathname: P/PL/PLICEASE/Class-Inspector-1.36.tar.gz
     provides:

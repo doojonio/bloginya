@@ -1,34 +1,31 @@
 package Bloginya::Controller::Post;
 use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
+use experimental 'try';
+
 use Bloginya::Util::UUID qw(is_uuid);
 use List::Util           qw(reduce);
 
 async sub list_home ($self) {
+  my $u = await $self->current_user_p;
+  use DDP;
+  p $u;
   my $s_post = $self->service('post');
   my $s_cat  = $self->service('category');
 
   my $new_posts = await $s_post->list_new_posts_p();
 
   my $cats = await $s_cat->list_site_priority_categories_p;
-  my @top_cat_posts;
-  my $top_cat;
+  my %top_cat;
   if (@$cats) {
-    $top_cat       = $cats->[0];
-    @top_cat_posts = (await $s_post->list_posts_by_category_p($top_cat->{id}))->@*;
+    %top_cat = $cats->[0]->%*;
+    $top_cat{posts} = (await $s_post->list_posts_by_category_p($top_cat{id}));
   }
 
   my $popular = await $s_post->list_popular_posts_p();
 
   return $self->render(
-    json => {
-      new_posts     => $new_posts,
-      cats          => $cats,
-      top_cat       => $top_cat,
-      top_cat_posts => \@top_cat_posts,
-      popular_posts => $popular
-    }
-  );
+    json => {new_posts => $new_posts, cats => $cats, top_cat => \%top_cat, popular_posts => $popular});
 }
 
 async sub save($self) {
@@ -38,6 +35,12 @@ async sub save($self) {
   my $user = await $self->current_user_p;
 
   my $payload = $self->req->json;
+
+  unless (defined($payload)) {
+    my $id = await $self->service('post')->create_draft_p();
+    return $self->render(json => {id => $id});
+  }
+
 
   my $id  = $payload->{id};
   my $doc = $payload->{doc};
@@ -90,13 +93,95 @@ sub _extract_title_n_pic($self, $doc) {
 async sub get($self) {
   my $id = $self->param('id');
 
-  return $self->render(status => 400, json => {message => 'Invalid ID'}) unless is_uuid($id);
+  return $self->msg('Invalid Id', 400) unless is_uuid($id);
 
-  # NOTE: expand is not that neeeded acatually
-  my $post = (await $self->db->select_p('posts', '*', {id => $id}))->expand->hash;
+  my $post;
+  try {
+    $post = await $self->service('post')->read_p($id);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      $post = undef;
+    }
+    else {
+      die $e;
+    }
+  }
 
   return $self->render(status => 404, json => {message => 'Blog not found'}) unless $post;
   return $self->render(json   => $post);
+}
+
+async sub get_for_edit($self) {
+  my $id = $self->param('id');
+
+  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+
+  my $post;
+  try {
+    $post = await $self->service('post')->get_for_edit_p($id);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      $post = undef;
+    }
+    else {
+      die $e;
+    }
+  }
+
+  return $self->render(status => 404, json => {message => 'Post not found'}) unless $post;
+  return $self->render(json   => $post);
+}
+
+async sub update_draft ($self) {
+  my $id = $self->param('id');
+  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+
+  # TODO validate
+  my $payload = $self->req->json;
+
+  my $ok;
+  try {
+    $ok = await $self->service('post')->update_draft_p($id, $payload);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      $ok = undef;
+    }
+    else {
+      die $e;
+    }
+  }
+
+  return $self->msg('OK');
+}
+
+async sub apply_changes ($self) {
+  my $id = $self->param('id');
+  my $id = $self->param('id');
+  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+
+  # TODO validate
+  my $payload = $self->req->json;
+
+  # TODO ok stuff
+  my $ok;
+  use DDP;
+  p $payload;
+  try {
+    $ok = await $self->service('post')->apply_changes_p($id, $payload);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      $ok = undef;
+    }
+    else {
+      die $e;
+    }
+  }
+
+  return $self->msg('OK');
 }
 
 async sub list($self) {

@@ -1,45 +1,62 @@
 import {
   Component,
+  computed,
   HostListener,
   inject,
+  input,
   OnDestroy,
   OnInit,
+  signal,
 } from '@angular/core';
 
+import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Editor, NgxEditorModule, Toolbar, Validators } from 'ngx-editor';
+import {
+  Editor,
+  Validators as EditorValidators,
+  NgxEditorModule,
+} from 'ngx-editor';
 
-import { Location } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { Router } from '@angular/router';
 import { concat, Subject, throwError } from 'rxjs';
-import { catchError, finalize, map, takeUntil } from 'rxjs/operators';
+import {
+  catchError,
+  debounceTime,
+  filter,
+  finalize,
+  map,
+  share,
+  skip,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { AppService } from '../app.service';
 import { DriveService } from '../drive.service';
-import { PostsService } from '../posts.service';
-import { findPlaceholder, placeholderPlugin } from './placeholder-plugin';
-
-// https://prosemirror.net/examples/upload/
-// FOR Image clicks
-// class ImageView {
-//   constructor(node) {
-//     // The editor will use this as the node's DOM representation
-//     this.dom = document.createElement("img")
-//     this.dom.src = node.attrs.src
-//     this.dom.addEventListener("click", e => {
-//       console.log("You clicked me!")
-//       e.preventDefault()
-//     })
-//   }
+import { PostsService, PostStatuses } from '../posts.service';
+import { UserService } from '../user.service';
+import {
+  findPlaceholder,
+  placeholderPlugin,
+} from './plugins/placeholder.plugin';
 
 @Component({
   selector: 'app-post-editor',
@@ -51,140 +68,200 @@ import { findPlaceholder, placeholderPlugin } from './placeholder-plugin';
     ReactiveFormsModule,
     MatIconModule,
     MatProgressBarModule,
+    MatDividerModule,
+    AsyncPipe,
+    MatFormFieldModule,
+    MatChipsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSlideToggleModule,
   ],
   templateUrl: './post-editor.component.html',
   styleUrl: './post-editor.component.scss',
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
   private appService = inject(AppService);
+  private userService = inject(UserService);
   private snackBar = inject(MatSnackBar);
   private drive = inject(DriveService);
   private posts = inject(PostsService);
-  private route = inject(ActivatedRoute);
-  private location = inject(Location);
   private router = inject(Router);
 
   isHandset$ = this.appService.isHandset();
-
-  postId: string | null | undefined;
-  isPostPublic: boolean = false;
-
-  attachmentLoading = false;
-  toolbar: Toolbar = [
-    ['bold', 'italic', 'underline', 'strike'],
-    ['blockquote', 'ordered_list', 'bullet_list'],
-    [{ heading: ['h1', 'h2', 'h3'] }],
-    ['text_color', 'background_color'],
-    ['link'],
-    ['align_left', 'align_center', 'align_right', 'align_justify'],
+  private destroy$ = new Subject<void>();
+  currentUser$ = this.userService.getCurrentUser();
+  statuses$ = this.appService.getPostStatuses();
+  STATUSES = [
+    { name: 'Public', value: PostStatuses.Pub },
+    { name: 'Draft', value: PostStatuses.Draft },
+    { name: 'Del', value: PostStatuses.Del },
   ];
 
-  private destroy$ = new Subject<void>();
+  toolbar$ = this.appService.getEditorToolbar();
+  colorPresets$ = this.appService.getEditorColorPallete();
+  attachmentLoading = false;
 
-  form: FormGroup | undefined;
+  postId = input.required<string>();
+  savedPost$ = computed(() =>
+    this.posts.getForEdit(this.postId()).pipe(share())
+  );
+
+  categories$ = this.posts.getCategories();
+
+  picture = signal('');
+  tags = signal<string[]>([]);
+
+  form = new FormGroup({
+    title: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    document: new FormControl(undefined, [
+      EditorValidators.required(),
+      EditorValidators.minLength(3),
+    ]),
+    tags: new FormControl<string[]>([]),
+    status: new FormControl(PostStatuses.Draft),
+    category_id: new FormControl<string | null>(null),
+    shortname: new FormControl(''),
+    enableLikes: new FormControl(true),
+    enableComments: new FormControl(true),
+  });
   editor = new Editor({
     plugins: [placeholderPlugin],
   });
 
+  separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
+
   ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.postId = params.get('id');
-      if (!this.postId) {
-        this.createEditor(null);
-        return;
-      }
-      this.posts
-        .get(this.postId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((post) => {
-          this.createEditor(post);
+    this.savedPost$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((post) => {
+        this.picture.set(post?.picture_wp || '');
+        this.form.setValue({
+          title: post.title || '',
+          document: post.document,
+          tags: post.tags,
+          status: post.status,
+          category_id: post.category_id || null,
+          shortname: '',
+          enableLikes: post.enable_likes,
+          enableComments: post.enable_comments,
         });
+      });
+
+    this.form.valueChanges
+      .pipe(
+        skip(1),
+        takeUntil(this.destroy$),
+        filter((_) => this.form.valid && this.form.touched),
+        debounceTime(1000),
+        switchMap((form) => this.saveDraft(form))
+      )
+      .subscribe((changes) => {});
+  }
+
+  saveDraft(form: any) {
+    return this.posts
+      .updateDraft(this.postId(), {
+        title: form!.title || '',
+        document: form.document,
+        picture_wp: this.picture(),
+      })
+      .pipe(
+        catchError((err) => {
+          this.snackBar.open('Error', 'Close', { duration: 5000 });
+          return throwError(() => err);
+        }),
+        tap((_) =>
+          this.snackBar.open('Draft saved', undefined, { duration: 1000 })
+        )
+      );
+  }
+
+  removeTag(tag: string) {
+    this.tags.update((tags) => {
+      const idx = tags.indexOf(tag);
+      if (idx < 0) {
+        return tags;
+      }
+
+      tags.splice(idx, 1);
+      return [...tags];
     });
+  }
+
+  addTag(event: MatChipInputEvent) {
+    const tag = (event.value || '').trim();
+    if (tag.length < 3) {
+      return;
+    }
+
+    this.tags.update((tags) => {
+      if (tags.indexOf(tag) >= 0) {
+        return tags;
+      }
+      return [...tags, tag];
+    });
+    event.chipInput.clear();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-
     this.editor?.destroy();
   }
 
-  createEditor(post: any) {
-    let jsonDoc = { type: 'doc', content: [] };
-    if (post != null) {
-      jsonDoc = post.document.doc;
+  onWpSelected(event: Event) {
+    const postId = this.postId();
+
+    if (!postId) {
+      return;
     }
 
-    this.form = new FormGroup({
-      editorContent: new FormControl({ value: jsonDoc, disabled: false }, [
-        Validators.required(),
-        Validators.minLength(10),
-      ]),
-    });
+    const target = event.target as HTMLInputElement;
+    if (!target.files) {
+      return;
+    }
+    const files: FileList = target.files;
+    if (!files.length) {
+      return;
+    }
+    const file = files[0];
+    this.drive
+      .putFile(postId, files[0])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((resp) => this.picture.set(resp.large || resp.path));
   }
 
-  publish() {
-    // TODO join save login with save() method
-    // this.posts
-    //   .save(
-    //     this.editor.view.state.toJSON(),
-    //     this.postId ? this.postId : undefined
-    //   )
-    //   .pipe(
-    //     takeUntil(this.destroy$),
-    //     catchError((err) => {
-    //       this.snackBar.open('An error occurred when saving document', 'OK', {
-    //         duration: 5000,
-    //       });
-    //       return throwError(() => err);
-    //     })
-    //   )
-    //   .subscribe((id) => {
-    //     this.router.navigate(['/publish'], { queryParams: { id } });
-    //   });
-  }
-
-  save() {
-    // if (this.form?.invalid) {
-    //   return;
-    // }
-    // this.posts
-    //   .save(
-    //     this.editor.view.state.toJSON(),
-    //     this.postId ? this.postId : undefined
-    //   )
-    //   .pipe(
-    //     takeUntil(this.destroy$),
-    //     catchError((err) => {
-    //       this.snackBar.open('An error occurred when saving document', 'OK', {
-    //         duration: 5000,
-    //       });
-    //       return throwError(() => err);
-    //     })
-    //   )
-    //   .subscribe((rId) => {
-    //     if (!this.postId) {
-    //       this.postId = rId;
-    //       this.location.replaceState(`/edit/${this.postId}`);
-    //     }
-    //     this.snackBar.open(
-    //       (this.isPostPublic ? 'Post' : 'Draft') + ' saved',
-    //       'OK',
-    //       { duration: 5000 }
-    //     );
-    //   });
+  applyChanges() {
+    this.saveDraft(this.form.value)
+      .pipe(
+        switchMap((res) => {
+          const form = this.form.value;
+          return this.posts.applyChanges(this.postId(), {
+            tags: form.tags || [],
+            status: form.status || PostStatuses.Draft,
+            category_id: form.category_id || null,
+            shortname: form.shortname || null,
+            enable_likes: form.enableLikes || false,
+            enable_comments: form.enableComments || false,
+          });
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((_) => {
+        const vals = this.form.value;
+        this.router.navigate(
+          vals.shortname ? [vals.shortname] : ['/p/', this.postId()]
+        );
+      });
   }
 
   @HostListener('document:keydown.control.s', ['$event'])
   ctrlSHandler(event: KeyboardEvent) {
-    if (!this.form) {
-      return;
-    }
     event.preventDefault();
-    this.save();
+    this.saveDraft(this.form.value).pipe(takeUntil(this.destroy$)).subscribe();
   }
 
-  onFilesSelected(event: Event) {
+  onAttachmentsSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     if (!target.files) {
       return;
@@ -214,7 +291,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         }),
         finalize(() => (this.attachmentLoading = false))
       )
-      .subscribe((result: any) => {
+      .subscribe((result) => {
         const schema = this.editor.schema;
         const view = this.editor.view;
         const pos = findPlaceholder(view.state, result.id);
@@ -228,7 +305,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
             .replaceWith(
               pos,
               pos,
-              schema.nodes['image'].create({ src: result.path })
+              schema.nodes['image'].create({
+                src: result.path,
+              })
             )
             .setMeta(placeholderPlugin, { remove: { id: result.id } })
         );
@@ -248,15 +327,15 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     });
     view.dispatch(tr);
 
-    const http$ = this.drive.putFile(file).pipe(
+    const http$ = this.drive.putFile(this.postId(), file).pipe(
       catchError((err) => {
         view.dispatch(
           tr.setMeta(placeholderPlugin, { remove: { id: pholdId } })
         );
         return throwError(() => err);
       }),
-      map(({ path }) => {
-        return { id: pholdId, path };
+      map((res) => {
+        return { id: pholdId, path: res.medium || res.path };
       })
     );
 

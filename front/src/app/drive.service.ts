@@ -3,6 +3,10 @@ import { Injectable } from '@angular/core';
 
 export interface PutFileResponse {
   path: string;
+  type: string;
+  large?: string;
+  medium?: string;
+  thumbnail?: string;
 }
 
 @Injectable({
@@ -11,9 +15,10 @@ export interface PutFileResponse {
 export class DriveService {
   constructor(private http: HttpClient) {}
 
-  putFile(file: File) {
+  putFile(postId: string, file: File) {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('post_id', postId);
     return this.http.post<PutFileResponse>('/api/drive', formData);
   }
 }
