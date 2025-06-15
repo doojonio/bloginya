@@ -11,6 +11,7 @@ import {
 
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -37,7 +38,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
-import { concat, Subject, throwError } from 'rxjs';
+import { concat, of, Subject, throwError } from 'rxjs';
 import {
   catchError,
   debounceTime,
@@ -122,7 +123,11 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     tags: new FormControl<string[]>([]),
     status: new FormControl(PostStatuses.Draft),
     category_id: new FormControl<string | null>(null),
-    shortname: new FormControl<null | string>(null, [Validators.minLength(3)]),
+    shortname: new FormControl<null | string>(
+      null,
+      [Validators.minLength(3), Validators.maxLength(16)],
+      this.validateUniqueShortname.bind(this)
+    ),
     enableLikes: new FormControl(true, [Validators.required]),
     enableComments: new FormControl(true, [Validators.required]),
   });
@@ -146,10 +151,26 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     )
   );
 
+  shortname = this.meta.get('shortname')!;
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
+
+  validateUniqueShortname(control: AbstractControl) {
+    const { value } = control;
+    if (value == null || value.length < 3) {
+      return of(null);
+    }
+    return this.posts
+      .getShortname(value)
+      .pipe(
+        map((sn) =>
+          sn && sn.post_id !== this.postId() ? { taken: true } : null
+        )
+      );
+  }
 
   ngOnInit(): void {
     this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
+
     this.savedPost$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((post) => {
@@ -159,12 +180,13 @@ export class PostEditorComponent implements OnInit, OnDestroy {
           picture_wp: post.picture_wp,
         });
 
+        this.tags.set(post.tags);
         this.meta.setValue({
           tags: post.tags,
           status: post.status,
           category_id: post.category_id || null,
           // TODO
-          shortname: '', //post.shortname,
+          shortname: post.shortname,
           enableLikes: post.enable_likes,
           enableComments: post.enable_comments,
         });
@@ -260,6 +282,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((res) => {
           const meta = this.meta.value;
+          console.log(meta);
           return this.posts.applyChanges(this.postId(), {
             tags: meta.tags || [],
             status: meta.status || PostStatuses.Draft,

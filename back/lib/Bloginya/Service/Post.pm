@@ -12,6 +12,7 @@ has 'db';
 has 'redis';
 has 'current_user';
 has 's_tags';
+has 's_shortname';
 
 
 async sub read_p($self, $post_id) {
@@ -53,6 +54,11 @@ async sub get_for_edit_p($self, $post_id) {
   push @select, ['pd.title' => 'title'], ['pd.document' => 'document',],
     ['pd.picture_wp' => 'picture_wp', ['pd.picture_pre' => 'picture_pre']];
   push @group_by, 'pd.post_id';
+
+  # shortname
+  push @tables,   [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
+  push @select,   ['sn.name' => 'shortname'];
+  push @group_by, 'shortname';
 
   my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id}, {group_by => \@group_by}))
     ->expand->hashes->first;
@@ -115,6 +121,10 @@ async sub apply_changes_p ($self, $post_id, $meta) {
 
   if (my $tags = $meta->{tags}) {
     await $self->s_tags->apply_tags_p($post_id, $tags);
+  }
+
+  if (my $sn = $meta->{shortname}) {
+    await $self->s_shortname->set_shortname_for_post($post_id, $sn);
   }
 
   $tx->commit;

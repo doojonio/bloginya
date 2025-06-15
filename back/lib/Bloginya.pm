@@ -81,6 +81,7 @@ sub _setup_routes($self) {
     }
   );
 
+  $api_A->get('/shortnames')->to('Shortname#get_by_name');
   $api_A->post('/drive')->to('File#put_file');
   $api_A->post('/posts')->to('Post#save');
   $api_A->get('/posts/for_edit')->to('Post#get_for_edit');

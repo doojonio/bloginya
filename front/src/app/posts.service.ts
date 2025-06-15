@@ -43,6 +43,12 @@ export class PostsService {
     return this.home$.pipe(map((res) => res.cats));
   }
 
+  getShortname(name: string) {
+    return this.http.get<ShortnameResponse>('/api/shortnames', {
+      params: { name },
+    });
+  }
+
   get(postId: string) {
     return this.http.get<GetPostResponse>('/api/posts', {
       params: { id: postId },
@@ -82,6 +88,12 @@ export class PostsService {
   }
 }
 
+export interface ShortnameResponse {
+  name: string;
+  post_id: string | null;
+  category_id: string | null;
+}
+
 export interface UpdateDraftPayload {
   title?: string;
   document?: any;
@@ -106,6 +118,7 @@ export interface GetForEditResponse {
   picture_wp: string | null;
   picture_pre: string | null;
   status: PostStatuses;
+  shortname: string | null;
   description: string;
   enable_likes: boolean;
   enable_comments: boolean;

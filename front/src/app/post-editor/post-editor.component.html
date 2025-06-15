@@ -95,6 +95,9 @@
               formControlName="shortname"
               placeholder="Shortname"
             />
+            <!-- @if (isShortnameTaken$ | async) { -->
+            <mat-error i18n>This shortname is already taken</mat-error>
+            <!-- } -->
           </mat-form-field>
         </div>
       </div>

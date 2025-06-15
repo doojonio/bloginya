@@ -32,6 +32,7 @@ async sub apply_tags_p($self, $post_id, $tags) {
 
   await $self->ensure_tags_p($tags);
 
+  await $self->db->delete_p('post_tags', {post_id => $post_id});
   my ($s, @binds) = $self->sql->select('tags', 'id', {name => {-in => $tags}});
   await $self->db->query_p(
     qq~insert into post_tags (post_id, tag_id)

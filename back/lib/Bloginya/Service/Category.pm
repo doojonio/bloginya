@@ -34,3 +34,5 @@ async sub list_site_priority_categories_p($self) {
   return $res->hashes;
 }
 
+
+1;
