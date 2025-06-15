@@ -11,6 +11,7 @@ use List::Util            qw(none any);
 has 'db';
 has 'redis';
 has 'current_user';
+has 's_tags';
 
 
 async sub read_p($self, $post_id) {
@@ -108,8 +109,14 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   $post_values{$_} = _fdraft($_) for (qw(title document picture_wp picture_pre));
 
   my $tx = $self->db->begin;
+
   await $self->db->update_p('posts', \%post_values, {id => $post_id});
   await $self->db->delete_p('post_drafts', {post_id => $post_id});
+
+  if (my $tags = $meta->{tags}) {
+    await $self->s_tags->apply_tags_p($post_id, $tags);
+  }
+
   $tx->commit;
   return 1;
 }

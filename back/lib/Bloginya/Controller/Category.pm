@@ -1,8 +1,8 @@
 package Bloginya::Controller::Category;
 use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
-use Bloginya::Util::UUID qw(is_uuid);
-use List::Util           qw(reduce);
+use Bloginya::Util::CoolId qw(is_cool_id);
+use List::Util             qw(reduce);
 
 async sub save($self) {
   my ($db, $redis) = ($self->db, $self->redis);
@@ -18,7 +18,7 @@ async sub save($self) {
 async sub get($self) {
   my $id = $self->param('id');
 
-  return $self->render(status => 400, json => {message => 'Invalid ID'}) unless is_uuid($id);
+  return $self->render(status => 400, json => {message => 'Invalid ID'}) unless is_cool_id($id);
 
   my $db = $self->db;
 
