@@ -11,6 +11,8 @@ import {
 
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
+  AbstractControl,
+  FormBuilder,
   FormControl,
   FormGroup,
   FormsModule,
@@ -36,7 +38,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
-import { concat, Subject, throwError } from 'rxjs';
+import { concat, of, Subject, throwError } from 'rxjs';
 import {
   catchError,
   debounceTime,
@@ -44,7 +46,7 @@ import {
   finalize,
   map,
   share,
-  skip,
+  shareReplay,
   switchMap,
   takeUntil,
   tap,
@@ -87,6 +89,8 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private posts = inject(PostsService);
   private router = inject(Router);
 
+  private fb = inject(FormBuilder);
+
   isHandset$ = this.appService.isHandset();
   private destroy$ = new Subject<void>();
   currentUser$ = this.userService.getCurrentUser();
@@ -108,50 +112,93 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   categories$ = this.posts.getCategories();
 
-  picture = signal('');
   tags = signal<string[]>([]);
 
-  form = new FormGroup({
+  draft = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(3)]),
-    document: new FormControl(undefined, [
-      EditorValidators.required(),
-      EditorValidators.minLength(3),
-    ]),
+    document: new FormControl(undefined, [EditorValidators.required()]),
+    picture_wp: new FormControl<string | null>(null),
+  });
+  meta = new FormGroup({
     tags: new FormControl<string[]>([]),
-    status: new FormControl(PostStatuses.Draft),
+    status: new FormControl(PostStatuses.Draft, [Validators.required]),
     category_id: new FormControl<string | null>(null),
-    shortname: new FormControl(''),
-    enableLikes: new FormControl(true),
-    enableComments: new FormControl(true),
+    shortname: new FormControl<null | string>(
+      null,
+      [
+        Validators.minLength(3),
+        Validators.maxLength(16),
+        Validators.pattern(/^\w+$/),
+      ],
+      this.validateUniqueShortname.bind(this)
+    ),
+    enableLikes: new FormControl(true, [Validators.required]),
+    enableComments: new FormControl(true, [Validators.required]),
   });
   editor = new Editor({
     plugins: [placeholderPlugin],
   });
+  picture_wp$ = this.draft.get('picture_wp')!.valueChanges.pipe(shareReplay(1));
+  title_class$ = this.picture_wp$.pipe(
+    map((url) => (url ? 'title-imaged' : 'title-bordered'))
+  );
+  title_style$ = this.picture_wp$.pipe(
+    map((url) =>
+      url
+        ? {
+            background: [
+              'linear-gradient(to right, rgba(0,0,0, 0.4))',
+              `url(${url}) no-repeat center / cover`,
+            ].join(', '),
+          }
+        : {}
+    )
+  );
 
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
 
+  validateUniqueShortname(control: AbstractControl) {
+    const { value } = control;
+    if (value == null || value.length < 3) {
+      return of(null);
+    }
+    return this.posts
+      .getShortname(value)
+      .pipe(
+        map((sn) =>
+          sn && sn.post_id !== this.postId() ? { taken: true } : null
+        )
+      );
+  }
+
   ngOnInit(): void {
+    this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
+
     this.savedPost$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((post) => {
-        this.picture.set(post?.picture_wp || '');
-        this.form.setValue({
+        this.draft.setValue({
           title: post.title || '',
           document: post.document,
+          picture_wp: post.picture_wp,
+        });
+
+        this.tags.set(post.tags);
+        this.meta.setValue({
           tags: post.tags,
           status: post.status,
           category_id: post.category_id || null,
-          shortname: '',
+          // TODO
+          shortname: post.shortname,
           enableLikes: post.enable_likes,
           enableComments: post.enable_comments,
         });
       });
-
-    this.form.valueChanges
+    this.draft.valueChanges
       .pipe(
-        skip(1),
+        // skip(1),
         takeUntil(this.destroy$),
-        filter((_) => this.form.valid && this.form.touched),
+        filter((_) => this.draft.valid && this.draft.touched),
         debounceTime(1000),
         switchMap((form) => this.saveDraft(form))
       )
@@ -161,9 +208,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   saveDraft(form: any) {
     return this.posts
       .updateDraft(this.postId(), {
-        title: form!.title || '',
+        title: form.title,
         document: form.document,
-        picture_wp: this.picture(),
+        picture_wp: form.picture_wp,
       })
       .pipe(
         catchError((err) => {
@@ -228,29 +275,37 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     this.drive
       .putFile(postId, files[0])
       .pipe(takeUntil(this.destroy$))
-      .subscribe((resp) => this.picture.set(resp.large || resp.path));
+      .subscribe((resp) =>
+        this.draft.get('picture_wp')!.setValue(resp.large || resp.path)
+      );
   }
 
   applyChanges() {
-    this.saveDraft(this.form.value)
+    if (this.meta.invalid) {
+      return;
+    }
+
+    this.saveDraft(this.draft.value)
       .pipe(
         switchMap((res) => {
-          const form = this.form.value;
+          const meta = this.meta.value;
           return this.posts.applyChanges(this.postId(), {
-            tags: form.tags || [],
-            status: form.status || PostStatuses.Draft,
-            category_id: form.category_id || null,
-            shortname: form.shortname || null,
-            enable_likes: form.enableLikes || false,
-            enable_comments: form.enableComments || false,
+            tags: meta.tags || [],
+            status: meta.status || PostStatuses.Draft,
+            category_id: meta.category_id || null,
+            shortname: meta.shortname || null,
+            enable_likes: meta.enableLikes || false,
+            enable_comments: meta.enableComments || false,
           });
         }),
         takeUntil(this.destroy$)
       )
       .subscribe((_) => {
-        const vals = this.form.value;
+        const shortname = this.meta.get('shortname');
         this.router.navigate(
-          vals.shortname ? [vals.shortname] : ['/p/', this.postId()]
+          shortname?.value && shortname?.valid
+            ? [shortname.value]
+            : ['/p/', this.postId()]
         );
       });
   }
@@ -258,7 +313,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   @HostListener('document:keydown.control.s', ['$event'])
   ctrlSHandler(event: KeyboardEvent) {
     event.preventDefault();
-    this.saveDraft(this.form.value).pipe(takeUntil(this.destroy$)).subscribe();
+    this.saveDraft(this.draft.value).pipe(takeUntil(this.destroy$)).subscribe();
   }
 
   onAttachmentsSelected(event: Event) {

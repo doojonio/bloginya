@@ -3,8 +3,8 @@ use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
 use experimental 'try';
 
-use Bloginya::Util::UUID qw(is_uuid);
-use List::Util           qw(reduce);
+use Bloginya::Util::CoolId qw(is_cool_id);
+use List::Util             qw(reduce);
 
 async sub list_home ($self) {
   my $u = await $self->current_user_p;
@@ -49,7 +49,7 @@ async sub save($self) {
 
   my %vals = (title => $title, picture => $pic, document => {-json => $doc});
   if ($id) {
-    return $self->render(status => 400, json => {message => 'Invalid id'}) unless is_uuid($id);
+    return $self->render(status => 400, json => {message => 'Invalid id'}) unless is_cool_id($id);
 
     $vals{modified_at} = \'now()';
 
@@ -93,7 +93,7 @@ sub _extract_title_n_pic($self, $doc) {
 async sub get($self) {
   my $id = $self->param('id');
 
-  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+  return $self->msg('Invalid Id', 400) unless is_cool_id($id);
 
   my $post;
   try {
@@ -115,7 +115,7 @@ async sub get($self) {
 async sub get_for_edit($self) {
   my $id = $self->param('id');
 
-  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+  return $self->msg('Invalid Id', 400) unless is_cool_id($id);
 
   my $post;
   try {
@@ -136,7 +136,7 @@ async sub get_for_edit($self) {
 
 async sub update_draft ($self) {
   my $id = $self->param('id');
-  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+  return $self->msg('Invalid Id', 400) unless is_cool_id($id);
 
   # TODO validate
   my $payload = $self->req->json;
@@ -159,16 +159,13 @@ async sub update_draft ($self) {
 
 async sub apply_changes ($self) {
   my $id = $self->param('id');
-  my $id = $self->param('id');
-  return $self->msg('Invalid Id', 400) unless is_uuid($id);
+  return $self->msg('Invalid Id', 400) unless is_cool_id($id);
 
   # TODO validate
   my $payload = $self->req->json;
 
   # TODO ok stuff
   my $ok;
-  use DDP;
-  p $payload;
   try {
     $ok = await $self->service('post')->apply_changes_p($id, $payload);
   }
@@ -209,10 +206,11 @@ async sub publish($self) {
   my $payload = $self->req->json;
 
   my $post_id = $payload->{post_id};
-  return $self->render(status => 400, json => {message => 'Missing post_id'}) if !is_uuid($post_id);
+  return $self->render(status => 400, json => {message => 'Missing post_id'}) if !is_cool_id($post_id);
 
   my $category_id = $payload->{category_id};
-  return $self->render(status => 400, json => {message => 'Invalid category_id'}) if $category_id && !is_uuid($post_id);
+  return $self->render(status => 400, json => {message => 'Invalid category_id'})
+    if $category_id && !is_cool_id($post_id);
 
   my $res
     = (await $self->db->update_p('posts', {status => 'pub', category_id => $category_id}, {id => $post_id},))->rows;

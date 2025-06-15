@@ -11,6 +11,8 @@ use List::Util            qw(none any);
 has 'db';
 has 'redis';
 has 'current_user';
+has 's_tags';
+has 's_shortname';
 
 
 async sub read_p($self, $post_id) {
@@ -43,7 +45,7 @@ async sub get_for_edit_p($self, $post_id) {
     = (\'posts p', [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t', 'pt.tag_id' => 't.id'],);
   my @select = (
     qw(p.user_id p.category_id p.status p.description p.enable_likes p.enable_comments),
-    [\'array_agg(t.name)' => 'tags']
+    [\'array_remove(array_agg(t.name), NULL)' => 'tags']
   );
   my @group_by = ('p.id');
 
@@ -52,6 +54,11 @@ async sub get_for_edit_p($self, $post_id) {
   push @select, ['pd.title' => 'title'], ['pd.document' => 'document',],
     ['pd.picture_wp' => 'picture_wp', ['pd.picture_pre' => 'picture_pre']];
   push @group_by, 'pd.post_id';
+
+  # shortname
+  push @tables,   [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
+  push @select,   ['sn.name' => 'shortname'];
+  push @group_by, 'shortname';
 
   my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id}, {group_by => \@group_by}))
     ->expand->hashes->first;
@@ -108,8 +115,18 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   $post_values{$_} = _fdraft($_) for (qw(title document picture_wp picture_pre));
 
   my $tx = $self->db->begin;
+
   await $self->db->update_p('posts', \%post_values, {id => $post_id});
   await $self->db->delete_p('post_drafts', {post_id => $post_id});
+
+  if (my $tags = $meta->{tags}) {
+    await $self->s_tags->apply_tags_p($post_id, $tags) if @$tags;
+  }
+
+  if (my $sn = $meta->{shortname}) {
+    await $self->s_shortname->set_shortname_for_post($post_id, $sn);
+  }
+
   $tx->commit;
   return 1;
 }
