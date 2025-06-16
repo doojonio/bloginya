@@ -8,7 +8,7 @@ RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
         pkg-config \
         libperl-dev \
         libimage-magick-perl \
-        libwebp-dev \
+        libwebp-dev
 
 
 RUN sudo cpanm -n Carmel Perl::Tidy Perl::LanguageServer

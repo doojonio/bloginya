@@ -7,7 +7,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
         pkg-config \
         libperl-dev \
         libimage-magick-perl \
-        libwebp-dev \
+        libwebp-dev
 
 
 RUN cpanm -n Carmel
