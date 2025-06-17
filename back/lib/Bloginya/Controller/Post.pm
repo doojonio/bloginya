@@ -55,7 +55,7 @@ sub _extract_title_n_pic($self, $doc) {
 }
 
 async sub get($self) {
-  my ($id) = eval { $self->i(id => 'cool_id') } or return;
+  my ($id) = $self->i(id => 'cool_id');
 
   my $post;
   try {
@@ -75,7 +75,7 @@ async sub get($self) {
 }
 
 async sub get_for_edit($self) {
-  my ($id) = eval { $self->i(id => 'cool_id') } or return;
+  my ($id) = $self->i(id => 'cool_id');
 
   my $post;
   try {
@@ -95,10 +95,7 @@ async sub get_for_edit($self) {
 }
 
 async sub update_draft ($self) {
-  my $id = eval { $self->i(id => 'cool_id') } or return;
-
-  # TODO validate
-  my $payload = $self->req->json;
+  my ($id, $payload) = $self->i(id => 'cool_id', json => 'UpdateDraftPayload');
 
   my $ok;
   try {
@@ -117,10 +114,7 @@ async sub update_draft ($self) {
 }
 
 async sub apply_changes ($self) {
-  my $id = eval { $self->i(id => 'cool_id') } or return;
-
-  # TODO validate
-  my $payload = $self->req->json;
+  my ($id, $payload) = $self->i(id => 'cool_id', json => 'ApplyChangesPayload');
 
   # TODO ok stuff
   my $ok;

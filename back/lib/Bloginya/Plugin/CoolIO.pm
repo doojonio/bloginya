@@ -1,6 +1,8 @@
 package Bloginya::Plugin::CoolIO;
 use Mojo::Base 'Mojolicious::Plugin', -signatures, -async_await;
 
+use experimental qw(try);
+
 use Bloginya::Util::CoolId qw(is_cool_id);
 use Bloginya::Util::UUID   qw(is_uuid);
 use Ref::Util              qw(is_hashref is_arrayref is_ref);
@@ -11,8 +13,6 @@ use Bloginya::Plugin::CoolIO::DefaultSchemaList ();
 
 use constant 'Exc'  => __PACKAGE__ . '::_Exception';
 use constant MUTATE => 1;
-
-use DDP;
 
 has 'lists' => sub { [__PACKAGE__ . '::DefaultSchemaList'] };
 
@@ -25,6 +25,33 @@ sub register {
   }
 
   $app->helper('i', sub { $self->_input(@_) });
+  $app->hook('around_action', \&_hook);
+}
+
+sub _hook {
+  my ($next, $c, $action, $last) = @_;
+  my $res;
+  try {
+    $res = $action->($c);
+  }
+  catch ($e) {
+    return _handle_err($e, $c);
+  }
+
+  if (blessed($res) && $res->isa('Mojo::Promise')) {
+    $res->catch(sub { _handle_err(shift, $c) });
+  }
+
+  $res;
+}
+
+sub _handle_err ($e, $c) {
+  if (blessed($e) && $e->isa(Exc)) {
+    $c->msg($e->message, 400);
+  }
+  else {
+    $c->reply->exception($e);
+  }
 }
 
 sub _input {
@@ -40,11 +67,8 @@ sub _input {
     my @tests = map { [$v, $self->_expand_cfg($_)] } @cfgs;
 
     unless ($self->validate(\@tests)) {
-      $c->msg("$name invalid", 400);
       die Exc->new("$name invalid");
     }
-    use DDP;
-    p $v;
     push @ret, $v;
   }
 
@@ -67,16 +91,26 @@ sub validate($self, $tests) {
           last;
         }
         else {
-          warn "$cfg failed";
+          warn $v // 'undef' . " - $cfg failed";
         }
       }
       elsif (is_hashref($cfg)) {
-        $self->_hash_validate($v, $cfg, \@queue);
-        $ok++;
+        if ($self->_hash_validate($v, $cfg, \@queue)) {
+          $ok++;
+          last;
+        }
+        else {
+          warn "failed hashref";
+        }
       }
       elsif (is_arrayref($cfg)) {
-        $self->_arr_validate($v, $cfg, \@queue);
-        $ok++;
+        if ($self->_arr_validate($v, $cfg, \@queue)) {
+          $ok++;
+          last;
+        }
+        else {
+          warn "failed array";
+        }
       }
       else {
         die "invalid cfg: $cfg";

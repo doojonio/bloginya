@@ -5,7 +5,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 async sub put_file($self) {
   return $self->msg('File is too big', 403) if $self->req->is_limit_exceeded;
 
-  my ($file, $post_id) = eval { $self->i('file' => 'upload', 'post_id' => 'cool_id',) } or return;
+  my ($file, $post_id) = $self->i('file' => 'upload', 'post_id' => 'cool_id',);
 
   my $db    = $self->db;
   my $drive = $self->service('drive');

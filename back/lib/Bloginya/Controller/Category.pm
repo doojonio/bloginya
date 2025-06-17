@@ -6,7 +6,7 @@ use List::Util qw(reduce);
 async sub save($self) {
   my ($db, $redis) = ($self->db, $self->redis);
 
-  my $cat = $self->req->json;
+  my $cat = $self->i(json => 'CategorySavePayload');
 
   my $id = await $self->service('category')->create_p($cat);
 
@@ -15,7 +15,7 @@ async sub save($self) {
 
 
 async sub get($self) {
-  my $id = eval { $self->i(id => 'cool_id') } or return;
+  my $id = $self->i(id => 'cool_id');
 
   my $db = $self->db;
 

@@ -3,7 +3,8 @@ package Bloginya::Plugin::CoolIO::DefaultSchemaList;
 use Bloginya::Plugin::CoolIO::SchemaList;
 use Bloginya::Util::UUID   qw(is_uuid);
 use Bloginya::Util::CoolId qw(is_cool_id);
-use Scalar::Util           qw(blessed);
+use Scalar::Util           qw(blessed looks_like_number);
+use Ref::Util              qw(is_ref);
 
 schema any => sub {
   1;
@@ -11,6 +12,10 @@ schema any => sub {
 
 schema num => sub {
   looks_like_number($_[0]);
+};
+
+schema bool => sub {
+  $_[0] == 0 || $_[0] == 1;
 };
 
 schema undef => sub {

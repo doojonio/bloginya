@@ -20,7 +20,7 @@ async sub to_google($self) {
 }
 
 async sub from_google($self) {
-  my $code = eval { $self->i(code => 'str') } or return;
+  my $code = $self->i(code => 'str');
 
   my $google_service = $self->app->service('google');
   my $token          = await $google_service->get_token_p($code);

@@ -26,8 +26,6 @@ sub startup ($self) {
     }
   );
 
-  # $self->exception_format('json');
-
   # for files 50mb
   # $self->max_request_size(5e+7);
 
@@ -46,14 +44,6 @@ sub _setup_routes($self) {
       $_[0]->render(json => {status => 'up'});
     }
   );
-
-  # $r->post('/')->to(
-  #   cb => sub {
-  #     my $v = eval { $_[0]->i(json => 'UpdateDraftPayload') } or return;
-
-  #     $_[0]->render(json => {status => 'up'});
-  #   }
-  # );
 
   my $api = $r->any('/api');
 
