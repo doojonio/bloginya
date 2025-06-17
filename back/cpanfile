@@ -7,6 +7,10 @@ requires 'UUID', '0.37';
 requires 'Time::Piece';
 requires 'MIME::Types';
 requires 'Carp::Always';
+
+requires 'Ref::Util';
+requires 'Ref::Util::XS';
+
 # Installed by system
 # requires 'Image::Magick';
 

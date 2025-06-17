@@ -14,6 +14,7 @@ sub startup ($self) {
   $self->plugin('Bloginya::Plugin::WebHelpers');
   $self->plugin('Bloginya::Plugin::DB');
   $self->plugin('Bloginya::Plugin::Service', {'di_tokens' => [qw(app config db redis current_user)]});
+  $self->plugin('Bloginya::Plugin::CoolIO',  {namespaces  => ['Bloginya::Schema']});
 
   $self->exception_format('json');    # Enable JSON format for exceptions
 
@@ -40,7 +41,19 @@ sub startup ($self) {
 
 sub _setup_routes($self) {
   my $r = $self->routes;
-  $r->get('/')->to(cb => sub { $_[0]->render(json => {status => 'up'}) });
+  $r->get('/')->to(
+    cb => sub {
+      $_[0]->render(json => {status => 'up'});
+    }
+  );
+
+  # $r->post('/')->to(
+  #   cb => sub {
+  #     my $v = eval { $_[0]->i(json => 'UpdateDraftPayload') } or return;
+
+  #     $_[0]->render(json => {status => 'up'});
+  #   }
+  # );
 
   my $api = $r->any('/api');
 
@@ -82,8 +95,9 @@ sub _setup_routes($self) {
   );
 
   $api_A->get('/shortnames')->to('Shortname#get_by_name');
+
   $api_A->post('/drive')->to('File#put_file');
-  $api_A->post('/posts')->to('Post#save');
+  $api_A->post('/posts/new')->to('Post#create_draft');
   $api_A->get('/posts/for_edit')->to('Post#get_for_edit');
   $api_A->put('/posts/draft')->to('Post#update_draft');
   $api_A->put('posts')->to('Post#apply_changes');

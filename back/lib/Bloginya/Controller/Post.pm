@@ -7,9 +7,7 @@ use Bloginya::Util::CoolId qw(is_cool_id);
 use List::Util             qw(reduce);
 
 async sub list_home ($self) {
-  my $u = await $self->current_user_p;
-  use DDP;
-  p $u;
+  my $u      = await $self->current_user_p;
   my $s_post = $self->service('post');
   my $s_cat  = $self->service('category');
 
@@ -28,42 +26,8 @@ async sub list_home ($self) {
     json => {new_posts => $new_posts, cats => $cats, top_cat => \%top_cat, popular_posts => $popular});
 }
 
-async sub save($self) {
-  my $db    = $self->db;
-  my $redis = $self->redis;
-
-  my $user = await $self->current_user_p;
-
-  my $payload = $self->req->json;
-
-  unless (defined($payload)) {
-    my $id = await $self->service('post')->create_draft_p();
-    return $self->render(json => {id => $id});
-  }
-
-
-  my $id  = $payload->{id};
-  my $doc = $payload->{doc};
-
-  my ($title, $pic) = $self->_extract_title_n_pic($doc);
-
-  my %vals = (title => $title, picture => $pic, document => {-json => $doc});
-  if ($id) {
-    return $self->render(status => 400, json => {message => 'Invalid id'}) unless is_cool_id($id);
-
-    $vals{modified_at} = \'now()';
-
-    my $result = await $self->db->update_p('posts', \%vals, {id => $id, user_id => $user->{id}});
-    unless ($result->rows) {
-      return $self->render(status => 404, json => {message => 'No post with such id'});
-    }
-
-    return $self->render(json => {id => $id});
-  }
-
-  $vals{user_id} = $user->{id};
-  ($id) = (await $self->db->insert_p('posts', \%vals, {returning => ['id']}))->array->@*;
-
+async sub create_draft($self) {
+  my $id = await $self->service('post')->create_draft_p();
   return $self->render(json => {id => $id});
 }
 
@@ -91,9 +55,7 @@ sub _extract_title_n_pic($self, $doc) {
 }
 
 async sub get($self) {
-  my $id = $self->param('id');
-
-  return $self->msg('Invalid Id', 400) unless is_cool_id($id);
+  my ($id) = eval { $self->i(id => 'cool_id') } or return;
 
   my $post;
   try {
@@ -113,9 +75,7 @@ async sub get($self) {
 }
 
 async sub get_for_edit($self) {
-  my $id = $self->param('id');
-
-  return $self->msg('Invalid Id', 400) unless is_cool_id($id);
+  my ($id) = eval { $self->i(id => 'cool_id') } or return;
 
   my $post;
   try {
@@ -135,8 +95,7 @@ async sub get_for_edit($self) {
 }
 
 async sub update_draft ($self) {
-  my $id = $self->param('id');
-  return $self->msg('Invalid Id', 400) unless is_cool_id($id);
+  my $id = eval { $self->i(id => 'cool_id') } or return;
 
   # TODO validate
   my $payload = $self->req->json;
@@ -158,8 +117,7 @@ async sub update_draft ($self) {
 }
 
 async sub apply_changes ($self) {
-  my $id = $self->param('id');
-  return $self->msg('Invalid Id', 400) unless is_cool_id($id);
+  my $id = eval { $self->i(id => 'cool_id') } or return;
 
   # TODO validate
   my $payload = $self->req->json;
@@ -179,44 +137,6 @@ async sub apply_changes ($self) {
   }
 
   return $self->msg('OK');
-}
-
-async sub list($self) {
-  my $is_drafts = !!$self->param('drafts');
-  my $limit     = ($self->param('limit') // 50) + 0;
-  my $page      = ($self->param('page')  // 0) + 0;
-
-  $limit = 50 if $limit > 100;
-
-  if ($is_drafts) {
-    my $posts = (await $self->db->select_p(
-      'posts',
-      ['id', 'title', 'picture', 'created_at'],
-      {status   => 'draft'},
-      {order_by => {-desc => 'created_at'}, limit => $limit, offset => $limit * $page}
-    ))->hashes;
-
-    return $self->render(json => $posts);
-  }
-
-  return $self->render(json => []);
-}
-
-async sub publish($self) {
-  my $payload = $self->req->json;
-
-  my $post_id = $payload->{post_id};
-  return $self->render(status => 400, json => {message => 'Missing post_id'}) if !is_cool_id($post_id);
-
-  my $category_id = $payload->{category_id};
-  return $self->render(status => 400, json => {message => 'Invalid category_id'})
-    if $category_id && !is_cool_id($post_id);
-
-  my $res
-    = (await $self->db->update_p('posts', {status => 'pub', category_id => $category_id}, {id => $post_id},))->rows;
-
-  return $self->render(status => 404, json => {message => 'Blog not found'}) unless $res;
-  return $self->render(json => {id => $post_id});
 }
 
 1
