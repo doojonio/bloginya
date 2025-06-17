@@ -20,9 +20,7 @@ async sub to_google($self) {
 }
 
 async sub from_google($self) {
-  my $v    = $self->validation;
-  my $code = $v->required('code')->param;
-  return $self->render(status => 400, json => {message => $v->{error}}) if $v->has_error;
+  my $code = $self->i(code => 'str');
 
   my $google_service = $self->app->service('google');
   my $token          = await $google_service->get_token_p($code);

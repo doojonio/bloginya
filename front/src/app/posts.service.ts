@@ -75,7 +75,7 @@ export class PostsService {
 
   createDraft() {
     return this.http
-      .post<{ id: string }>('/api/posts', null)
+      .post<{ id: string }>('/api/posts/new', null)
       .pipe(map((r) => r.id));
   }
 

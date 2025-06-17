@@ -1,13 +1,12 @@
 package Bloginya::Controller::Category;
 use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
-use Bloginya::Util::CoolId qw(is_cool_id);
-use List::Util             qw(reduce);
+use List::Util qw(reduce);
 
 async sub save($self) {
   my ($db, $redis) = ($self->db, $self->redis);
 
-  my $cat = $self->req->json;
+  my $cat = $self->i(json => 'CategorySavePayload');
 
   my $id = await $self->service('category')->create_p($cat);
 
@@ -16,9 +15,7 @@ async sub save($self) {
 
 
 async sub get($self) {
-  my $id = $self->param('id');
-
-  return $self->render(status => 400, json => {message => 'Invalid ID'}) unless is_cool_id($id);
+  my $id = $self->i(id => 'cool_id');
 
   my $db = $self->db;
 
