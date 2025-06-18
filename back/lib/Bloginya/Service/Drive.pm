@@ -28,34 +28,36 @@ async sub put($self, $file_path, $extname) {
 
   my $file = Mojo::File->new($file_path);
 
-  my $dir = $self->app->home->child('public', 'drive', $year, $month, $day);
+  my $dir = $self->app->home->child('public', 'drive', $year, $month, $day, uuid4);
   $dir->make_path;
-  my $id   = uuid4;
-  my $path = $dir->child("$id.$extname");
+
+  my $path = $dir->child("original.$extname");
   $file = $file->copy_to($path);
 
-  # TODO if image
-  my $var_paths = $self->_generate_diff_sizes($path, $dir->child($id)->make_path);
+  my $var_paths = $self->_generate_diff_sizes($path, $dir);
 
   my sub _path {
     (split /public\//, shift)[-1];
   }
 
-  my %files = (path => _path($path), type => $mtype, map { $_ => _path($$var_paths{$_}) } keys %$var_paths,);
+  my %files
+    = (original => _path($path), original_type => $mtype, map { $_ => _path($var_paths->{$_}) } keys %$var_paths,);
 
+  my $id = _path($dir);
   await $self->db->insert_p(
     'uploads',
     {
-      path           => $files{path},
-      type           => $files{type},
-      user_id        => $self->current_user->{id},
-      thumbnail_path => $files{thumbnail},
-      medium_path    => $files{medium},
-      large_path     => $files{large},
+      id            => $id,
+      user_id       => $self->current_user->{id},
+      original_type => $files{original_type},
+      original      => $files{original},
+      thumbnail     => $files{thumbnail},
+      medium        => $files{medium},
+      large         => $files{large},
     },
   );
 
-  return \%files;
+  return $id, \%files;
 }
 
 sub _generate_diff_sizes($self, $file_path, $dir) {
@@ -78,6 +80,12 @@ sub _generate_diff_sizes($self, $file_path, $dir) {
   }
 
   return \%paths;
+}
+
+sub extract_upload_id($self, $path) {
+  my @parts = split /\//, $path;
+  die 'invalid path' if @parts < 5;
+  join('/', @parts[qw(0 1 2 3 4)]);
 }
 
 1;

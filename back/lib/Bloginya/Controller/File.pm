@@ -9,16 +9,15 @@ async sub put_file($self) {
 
   my ($file, $post_id) = $self->i('file' => 'upload', 'post_id' => 'cool_id',);
 
-  my $db    = $self->db;
-  my $drive = $self->service('drive');
-  my $paths;
-
   return $self->msg('Invalid filename', 400) unless my $ext = Mojo::File->new($file->filename)->extname;
 
+  my $drive = $self->service('drive');
 
+  my $id;
+  my $paths;
   my $file_asset = $file->asset->to_file;
   try {
-    $paths = await $drive->put($file_asset->path, $ext);
+    ($id, $paths) = await $drive->put($file_asset->path, $ext);
   }
   catch ($e) {
     if ($e =~ /not image/) {
@@ -29,7 +28,8 @@ async sub put_file($self) {
     }
   }
 
-  await $self->service('post')->link_upload_to_post_p($post_id, $paths->{path});
+  await $self->service('post')->link_upload_to_post_p($post_id, $id);
+
   $self->render(json => $paths);
 }
 

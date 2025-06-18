@@ -44,12 +44,13 @@ create table
 
 create table
     uploads (
-        path text primary key,
-        type text not null,
+        id text primary key,
         user_id uuid not null references users (id),
-        thumbnail_path text,
-        medium_path text,
-        large_path text,
+        original_type text not null,
+        original text not null,
+        thumbnail text,
+        medium text,
+        large text,
         created_at timestamp not null default now ()
     );
 
@@ -62,11 +63,12 @@ create table
         category_id cool_id references categories (id),
         title text not null,
         document jsonb not null,
+        meta jsonb not null,
         status post_status not null default 'draft',
         description text,
         priority integer,
-        picture_wp text references uploads (path),
-        picture_pre text references uploads (path),
+        picture_wp text references uploads (id),
+        picture_pre text references uploads (id),
         enable_likes boolean not null default true,
         enable_comments boolean not null default true,
         created_at timestamp not null default now (),
@@ -80,15 +82,15 @@ create table
         post_id cool_id primary key references posts (id),
         title text not null,
         document jsonb not null,
-        picture_wp text references uploads (path),
-        picture_pre text references uploads (path)
+        picture_wp text references uploads (id),
+        picture_pre text references uploads (id)
     );
 
 create table
     post_uploads (
-        path text not null references uploads (path),
+        upload_id text not null references uploads (id),
         post_id cool_id not null references posts (id),
-        primary key (path, post_id)
+        primary key (upload_id, post_id)
     );
 
 create index post_uploads_post_id_idx on post_uploads (post_id);

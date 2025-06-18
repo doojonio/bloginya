@@ -276,7 +276,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       .putFile(postId, files[0])
       .pipe(takeUntil(this.destroy$))
       .subscribe((resp) =>
-        this.draft.get('picture_wp')!.setValue(resp.large || resp.path)
+        this.draft.get('picture_wp')!.setValue(resp.large || resp.original)
       );
   }
 
@@ -390,7 +390,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         return throwError(() => err);
       }),
       map((res) => {
-        return { id: pholdId, path: res.medium || res.path };
+        return { id: pholdId, path: res.medium || res.original };
       })
     );
 

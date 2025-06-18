@@ -4,14 +4,14 @@ use Mojo::Loader qw(load_classes);
 use Mojo::Util   qw(camelize decamelize);
 
 has 'di_tokens';
-
 has 'seen' => sub { {} };
+has 'service_prefix';
 
 sub register ($self, $app, $conf) {
-  $self->di_tokens($conf->{di_tokens} // []);
+  $self->di_tokens($conf->{di_tokens}           // []);
+  $self->service_prefix($conf->{service_prefix} // 'se_');
 
   my @services = load_classes('Bloginya::Service');
-
   $self->_setup_serv_di_token($_) for @services;
 
   $app->helper(
@@ -42,8 +42,8 @@ sub _di ($self, $c, $class) {
   for my $token ($self->di_tokens->@*) {
     next unless $class->can($token);
 
-    if (substr($token, 0, 2) eq 's_') {
-      my $sname = substr($token, 2);
+    if (substr($token, 0, length($self->service_prefix)) eq $self->service_prefix) {
+      my $sname = substr($token, length($self->service_prefix));
       push @args, $token => $self->_service($c, $sname);
     }
     else {
@@ -55,7 +55,7 @@ sub _di ($self, $c, $class) {
 }
 
 sub _setup_serv_di_token($self, $serv) {
-  my $name = 's_' . decamelize((split /::/, $serv)[-1]);
+  my $name = $self->service_prefix . decamelize((split /::/, $serv)[-1]);
   push $self->di_tokens->@*, $name;
 }
 

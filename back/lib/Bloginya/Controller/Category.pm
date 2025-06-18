@@ -1,8 +1,6 @@
 package Bloginya::Controller::Category;
 use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
-use List::Util qw(reduce);
-
 async sub save($self) {
   my ($db, $redis) = ($self->db, $self->redis);
 

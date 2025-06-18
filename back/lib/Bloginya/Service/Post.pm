@@ -3,17 +3,20 @@ use Mojo::Base -base, -signatures, -async_await;
 
 use experimental 'try';
 
-use Bloginya::Model::Post qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
-use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
-use Time::Piece           ();
-use List::Util            qw(none any);
+use Bloginya::Model::Post   qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
+use Bloginya::Model::User   qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
+use Bloginya::Model::Upload qw(large_variant medium_variant);
+use Time::Piece             ();
+use List::Util              qw(none any);
 
 has 'db';
 has 'redis';
 has 'current_user';
-has 's_tags';
-has 's_shortname';
-has 's_policy';
+has 'se_tags';
+has 'se_shortname';
+has 'se_policy';
+has 'se_prose_mirror';
+has 'se_drive';
 
 
 async sub read_p($self, $post_id) {
@@ -33,12 +36,12 @@ async sub read_p($self, $post_id) {
     ->expand->hashes->first;
 
   # TODO: remove extra info for visitors
-  die 'no rights to read this post' if $p && !$self->s_policy->can_read_post($p);
+  die 'no rights to read this post' if $p && !$self->se_policy->can_read_post($p);
   return $p;
 }
 
 async sub get_for_edit_p($self, $post_id) {
-  die 'no rights to edit this post' unless await $self->s_policy->can_update_post_p($post_id);
+  die 'no rights to edit this post' unless await $self->se_policy->can_update_post_p($post_id);
 
   await $self->_ensure_draft_p($post_id);
   my @tables
@@ -50,10 +53,12 @@ async sub get_for_edit_p($self, $post_id) {
   my @group_by = ('p.id');
 
   # draft
-  push @tables, [-left => \'post_drafts pd', 'pd.post_id' => 'p.id'];
+  push @tables, [-left => \'post_drafts pd', 'pd.post_id' => 'p.id'],
+    [-left => \'uploads uwp', 'uwp.id' => 'pd.picture_wp'], [-left => \'uploads upre', 'upre.id' => 'pd.picture_pre'];
+
   push @select, ['pd.title' => 'title'], ['pd.document' => 'document',],
-    ['pd.picture_wp' => 'picture_wp', ['pd.picture_pre' => 'picture_pre']];
-  push @group_by, 'pd.post_id';
+    [large_variant('uwp') => 'picture_wp', [medium_variant('upre') => 'picture_pre']];
+  push @group_by, 'pd.post_id', 'uwp.id', 'upre.id';
 
   # shortname
   push @tables,   [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
@@ -77,7 +82,7 @@ async sub _ensure_draft_p($self, $post_id) {
 }
 
 async sub update_draft_p ($self, $post_id, $fields) {
-  die "no rights" unless (await $self->s_policy->can_update_post_p($post_id));
+  die "no rights" unless (await $self->se_policy->can_update_post_p($post_id));
 
   my %fields = map { $_ => $fields->{$_} } grep {
     my $a = $_;
@@ -85,12 +90,16 @@ async sub update_draft_p ($self, $post_id, $fields) {
   } keys %$fields;
 
   $fields{document} = {-json => $fields{document}} if exists $fields{document};
+  for (qw(picture_wp picture_pre)) {
+    next unless $fields{$_};
+    $fields{$_} = $self->se_drive->extract_upload_id($fields{$_});
+  }
 
   await $self->db->update_p('post_drafts', \%fields, {post_id => $post_id});
 }
 
 async sub apply_changes_p ($self, $post_id, $meta) {
-  die "no rights" unless (await $self->s_policy->can_update_post_p($post_id));
+  die "no rights" unless (await $self->se_policy->can_update_post_p($post_id));
 
   my %post_values = map { $_ => $meta->{$_} } grep {
     my $a = $_;
@@ -112,29 +121,53 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   await $self->db->delete_p('post_drafts', {post_id => $post_id});
 
   if (my $tags = $meta->{tags}) {
-    await $self->s_tags->apply_tags_p($post_id, $tags) if @$tags;
+    await $self->se_tags->apply_tags_p($post_id, $tags) if @$tags;
   }
 
   if (my $sn = $meta->{shortname}) {
-    await $self->s_shortname->set_shortname_for_post($post_id, $sn);
+    await $self->se_shortname->set_shortname_for_post($post_id, $sn);
   }
+
+  await $self->_update_meta_from_content_p($post_id);
 
   $tx->commit;
 
   return 1;
 }
 
-async sub _update_meta_from_content($self, $post_id) {
-  my $content = await $self->db->select_p('posts', 'document', {post_id => $post_id}, {for => 'update'});
+async sub _update_meta_from_content_p($self, $post_id) {
+  my @picture_cols = qw(
+    picture_wp
+    picture_pre
+  );
+
+  my $row = (await $self->db->select_p('posts', ['document', @picture_cols], {id => $post_id}, {for => 'update'}))
+    ->expand->hashes->first;
+  die "not found post $post_id" unless $row;
+
+  my $doc  = $row->{document};
+  my $pics = $self->se_prose_mirror->get_all_images($doc);
+  my @ids  = map { $self->se_drive->extract_upload_id($_) } grep {$_} map { $_->{attrs}{src} } @$pics;
+
+  my $pics_num = @ids;
+
+  for (@picture_cols) {
+    push @ids, $row->{$_} if $row->{$_};
+  }
+
+  my $ttr = $self->se_prose_mirror->estimate_ttr_min($doc);
+
+  await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => \@ids}});
+  await $self->db->update_p('posts', {meta => {-json => {ttr => $ttr, pics => $pics_num}}}, {id => $post_id});
 }
 
 
 async sub link_upload_to_post_p($self, $post_id, $upload_path) {
-  await $self->db->insert_p('post_uploads', {post_id => $post_id, path => $upload_path}, {on_conflict => undef});
+  await $self->db->insert_p('post_uploads', {post_id => $post_id, upload_id => $upload_path}, {on_conflict => undef});
 }
 
 async sub create_draft_p($self) {
-  die "This user can't create post" unless $self->s_policy->can_create_post;
+  die "no rights to create draft" unless $self->se_policy->can_create_post;
 
   my $t = Time::Piece->new;
   $t = join ' ', ($t->mday, $t->monname);
@@ -143,7 +176,12 @@ async sub create_draft_p($self) {
 
   my $res = await $self->db->insert_p(
     'posts',
-    {user_id   => $user_id, document => {-json => {type => 'doc', content => []}}, title => "Draft $t"},
+    {
+      user_id  => $user_id,
+      document => {-json => {type => 'doc', content => []}},
+      meta     => {-json => {ttr  => 0,     pics    => 0}},
+      title    => "Draft $t"
+    },
     {returning => 'id'},
   );
 

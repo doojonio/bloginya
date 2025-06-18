@@ -4,23 +4,22 @@ use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 use experimental 'try';
 
 use Bloginya::Util::CoolId qw(is_cool_id);
-use List::Util             qw(reduce);
 
 async sub list_home ($self) {
-  my $u      = await $self->current_user_p;
-  my $s_post = $self->service('post');
-  my $s_cat  = $self->service('category');
+  my $u       = await $self->current_user_p;
+  my $se_post = $self->service('post');
+  my $se_cat  = $self->service('category');
 
-  my $new_posts = await $s_post->list_new_posts_p();
+  my $new_posts = await $se_post->list_new_posts_p();
 
-  my $cats = await $s_cat->list_site_priority_categories_p;
+  my $cats = await $se_cat->list_site_priority_categories_p;
   my %top_cat;
   if (@$cats) {
     %top_cat = $cats->[0]->%*;
-    $top_cat{posts} = (await $s_post->list_posts_by_category_p($top_cat{id}));
+    $top_cat{posts} = (await $se_post->list_posts_by_category_p($top_cat{id}));
   }
 
-  my $popular = await $s_post->list_popular_posts_p();
+  my $popular = await $se_post->list_popular_posts_p();
 
   return $self->render(
     json => {new_posts => $new_posts, cats => $cats, top_cat => \%top_cat, popular_posts => $popular});
@@ -29,29 +28,6 @@ async sub list_home ($self) {
 async sub create_draft($self) {
   my $id = await $self->service('post')->create_draft_p();
   return $self->render(json => {id => $id});
-}
-
-sub _extract_title_n_pic($self, $doc) {
-  my ($title, $picture) = ('', undef);
-
-  my @elements = $doc->{doc}{content}->@*;
-
-  while (my $el = shift @elements) {
-    if (!$title && $el->{type} eq 'heading') {
-      $title = reduce { $a . $b } map { $_->{text} } $el->{content}->@*;
-    }
-    if (!$picture && $el->{type} eq 'image') {
-      $picture = $el->{attrs}{src};
-    }
-
-    last if $title && $picture;
-
-    if (my $content = $el->{content}) {
-      unshift @elements, $content->@*;
-    }
-  }
-
-  return $title, $picture;
 }
 
 async sub get($self) {
