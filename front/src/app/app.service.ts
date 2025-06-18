@@ -55,15 +55,34 @@ export class AppService {
     return this.settings$;
   }
 
-  getEditorToolbar() {
-    return of<Toolbar>([
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'ordered_list', 'bullet_list'],
-      [{ heading: ['h1', 'h2', 'h3'] }],
-      ['text_color', 'background_color'],
-      ['link'],
-      ['align_left', 'align_center', 'align_right', 'align_justify'],
-    ]);
+  getEditorToolbar(): Observable<Toolbar> {
+    return this.isHandset().pipe(
+      map((isHandset) =>
+        isHandset
+          ? [
+              [
+                'bold',
+                'italic',
+                'underline',
+                'strike',
+                'blockquote',
+                'ordered_list',
+                'bullet_list',
+                'text_color',
+                'background_color',
+                'link',
+              ],
+            ]
+          : [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'ordered_list', 'bullet_list'],
+              [{ heading: ['h1', 'h2', 'h3'] }],
+              ['text_color', 'background_color'],
+              ['link'],
+              ['align_left', 'align_center', 'align_right', 'align_justify'],
+            ]
+      )
+    );
   }
 
   getPostStatuses() {
