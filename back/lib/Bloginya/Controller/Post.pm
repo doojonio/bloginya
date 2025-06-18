@@ -70,8 +70,8 @@ async sub get($self) {
     }
   }
 
-  return $self->render(status => 404, json => {message => 'Blog not found'}) unless $post;
-  return $self->render(json   => $post);
+  return $self->msg('Not Found', 404) unless $post;
+  return $self->render(json => $post);
 }
 
 async sub get_for_edit($self) {

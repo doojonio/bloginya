@@ -5,7 +5,7 @@ use List::Util qw(any);
 
 has 'db';
 has 'redis';
-has 'user';
+has 'current_user';
 
 async sub create_p ($self, $vals) {
   my %fields = map { $_ => $vals->{$_} } grep {
@@ -13,7 +13,7 @@ async sub create_p ($self, $vals) {
     any { $_ eq $a } qw (title parent_id description priority)
   } keys %$vals;
 
-  $fields{user_id} = $self->user->{id};
+  $fields{user_id} = $self->current_user->{id};
 
   my $id = (await $self->db->insert_p('categories', \%fields, {returning => ['id']}))->hashes->first->{id};
   return $id;

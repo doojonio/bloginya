@@ -17,8 +17,16 @@ schema post_status => sub {
   $_[0] && any { $_ eq $_[0] } (POST_STATUS_DRAFT, POST_STATUS_PUB, POST_STATUS_DEL);
 };
 
-schema UpdateDraftPayload =>
-  {title => 'str[3,200]', document => 'any', picture_wp => 'str|undef', picture_pre => 'str|undef'};
+schema sname => sub {
+  defined($_[0]) && $_[0] =~ /\w{3,16}/;
+};
+
+schema UpdateDraftPayload => {
+  title       => 'str[3,200]',
+  document    => {type => 'str', content => 'arrayref'},
+  picture_wp  => 'str|undef',
+  picture_pre => 'str|undef'
+};
 
 schema ApplyChangesPayload => {
   tags            => ['str[2,16]'],

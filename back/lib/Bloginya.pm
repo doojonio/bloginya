@@ -9,6 +9,14 @@ sub startup ($self) {
   my $config = $self->plugin('NotYAMLConfig');
   $self->secrets($config->{secrets});
 
+  $self->hook(
+    'around_action' => sub {
+      my ($next, $c, $action, $last) = @_;
+      my $res = $next->();
+      $res->catch(\&Carp::cluck) if blessed($res) && $res->isa('Mojo::Promise');
+    }
+  );
+
   # Default helpers
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::WebHelpers');
@@ -18,13 +26,6 @@ sub startup ($self) {
 
   $self->exception_format('json');    # Enable JSON format for exceptions
 
-  $self->hook(
-    'around_action' => sub {
-      my ($next, $c, $action, $last) = @_;
-      my $res = $next->();
-      $res->catch(\&Carp::cluck) if blessed($res) && $res->isa('Mojo::Promise');
-    }
-  );
 
   # for files 50mb
   # $self->max_request_size(5e+7);

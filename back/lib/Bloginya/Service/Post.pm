@@ -3,7 +3,7 @@ use Mojo::Base -base, -signatures, -async_await;
 
 use experimental 'try';
 
-use Bloginya::Model::Post qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT is_updatable_field);
+use Bloginya::Model::Post qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
 use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Time::Piece           ();
 use List::Util            qw(none any);
@@ -13,6 +13,7 @@ has 'redis';
 has 'current_user';
 has 's_tags';
 has 's_shortname';
+has 's_policy';
 
 
 async sub read_p($self, $post_id) {
@@ -32,13 +33,12 @@ async sub read_p($self, $post_id) {
     ->expand->hashes->first;
 
   # TODO: remove extra info for visitors
-
-  die 'no rights to read this post' if $p && !$self->_can_read_post($p);
+  die 'no rights to read this post' if $p && !$self->s_policy->can_read_post($p);
   return $p;
 }
 
 async sub get_for_edit_p($self, $post_id) {
-  die 'no rights to edit this post' unless $self->current_user;
+  die 'no rights to edit this post' unless await $self->s_policy->can_update_post_p($post_id);
 
   await $self->_ensure_draft_p($post_id);
   my @tables
@@ -63,28 +63,21 @@ async sub get_for_edit_p($self, $post_id) {
   my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id}, {group_by => \@group_by}))
     ->expand->hashes->first;
 
-  die 'no rights to edit this post' if $p && !$self->_can_update_post($p);
   return $p;
 }
 
 async sub _ensure_draft_p($self, $post_id) {
-  try {
-    my $f = join(',', qw(title document picture_wp picture_pre));
-    await $self->db->query_p(
-      qq~
+  my $f = join(',', qw(title document picture_wp picture_pre));
+  await $self->db->query_p(
+    qq~
       insert into post_drafts (post_id, $f)
       select id, $f from posts where id = (?)
       on conflict do nothing~, $post_id
-    );
-  }
-  catch ($e) {
-    die $e;
-  }
+  );
 }
 
 async sub update_draft_p ($self, $post_id, $fields) {
-  die "no rights"
-    unless $self->_can_update_post((await $self->db->select_p('posts', 'user_id', {id => $post_id}))->hashes->first);
+  die "no rights" unless (await $self->s_policy->can_update_post_p($post_id));
 
   my %fields = map { $_ => $fields->{$_} } grep {
     my $a = $_;
@@ -97,8 +90,7 @@ async sub update_draft_p ($self, $post_id, $fields) {
 }
 
 async sub apply_changes_p ($self, $post_id, $meta) {
-  die "no rights"
-    unless $self->_can_update_post((await $self->db->select_p('posts', 'user_id', {id => $post_id}))->hashes->first);
+  die "no rights" unless (await $self->s_policy->can_update_post_p($post_id));
 
   my %post_values = map { $_ => $meta->{$_} } grep {
     my $a = $_;
@@ -128,7 +120,12 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   }
 
   $tx->commit;
+
   return 1;
+}
+
+async sub _update_meta_from_content($self, $post_id) {
+  my $content = await $self->db->select_p('posts', 'document', {post_id => $post_id}, {for => 'update'});
 }
 
 
@@ -136,47 +133,8 @@ async sub link_upload_to_post_p($self, $post_id, $upload_path) {
   await $self->db->insert_p('post_uploads', {post_id => $post_id, path => $upload_path}, {on_conflict => undef});
 }
 
-async sub update_post_p($self, $post_id, $update_fields) {
-  my $post = await $self->find_p($post_id);
-  die "This user can't update post" unless $self->_can_update_post($post);
-
-  my %post_values = map { $_ => $update_fields->{$_} } grep { is_updatable_field($_) } keys %$update_fields;
-  die 'invalid values' unless %post_values;
-
-  $post_values{document} = {-json => $post_values{document}} if exists $post_values{document};
-
-  $post_values{modified_at}  = \'now()';
-  $post_values{deleted_at}   = \'now()' if $post_values{status} eq 'del';
-  $post_values{published_at} = \'now()' if $post_values{status} eq 'pub';
-
-  await $self->update_p('posts', \%post_values, {id => $post_id});
-}
-
-sub _can_read_post($self, $post) {
-  return 1 if $post->{status} eq POST_STATUS_PUB;
-
-  my $user = $self->current_user;
-  return 1 if $post->{user_id} eq $user->{id};
-  return 1 if $user->{role} eq USER_ROLE_OWNER;
-  return undef;
-}
-
-sub _can_update_post($self, $post) {
-  my $user = $self->current_user;
-  return undef unless $user;
-  return 1 if $user->{id} eq $post->{user_id} || $user->{role} eq USER_ROLE_OWNER;
-  return undef;
-}
-
-sub _can_create_post($self) {
-  my $user = $self->current_user;
-  return undef unless $user;
-  return undef if none { $_ eq $user->{role} } USER_ROLE_CREATOR, USER_ROLE_OWNER;
-  return 1;
-}
-
 async sub create_draft_p($self) {
-  die "This user can't create post" unless $self->_can_create_post;
+  die "This user can't create post" unless $self->s_policy->can_create_post;
 
   my $t = Time::Piece->new;
   $t = join ' ', ($t->mday, $t->monname);
