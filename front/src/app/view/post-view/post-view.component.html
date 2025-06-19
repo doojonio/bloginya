@@ -1,0 +1,46 @@
+@if (post(); as p) {
+<div class="container">
+  <div class="title-image" [style]="title_image_style()">
+    <p>{{ p.category_title }}</p>
+    <p i18n>
+      {{ p.ttr | number : "1.0-0" }} minute read @if (p.pics) { · {{ p.pics }}
+      {{ p.pics | i18nPlural : { "=1": "pic", other: "pics" } }} }
+    </p>
+  </div>
+  <div class="content-container">
+    <div class="title">{{ p.title }}</div>
+    <app-document-dom
+      class="content"
+      [document]="p.document"
+    ></app-document-dom>
+
+    <div class="tags">
+      @for (tag of p.tags; track tag) {
+      <span (click)="tagClicked(tag)">#{{ tag }}</span>
+      }
+    </div>
+    <div class="meta">
+      <div class="actions">
+        <div>
+          <button matIconButton (click)="p.liked ? unlike() : like()">
+            <mat-icon>{{ p.liked ? "favorite" : "favorite_border" }}</mat-icon>
+          </button>
+          @if (p.likes) {
+          {{ p.likes }}
+          }
+        </div>
+        <div>
+          <button matIconButton>
+            <mat-icon>comment</mat-icon>
+          </button>
+          @if (p.comments) {
+          {{ p.comments }}
+          }
+        </div>
+      </div>
+      <div class="date">{{ p.date | date : "yyyy.MM.dd" }}</div>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+</div>
+}

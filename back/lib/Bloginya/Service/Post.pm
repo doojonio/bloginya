@@ -20,12 +20,39 @@ has 'se_drive';
 
 
 async sub read_p($self, $post_id) {
-  my @tables
-    = (\'posts p', [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t', 'pt.tag_id' => 't.id'],);
-  my @select   = ('p.*', [\'array_agg(t.name)' => 'tags']);
-  my @group_by = ('p.id');
+  die 'no rights to read post' unless await $self->se_policy->can_read_post_p($post_id);
 
-  if ($self->current_user) {
+  my @tables = (
+    \'posts p',
+    [-left => \'post_tags pt',   'p.id'          => 'pt.post_id'],
+    [-left => \'tags t',         'pt.tag_id'     => 't.id'],
+    [-left => \'categories c',   'p.category_id' => 'c.id'],
+    [-left => \'comments com',   'com.post_id'   => 'p.id'],
+    [-left => \'post_likes lik', 'lik.post_id'   => 'p.id'],
+    [-left => \'uploads uwp',    'uwp.id'        => 'p.picture_wp'],
+  );
+  my @select = (
+    qw(p.id p.title p.document p.enable_likes p.enable_comments),
+    [\'coalesce(p.published_at, now())', 'date'],
+    [\"p.meta->>'pics'",                 'pics'],
+    [\"p.meta->>'ttr'",                  'ttr'],
+    'p.category_id',
+    ['c.title'                       => 'category_title'],
+    [\'array_agg(t.name)'            => 'tags'],
+    [\'count(distinct(com.id))'      => 'comments'],
+    [\'count(distinct(lik.user_id))' => 'likes'],
+    [large_variant('uwp')            => 'picture_wp'],
+  );
+  my @group_by = ('p.id', 'c.id', 'uwp.id');
+
+  if (my $user = $self->current_user) {
+
+    # current_like
+    push @select,
+      \[
+      '( select exists(select 1 from post_likes where post_id = (?) and user_id = (?)) ) as liked ',
+      $post_id, $user->{id}
+      ];
 
     # stats
     push @tables, [-left                                   => \'post_stats ps', 'ps.post_id' => 'p.id'];
@@ -35,9 +62,22 @@ async sub read_p($self, $post_id) {
   my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id}, {group_by => \@group_by}))
     ->expand->hashes->first;
 
+  if (!$self->current_user) {
+    $p->{'liked'} = 0;
+  }
+
   # TODO: remove extra info for visitors
-  die 'no rights to read this post' if $p && !$self->se_policy->can_read_post($p);
+
   return $p;
+}
+
+async sub like_post_p ($self, $post_id) {
+  die 'no rights' unless my $u = $self->current_user;
+  await $self->db->insert_p('post_likes', {user_id => $u->{id}, post_id => $post_id}, {on_conflict => undef});
+}
+async sub unlike_post_p ($self, $post_id) {
+  die 'no rights' unless my $u = $self->current_user;
+  await $self->db->delete_p('post_likes', {user_id => $u->{id}, post_id => $post_id});
 }
 
 async sub get_for_edit_p($self, $post_id) {

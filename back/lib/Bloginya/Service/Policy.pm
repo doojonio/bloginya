@@ -18,6 +18,12 @@ sub can_read_post($self, $post) {
   return 0;
 }
 
+async sub can_read_post_p($self, $post_id) {
+  my $user = $self->current_user;
+  return 1 if $user->{role} eq USER_ROLE_OWNER;
+  return $self->can_read_post(await $self->db->select_p('posts', ['user_id', 'status'], {id => $post_id}));
+}
+
 sub can_update_post($self, $post) {
   my $user = $self->current_user;
   return 0 unless $user;

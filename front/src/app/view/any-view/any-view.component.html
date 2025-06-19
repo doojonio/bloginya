@@ -1,0 +1,5 @@
+@if (item$ |async; as item) { @if (item.type == "post") {
+<app-post-view [post]="item.content"></app-post-view>
+} } @else {
+<mat-spinner></mat-spinner>
+}

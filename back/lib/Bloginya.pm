@@ -69,6 +69,8 @@ sub _setup_routes($self) {
   $api_U->get('/categories/list')->to('Category#list');
   $api_U->get('/categories')->to('Category#get');
 
+  $api_U->get('/shortnames/item')->to('Shortname#get_item_by_name');
+
   # Authorized routes
   my $api_A = $api->under(
     '/' => sub ($c) {
@@ -94,6 +96,8 @@ sub _setup_routes($self) {
   $api_A->put('posts')->to('Post#apply_changes');
   $api_A->post('/posts/publish')->to('Post#publish');
   $api_A->post('/categories')->to('Category#save');
+  $api_A->post('/posts/like')->to('Post#like');
+  $api_A->delete('/posts/like')->to('Post#unlike');
 }
 
 

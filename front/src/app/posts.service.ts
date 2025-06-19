@@ -43,18 +43,6 @@ export class PostsService {
     return this.home$.pipe(map((res) => res.cats));
   }
 
-  getShortname(name: string) {
-    return this.http.get<ShortnameResponse>('/api/shortnames', {
-      params: { name },
-    });
-  }
-
-  get(postId: string) {
-    return this.http.get<GetPostResponse>('/api/posts', {
-      params: { id: postId },
-    });
-  }
-
   getForEdit(postId: string) {
     return this.http.get<GetForEditResponse>('/api/posts/for_edit', {
       params: { id: postId },
@@ -86,12 +74,32 @@ export class PostsService {
   addCategory(title: string) {
     return this.http.post<Category>('/api/categories', { title });
   }
+
+  unlike(id: string) {
+    return this.http.delete('/api/posts/like', { params: { id } });
+  }
+  like(id: string) {
+    return this.http.post('/api/posts/like', null, { params: { id } });
+  }
 }
 
-export interface ShortnameResponse {
-  name: string;
-  post_id: string | null;
+export interface ReadPostResponse {
+  id: string;
+  title: string;
+  document: any;
+  enable_likes: boolean;
+  enable_comments: boolean;
+  date: string;
+  pics: number;
+  ttr: number;
   category_id: string | null;
+  category_title: string | null;
+  picture_wp: string | null;
+  tags: string[];
+  comments: number;
+  liked: boolean;
+  likes: number;
+  views?: number;
 }
 
 export interface UpdateDraftPayload {
@@ -123,22 +131,6 @@ export interface GetForEditResponse {
   enable_likes: boolean;
   enable_comments: boolean;
   tags: string[];
-}
-
-export interface GetPostResponse {
-  id: string;
-  user_id: string;
-  category_id?: string;
-  document: any;
-  status: PostStatuses;
-  title: string;
-  description?: string;
-  picture?: string;
-  priority?: number;
-  created_at: Date;
-  modified_at?: Date;
-  published_at?: Date;
-  deleted_at?: Date;
 }
 
 export enum PostStatuses {

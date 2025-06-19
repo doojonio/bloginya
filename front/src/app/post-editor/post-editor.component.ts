@@ -54,6 +54,7 @@ import {
 import { AppService } from '../app.service';
 import { DriveService } from '../drive.service';
 import { PostsService, PostStatuses } from '../posts.service';
+import { ShortnamesService } from '../shortnames.service';
 import { UserService } from '../user.service';
 import {
   findPlaceholder,
@@ -87,6 +88,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private drive = inject(DriveService);
   private posts = inject(PostsService);
+  private shortnamesService = inject(ShortnamesService);
   private router = inject(Router);
 
   private fb = inject(FormBuilder);
@@ -162,7 +164,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     if (value == null || value.length < 3) {
       return of(null);
     }
-    return this.posts
+    return this.shortnamesService
       .getShortname(value)
       .pipe(
         map((sn) =>

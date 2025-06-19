@@ -30,6 +30,18 @@ async sub create_draft($self) {
   return $self->render(json => {id => $id});
 }
 
+async sub like($self) {
+  my $id = $self->i(id => 'cool_id');
+  await $self->service('post')->like_post_p($id);
+  return $self->msg('OK');
+}
+
+async sub unlike($self) {
+  my $id = $self->i(id => 'cool_id');
+  await $self->service('post')->unlike_post_p($id);
+  return $self->msg('OK');
+}
+
 async sub get($self) {
   my ($id) = $self->i(id => 'cool_id');
 
