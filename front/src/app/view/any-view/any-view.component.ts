@@ -1,14 +1,21 @@
 import { AsyncPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { map, switchMap, throwError } from 'rxjs';
+import { catchError, map, of, switchMap, throwError } from 'rxjs';
+import { PageNotFoundComponent } from '../../page-not-found/page-not-found.component';
 import { ShortnamesService } from '../../shortnames.service';
 import { PostViewComponent } from '../post-view/post-view.component';
 
 @Component({
   selector: 'app-any-view',
-  imports: [AsyncPipe, MatProgressSpinnerModule, PostViewComponent],
+  imports: [
+    AsyncPipe,
+    MatProgressSpinnerModule,
+    PostViewComponent,
+    PageNotFoundComponent,
+  ],
   templateUrl: './any-view.component.html',
   styleUrl: './any-view.component.scss',
 })
@@ -28,6 +35,13 @@ export class AnyViewComponent {
     })
   );
   item$ = this.shortname$.pipe(
-    switchMap((name) => this.shortnamesService.getItemByShortname(name))
+    switchMap((name) => this.shortnamesService.getItemByShortname(name)),
+    catchError((err: HttpErrorResponse) => {
+      if (err.status == 404) {
+        return of({ type: 'not found', content: null });
+      } else {
+        return throwError(() => err);
+      }
+    })
   );
 }

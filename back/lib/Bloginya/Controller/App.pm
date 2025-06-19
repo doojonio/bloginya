@@ -10,6 +10,8 @@ async sub settings ($self) {
 
   if (my $user = await $self->current_user_p) {
     $user{picture} = $user->{google_userinfo}{picture};
+    $user{id}      = $user->{id};
+    $user{role}    = $user->{role};
   }
 
   my $se_post = $self->service('post');

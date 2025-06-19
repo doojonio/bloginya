@@ -30,6 +30,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 2rem;
 }
 
 .content {
@@ -57,7 +58,6 @@
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
-  margin-bottom: 1rem;
 }
 
 .actions {

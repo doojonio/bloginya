@@ -45,6 +45,15 @@
           {{ p.comments }}
           }
         </div>
+
+        @if (currentUser$ | async; as user) { @if (user.role == "owner" ||
+        user.id == p.id) {
+        <div>
+          <button matIconButton routerLink="/edit/{{ p.id }}">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        } }
       </div>
       <div class="date">{{ p.date | date : "yyyy.MM.dd" }}</div>
     </div>

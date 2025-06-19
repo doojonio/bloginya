@@ -1,4 +1,6 @@
-@if (item$ |async; as item) { @if (item.type == "post") {
+@if (item$ |async; as item) { @if(item.content == null) {
+<app-page-not-found></app-page-not-found>
+} @else if (item.type == "post") {
 <app-post-view [post]="item.content"></app-post-view>
 } } @else {
 <mat-spinner></mat-spinner>

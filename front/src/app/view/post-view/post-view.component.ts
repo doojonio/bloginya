@@ -16,8 +16,10 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 import { filter, switchMap, take, tap, timer } from 'rxjs';
 import { PostsService, ReadPostResponse } from '../../posts.service';
+import { UserService } from '../../user.service';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
 
 @Component({
@@ -31,12 +33,16 @@ import { DocumentDomComponent } from './document-dom/document-dom.component';
     DocumentDomComponent,
     MatDividerModule,
     AsyncPipe,
+    RouterModule,
   ],
   templateUrl: './post-view.component.html',
   styleUrl: './post-view.component.scss',
 })
 export class PostViewComponent {
   postsService = inject(PostsService);
+  usersService = inject(UserService);
+
+  currentUser$ = this.usersService.getCurrentUser();
 
   postId = input<string>();
   postByIdSubs = toObservable(this.postId)

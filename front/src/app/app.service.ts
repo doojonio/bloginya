@@ -24,7 +24,7 @@ export class AppService {
   private http = inject(HttpClient);
   private settings$ = this.http
     .get<SettingsResponse>('/api/settings')
-    .pipe(share());
+    .pipe(shareReplay(1));
 
   isHandset() {
     return this.isHandset$;
@@ -141,4 +141,13 @@ export interface SettingsResponse {
   socials: Social;
 }
 
-export interface SettingsUser {}
+export enum UserRoles {
+  OWNER = 'owner',
+  CREATOR = 'creator',
+  VISITOR = 'visitor',
+}
+export interface SettingsUser {
+  id: string;
+  role: UserRoles;
+  picture: string;
+}
