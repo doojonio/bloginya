@@ -44,12 +44,11 @@
 
   color: var(--mat-sys-outline);
   font: var(--mat-sys-body-large);
+  margin-bottom: 2rem;
 
   & > * {
     cursor: pointer;
   }
-
-  margin-bottom: 2rem;
 }
 
 .meta {

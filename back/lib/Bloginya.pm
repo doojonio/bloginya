@@ -68,7 +68,6 @@ sub _setup_routes($self) {
   $api_U->get('/posts/list')->to('Post#list');
   $api_U->get('/categories/list')->to('Category#list');
   $api_U->get('/categories')->to('Category#get');
-
   $api_U->get('/shortnames/item')->to('Shortname#get_item_by_name');
 
   # Authorized routes
