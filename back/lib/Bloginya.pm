@@ -21,8 +21,17 @@ sub startup ($self) {
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::WebHelpers');
   $self->plugin('Bloginya::Plugin::DB');
-  $self->plugin('Bloginya::Plugin::Service', {'di_tokens' => [qw(app config db redis current_user)]});
-  $self->plugin('Bloginya::Plugin::CoolIO',  {namespaces  => ['Bloginya::Schema']});
+  $self->plugin(
+    'Bloginya::Plugin::Service',
+    {
+      'di_tokens' => [
+        qw(app config current_user),
+        [db    => 'db_lazy',    'Bloginya::ServiceRole::LazyDB'],
+        [redis => 'redis_lazy', 'Bloginya::ServiceRole::LazyRedis']
+      ]
+    }
+  );
+  $self->plugin('Bloginya::Plugin::CoolIO', {namespaces => ['Bloginya::Schema']});
 
   $self->exception_format('json');    # Enable JSON format for exceptions
 

@@ -37,11 +37,11 @@ async sub read_p($self, $post_id) {
     [\"p.meta->>'pics'",                 'pics'],
     [\"p.meta->>'ttr'",                  'ttr'],
     'p.category_id',
-    ['c.title'                       => 'category_title'],
-    [\'array_agg(t.name)'            => 'tags'],
-    [\'count(distinct(com.id))'      => 'comments'],
-    [\'count(distinct(lik.user_id))' => 'likes'],
-    [large_variant('uwp')            => 'picture_wp'],
+    ['c.title'                                => 'category_title'],
+    [\'array_remove(array_agg(t.name), NULL)' => 'tags'],
+    [\'count(distinct(com.id))'               => 'comments'],
+    [\'count(distinct(lik.user_id))'          => 'likes'],
+    [large_variant('uwp')                     => 'picture_wp'],
   );
   my @group_by = ('p.id', 'c.id', 'uwp.id');
 
@@ -129,6 +129,7 @@ async sub update_draft_p ($self, $post_id, $fields) {
     any { $_ eq $a } qw(title document picture_wp picture_pre)
   } keys %$fields;
 
+  # $fields{title} =~ s/(\s)\s+/\1/;
   $fields{document} = {-json => $fields{document}} if exists $fields{document};
   for (qw(picture_wp picture_pre)) {
     next unless $fields{$_};
@@ -248,7 +249,7 @@ async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
       [-left => 'post_tags',  'p.id'             => 'post_tags.post_id'],
       [-left => 'tags',       'post_tags.tag_id' => 'tags.id']
     ],
-    [@p_fields, [\'array_agg(tags.name)' => 'tags'],],
+    [@p_fields, [\'array_remove(array_agg(tags.name), NULL)' => 'tags'],],
     {'p.category_id' => $category_id, 'status' => POST_STATUS_PUB},
     {group_by        => \@p_fields,   order_by => {-desc => 'p.created_at'}}
   );

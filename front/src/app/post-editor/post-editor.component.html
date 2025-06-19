@@ -8,7 +8,12 @@
       [class]="title_class$ | async"
       [style]="title_style$ | async"
     >
-      <input type="text" formControlName="title" placeholder="Title..." />
+      <textarea
+        type="text"
+        matInput
+        formControlName="title"
+        placeholder="Title..."
+      ></textarea>
       <button matIconButton (click)="wpInput.click()">
         <mat-icon>image</mat-icon>
       </button>

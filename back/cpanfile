@@ -11,6 +11,8 @@ requires 'Carp::Always';
 requires 'Ref::Util';
 requires 'Ref::Util::XS';
 
+requires 'Role::Tiny';
+
 # Installed by system
 # requires 'Image::Magick';
 

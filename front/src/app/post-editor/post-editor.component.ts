@@ -157,6 +157,18 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     )
   );
 
+  titleControlSubs = this.draft
+    .get('title')!
+    .valueChanges.pipe(filter(Boolean))
+    .subscribe((title) => {
+      const lines = title.split('\n');
+      if (lines.length > 2) {
+        this.draft
+          .get('title')
+          ?.setValue(lines[0] + '\n' + lines.slice(1).join(''));
+      }
+    });
+
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
 
   validateUniqueShortname(control: AbstractControl) {

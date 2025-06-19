@@ -73,13 +73,16 @@
   justify-content: center;
   align-items: center;
 
-  input {
+  textarea {
     all: unset;
     color: var(--mat-sys-primary);
     font: var(--mat-sys-display-medium);
     text-align: center;
     text-wrap: wrap;
     width: 80%;
+    max-width: 80%;
+    overflow: hidden;
+    resize: none;
     font-weight: bold;
   }
 

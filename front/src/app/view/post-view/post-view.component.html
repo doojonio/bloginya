@@ -8,7 +8,11 @@
     </p>
   </div>
   <div class="content-container">
-    <div class="title">{{ p.title }}</div>
+    <div class="title">
+      @for (line of p.title.split("\n"); track line) {
+      {{ line }}<br />
+      }
+    </div>
     <app-document-dom
       class="content"
       [document]="p.document"
@@ -22,7 +26,11 @@
     <div class="meta">
       <div class="actions">
         <div>
-          <button matIconButton (click)="p.liked ? unlike() : like()">
+          <button
+            matIconButton
+            (click)="p.liked ? unlike() : like()"
+            [class]="likeAnimClass()"
+          >
             <mat-icon>{{ p.liked ? "favorite" : "favorite_border" }}</mat-icon>
           </button>
           @if (p.likes) {

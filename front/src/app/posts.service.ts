@@ -43,6 +43,12 @@ export class PostsService {
     return this.home$.pipe(map((res) => res.cats));
   }
 
+  createDraft() {
+    return this.http
+      .post<{ id: string }>('/api/posts/new', null)
+      .pipe(map((r) => r.id));
+  }
+
   getForEdit(postId: string) {
     return this.http.get<GetForEditResponse>('/api/posts/for_edit', {
       params: { id: postId },
@@ -61,10 +67,8 @@ export class PostsService {
       .pipe(map((_) => 'OK'));
   }
 
-  createDraft() {
-    return this.http
-      .post<{ id: string }>('/api/posts/new', null)
-      .pipe(map((r) => r.id));
+  readPost(id: string) {
+    return this.http.get<ReadPostResponse>('/api/posts', { params: { id } });
   }
 
   getCategories() {
@@ -76,11 +80,17 @@ export class PostsService {
   }
 
   unlike(id: string) {
-    return this.http.delete('/api/posts/like', { params: { id } });
+    return this.http.delete<OkResponse>('/api/posts/like', { params: { id } });
   }
   like(id: string) {
-    return this.http.post('/api/posts/like', null, { params: { id } });
+    return this.http.post<OkResponse>('/api/posts/like', null, {
+      params: { id },
+    });
   }
+}
+
+export interface OkResponse {
+  message: 'OK';
 }
 
 export interface ReadPostResponse {
