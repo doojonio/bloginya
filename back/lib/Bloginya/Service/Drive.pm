@@ -82,10 +82,4 @@ sub _generate_diff_sizes($self, $file_path, $dir) {
   return \%paths;
 }
 
-sub extract_upload_id($self, $path) {
-  my @parts = split /\//, $path;
-  die 'invalid path' if @parts < 5;
-  join('/', @parts[qw(0 1 2 3 4)]);
-}
-
 1;

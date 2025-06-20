@@ -12,6 +12,7 @@ requires 'Ref::Util';
 requires 'Ref::Util::XS';
 
 requires 'Role::Tiny';
+requires 'Iterator::Simple';
 
 # Installed by system
 # requires 'Image::Magick';

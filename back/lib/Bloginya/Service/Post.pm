@@ -3,11 +3,13 @@ use Mojo::Base -base, -signatures, -async_await;
 
 use experimental 'try';
 
-use Bloginya::Model::Post   qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
-use Bloginya::Model::User   qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
-use Bloginya::Model::Upload qw(large_variant medium_variant);
-use Time::Piece             ();
-use List::Util              qw(none any);
+use Bloginya::Model::Post        qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
+use Bloginya::Model::ProseMirror qw(is_image is_text);
+use Bloginya::Model::Upload      qw(large_variant medium_variant upload_id);
+use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
+use Iterator::Simple             qw(:all);
+use List::Util                   qw(none any);
+use Time::Piece                  ();
 
 has 'db';
 has 'redis';
@@ -17,6 +19,7 @@ has 'se_shortname';
 has 'se_policy';
 has 'se_prose_mirror';
 has 'se_drive';
+has 'se_language';
 
 
 async sub read_p($self, $post_id) {
@@ -133,7 +136,7 @@ async sub update_draft_p ($self, $post_id, $fields) {
   $fields{document} = {-json => $fields{document}} if exists $fields{document};
   for (qw(picture_wp picture_pre)) {
     next unless $fields{$_};
-    $fields{$_} = $self->se_drive->extract_upload_id($fields{$_});
+    $fields{$_} = upload_id($fields{$_});
   }
 
   await $self->db->update_p('post_drafts', \%fields, {post_id => $post_id});
@@ -182,23 +185,49 @@ async sub _update_meta_from_content_p($self, $post_id) {
     picture_pre
   );
 
-  my $row = (await $self->db->select_p('posts', ['document', @picture_cols], {id => $post_id}, {for => 'update'}))
-    ->expand->hashes->first;
+  my $row = (await $self->db->select_p(
+    ['posts',    [-left     => \'categories c', 'c.id' => 'posts.category_id']],
+    ['document', ['c.title' => 'ctitle'], map {"posts.$_"} @picture_cols],
+    {'posts.id' => $post_id},
+  ))->expand->hashes->first;
   die "not found post $post_id" unless $row;
 
-  my $doc  = $row->{document};
-  my $pics = $self->se_prose_mirror->get_all_images($doc);
-  my @ids  = map { $self->se_drive->extract_upload_id($_) } grep {$_} map { $_->{attrs}{src} } @$pics;
+  my $doc = $row->{document};
 
-  my $pics_num = @ids;
+  my $it_ttr     = $self->se_prose_mirror->it_ttr;
+  my $it_img_ids = $self->se_prose_mirror->it_img_ids;
+  my $it_text    = $self->se_prose_mirror->it_text;
 
-  for (@picture_cols) {
-    push @ids, $row->{$_} if $row->{$_};
+  my $iterator = igrep { is_image($_) || is_text($_) } $self->se_prose_mirror->iterate($doc);
+
+  while (my $el = <$iterator>) {
+    $it_ttr->($el);
+    $it_img_ids->($el);
+    $it_text->($el);
   }
 
-  my $ttr = $self->se_prose_mirror->estimate_ttr_min($doc);
+  my $ttr     = $it_ttr->();
+  my $img_ids = $it_img_ids->();
+  my $text    = $it_text->();
 
-  await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => \@ids}});
+  my $pics_num = @$img_ids;
+  for (@picture_cols) {
+    push @$img_ids, $row->{$_} if $row->{$_};
+  }
+
+  my $lang = await $self->se_language->detect_lang_p($text, $row->{ctitle});
+  await $self->db->insert_p('languages', {code => $lang}, {on_conflict => undef});
+  await $self->db->delete_p('post_fts', {post_id => $post_id});
+  await $self->db->insert_p(
+    'post_fts',
+    {
+      post_id => $post_id,
+      lcode   => $lang,
+      fts     => \['to_tsvector((select fts_cfg from languages where code = (?))::regconfig, (?))', $lang, $text],
+    },
+    {on_conflict => [['post_id', 'lcode'] => {fts => \'EXCLUDED.fts'}]},
+  );
+  await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => $img_ids}});
   await $self->db->update_p('posts', {meta => {-json => {ttr => $ttr, pics => $pics_num}}}, {id => $post_id});
 }
 
