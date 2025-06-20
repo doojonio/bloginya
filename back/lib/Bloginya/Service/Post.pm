@@ -221,9 +221,10 @@ async sub _update_meta_from_content_p($self, $post_id) {
   await $self->db->insert_p(
     'post_fts',
     {
-      post_id => $post_id,
-      lcode   => $lang,
-      fts     => \['to_tsvector((select fts_cfg from languages where code = (?))::regconfig, (?))', $lang, $text],
+      post_id       => $post_id,
+      lcode         => $lang,
+      plain_content => $text,
+      fts           => \['to_tsvector((select fts_cfg from languages where code = (?)), (?))', $lang, $text],
     },
     {on_conflict => [['post_id', 'lcode'] => {fts => \'EXCLUDED.fts'}]},
   );

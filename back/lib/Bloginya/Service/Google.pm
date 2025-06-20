@@ -39,12 +39,7 @@ async sub detect_lang_p($self, $txt) {
       {Authorization => 'Bearer ' . $self->current_user->{google_token}{access_token}});
 
   warn 'Bearer ' . $self->current_user->{google_token}{access_token};
-  use DDP;
-  p $tx->res->json;
   die 'Failed to detect' unless $tx->res->is_success;
-
-  use DDP;
-  p $tx->res->json;
 
   return;
 }

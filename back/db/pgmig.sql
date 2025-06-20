@@ -1,6 +1,8 @@
 -- 1 up
 create extension if not exists "uuid-ossp";
 
+create extension if not exists "pg_trgm";
+
 create domain cool_id as varchar(12);
 
 create
@@ -81,7 +83,7 @@ create table
 create table
     languages (
         code text primary key,
-        fts_cfg text not null default 'simple'
+        fts_cfg regconfig not null default 'simple'
     );
 
 insert into
@@ -98,11 +100,14 @@ create table
         post_id cool_id primary key references posts (id),
         lcode text not null references languages (code),
         fts tsvector not null,
+        plain_content text not null,
         unique (post_id, lcode)
     );
 
 create index post_fts_idx on post_fts using GIN (fts);
+create index post_fts_sim_idx on post_fts using GIN (plain_content gin_trgm_ops);
 
+-- TODO not sure i'm doing it right here
 create table
     post_drafts (
         post_id cool_id primary key references posts (id),

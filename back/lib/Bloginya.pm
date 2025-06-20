@@ -61,6 +61,7 @@ sub _setup_routes($self) {
   my $api_U = $api->under(
     '/' => sub ($c) {
       $c->current_user_p->then(sub {
+        warn "AAAA";
         $c->continue;
       });
 
