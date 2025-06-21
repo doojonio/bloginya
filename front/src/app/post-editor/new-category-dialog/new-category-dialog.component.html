@@ -1,0 +1,29 @@
+<div [formGroup]="form">
+  <h2 i18n mat-dialog-title>New Category</h2>
+  <mat-dialog-content>
+    <p i18n>What's the category title?</p>
+    <mat-form-field>
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" />
+
+      @if (this.form.getError('minlength', 'title')) {
+      <mat-error i18n>Too short</mat-error>
+      } @else if (this.form.getError('maxlength', 'title')) {
+      <mat-error i18n>Too long</mat-error>
+      } @else if (this.form.getError('pattern', 'title')) {
+      <mat-error i18n>Invalid characters</mat-error>
+      } @else if (this.form.getError('taken', 'title')) {
+      <mat-error i18n>Title is already taken</mat-error>
+      }
+    </mat-form-field>
+    <br />
+    <mat-form-field>
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button matButton mat-dialog-close>Back</button>
+    <button matButton="filled" (click)="addCategory()">Add</button>
+  </mat-dialog-actions>
+</div>

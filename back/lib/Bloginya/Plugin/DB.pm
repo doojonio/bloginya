@@ -31,6 +31,12 @@ sub register {
     }
   );
 
+  $app->helper(
+    'db_lazy' => sub ($c, %args) {
+      sub { $c->db(%args) }
+    }
+  );
+
   $app->helper('redis_pool' => sub { state $rds = Mojo::Redis->new($_[0]->config->{db}{redis_dsn}) });
   $app->helper(
     'redis' => sub ($c, %args) {
@@ -38,6 +44,11 @@ sub register {
 
       $c->stash(REDIS_STASH_KEY, $c->redis_pool->db) unless $c->stash(REDIS_STASH_KEY);
       $c->stash(REDIS_STASH_KEY);
+    }
+  );
+  $app->helper(
+    'redis_lazy' => sub ($c, %args) {
+      sub { $c->redis(%args) }
     }
   );
 

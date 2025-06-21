@@ -3,15 +3,19 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Mojo::Loader qw(load_classes);
 use Mojo::Util   qw(camelize decamelize);
 
-has 'di_tokens';
+use Ref::Util qw(is_arrayref);
 
+has 'di_tokens';
 has 'seen' => sub { {} };
+has 'service_prefix';
+
+has _class_cache => sub { {} };
 
 sub register ($self, $app, $conf) {
-  $self->di_tokens($conf->{di_tokens} // []);
+  $self->di_tokens($conf->{di_tokens}           // []);
+  $self->service_prefix($conf->{service_prefix} // 'se_');
 
   my @services = load_classes('Bloginya::Service');
-
   $self->_setup_serv_di_token($_) for @services;
 
   $app->helper(
@@ -34,28 +38,48 @@ sub _service($self, $c, $name, @args) {
   $self->seen->{$name} = 1;
 
   my $class = 'Bloginya::Service::' . camelize($name);
-  return $class->new($self->_di($c, $class), @args);
+  if (my $cache = $self->_class_cache->{$name}) {
+    return $cache->new(($self->_di($c, $class))[0]->@*, @args);
+  }
+
+
+  my ($di_args, $roles) = $self->_di($c, $class);
+
+  if (@$roles) {
+    $class = $class->with_roles(@$roles);
+  }
+
+  $self->_class_cache->{$name} = $class;
+
+  return $class->new(@$di_args, @args);
 }
 
 sub _di ($self, $c, $class) {
-  my @args;
-  for my $token ($self->di_tokens->@*) {
-    next unless $class->can($token);
+  my (@args, %service_roles);
 
-    if (substr($token, 0, 2) eq 's_') {
-      my $sname = substr($token, 2);
-      push @args, $token => $self->_service($c, $sname);
+  for my $token ($self->di_tokens->@*) {
+    my ($insert_as, $helper, @roles) = ($token) x 2;
+    if (is_arrayref($token)) {
+      ($insert_as, $helper, @roles) = @$token;
+    }
+
+    next unless $class->can($insert_as);
+
+    if (substr($insert_as, 0, length($self->service_prefix)) eq $self->service_prefix) {
+      my $sname = substr($insert_as, length($self->service_prefix));
+      push @args, $insert_as => $self->_service($c, $sname);
     }
     else {
-      push @args, $token => $c->$token;
+      push @args, $insert_as => $c->$helper;
+      $service_roles{$_} = 1 for @roles;
     }
   }
 
-  @args;
+  \@args, [keys %service_roles];
 }
 
 sub _setup_serv_di_token($self, $serv) {
-  my $name = 's_' . decamelize((split /::/, $serv)[-1]);
+  my $name = $self->service_prefix . decamelize((split /::/, $serv)[-1]);
   push $self->di_tokens->@*, $name;
 }
 

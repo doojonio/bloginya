@@ -10,11 +10,13 @@ async sub settings ($self) {
 
   if (my $user = await $self->current_user_p) {
     $user{picture} = $user->{google_userinfo}{picture};
+    $user{id}      = $user->{id};
+    $user{role}    = $user->{role};
   }
 
-  my $s_post = $self->service('post');
+  my $se_post = $self->service('post');
 
-  # my $categories = await $s_post->list_site_categories_p();
+  # my $categories = await $se_post->list_site_categories_p();
 
   return $self->render(json => {user => %user ? \%user : undef});
 }

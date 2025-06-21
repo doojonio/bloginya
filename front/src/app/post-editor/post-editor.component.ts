@@ -12,7 +12,6 @@ import {
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
   AbstractControl,
-  FormBuilder,
   FormControl,
   FormGroup,
   FormsModule,
@@ -20,6 +19,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -38,7 +38,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
-import { concat, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, concat, of, Subject, throwError } from 'rxjs';
 import {
   catchError,
   debounceTime,
@@ -54,7 +54,9 @@ import {
 import { AppService } from '../app.service';
 import { DriveService } from '../drive.service';
 import { PostsService, PostStatuses } from '../posts.service';
+import { ShortnamesService } from '../shortnames.service';
 import { UserService } from '../user.service';
+import { NewCategoryDialogComponent } from './new-category-dialog/new-category-dialog.component';
 import {
   findPlaceholder,
   placeholderPlugin,
@@ -87,9 +89,10 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private drive = inject(DriveService);
   private posts = inject(PostsService);
+  private shortnamesService = inject(ShortnamesService);
   private router = inject(Router);
 
-  private fb = inject(FormBuilder);
+  readonly dialog = inject(MatDialog);
 
   isHandset$ = this.appService.isHandset();
   private destroy$ = new Subject<void>();
@@ -110,7 +113,10 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     this.posts.getForEdit(this.postId()).pipe(share())
   );
 
-  categories$ = this.posts.getCategories();
+  updateCategories$ = new BehaviorSubject(1);
+  categories$ = this.updateCategories$.pipe(
+    switchMap((_) => this.posts.getCategories())
+  );
 
   tags = signal<string[]>([]);
 
@@ -122,7 +128,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   meta = new FormGroup({
     tags: new FormControl<string[]>([]),
     status: new FormControl(PostStatuses.Draft, [Validators.required]),
-    category_id: new FormControl<string | null>(null),
+    category_id: new FormControl<string | null>(null, [
+      this.validatePubCategoryId.bind(this),
+    ]),
     shortname: new FormControl<null | string>(
       null,
       [
@@ -155,20 +163,62 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     )
   );
 
+  titleControlSubs = this.draft
+    .get('title')!
+    .valueChanges.pipe(filter(Boolean))
+    .subscribe((title) => {
+      const lines = title.split('\n');
+      if (lines.length > 2) {
+        this.draft
+          .get('title')
+          ?.setValue(lines[0] + '\n' + lines.slice(1).join(''));
+      }
+    });
+
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
+  isApplyDisabled = false;
+
+  // readonly newCatData = inject<AddCategoryResponse>(MAT_DIALOG_DATA);
+
+  validatePubCategoryId(control: AbstractControl) {
+    if (!this.meta) {
+      return null;
+    }
+    if (this.meta.value.status != PostStatuses.Pub) {
+      return null;
+    }
+
+    if (!control.value) {
+      return { pubCategoryRequired: true };
+    }
+
+    return null;
+  }
 
   validateUniqueShortname(control: AbstractControl) {
     const { value } = control;
     if (value == null || value.length < 3) {
       return of(null);
     }
-    return this.posts
+    return this.shortnamesService
       .getShortname(value)
       .pipe(
         map((sn) =>
           sn && sn.post_id !== this.postId() ? { taken: true } : null
         )
       );
+  }
+
+  addNewCategory() {
+    const dialogRef = this.dialog.open(NewCategoryDialogComponent, {
+      restoreFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((resp) => {
+      if (!resp) {
+        return;
+      }
+      this.updateCategories$.next(1);
+    });
   }
 
   ngOnInit(): void {
@@ -205,7 +255,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       .subscribe((changes) => {});
   }
 
-  saveDraft(form: any) {
+  saveDraft(form: any, notify = true) {
     return this.posts
       .updateDraft(this.postId(), {
         title: form.title,
@@ -213,12 +263,10 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         picture_wp: form.picture_wp,
       })
       .pipe(
-        catchError((err) => {
-          this.snackBar.open('Error', 'Close', { duration: 5000 });
-          return throwError(() => err);
-        }),
         tap((_) =>
-          this.snackBar.open('Draft saved', undefined, { duration: 1000 })
+          notify
+            ? this.snackBar.open('Draft saved', undefined, { duration: 1000 })
+            : null
         )
       );
   }
@@ -276,7 +324,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       .putFile(postId, files[0])
       .pipe(takeUntil(this.destroy$))
       .subscribe((resp) =>
-        this.draft.get('picture_wp')!.setValue(resp.large || resp.path)
+        this.draft.get('picture_wp')!.setValue(resp.large || resp.original)
       );
   }
 
@@ -285,8 +333,10 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.saveDraft(this.draft.value)
+    this.isApplyDisabled = true;
+    this.saveDraft(this.draft.value, false)
       .pipe(
+        finalize(() => (this.isApplyDisabled = false)),
         switchMap((res) => {
           const meta = this.meta.value;
           return this.posts.applyChanges(this.postId(), {
@@ -298,6 +348,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
             enable_comments: meta.enableComments || false,
           });
         }),
+        catchError((err) => throwError(() => console.log(err))),
         takeUntil(this.destroy$)
       )
       .subscribe((_) => {
@@ -390,7 +441,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         return throwError(() => err);
       }),
       map((res) => {
-        return { id: pholdId, path: res.medium || res.path };
+        return { id: pholdId, path: res.medium || res.original };
       })
     );
 
