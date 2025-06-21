@@ -7,6 +7,7 @@ import {
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   model,
@@ -32,7 +33,6 @@ import { VisibilityDirective } from '../../directives/visibility.directive';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { UserService } from '../../user.service';
 import { PostListMedComponent } from '../post-list-med/post-list-med.component';
-import { PostMedComponent } from '../post-med/post-med.component';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
 
 @Component({
@@ -90,6 +90,12 @@ export class PostViewComponent implements OnDestroy {
       : {};
   });
 
+  // TODO: fix this stupid bullshit
+  newPostEffect = effect(() => {
+    if (this.post()) {
+      this.loadSimilliarPosts$.next(false);
+    }
+  });
   loadSimilliarPosts$ = new BehaviorSubject<boolean>(false);
   similliarPosts$ = this.loadSimilliarPosts$.pipe(
     pairwise(),
