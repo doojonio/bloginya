@@ -88,12 +88,19 @@
           <mat-form-field appearance="outline">
             <mat-label i18n>Category</mat-label>
             <mat-select formControlName="category_id">
+              <mat-option (click)="addNewCategory()"
+                ><mat-icon>add</mat-icon>Create new</mat-option
+              >
+              <mat-option [value]="null">-</mat-option>
               @for (category of (categories$ |async); track category.id ) {
               <mat-option [value]="category.id">{{
                 category.title
               }}</mat-option>
               }
             </mat-select>
+            @if (this.meta.getError('pubCategoryRequired', 'category_id')) {
+            <mat-error i18n>Category is required for public posts</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label i18n>Shortname</mat-label>
@@ -129,7 +136,14 @@
       </div>
     </div>
     <div class="general-actions">
-      <button matButton="filled" (click)="applyChanges()" i18n>Apply</button>
+      <button
+        matButton="filled"
+        (click)="applyChanges()"
+        [disabled]="isApplyDisabled"
+        i18n
+      >
+        Apply
+      </button>
     </div>
   </form>
 </div>

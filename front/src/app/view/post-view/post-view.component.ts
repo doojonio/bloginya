@@ -17,7 +17,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { filter, switchMap, take, tap, timer } from 'rxjs';
+import {
+  BehaviorSubject,
+  filter,
+  pairwise,
+  switchMap,
+  take,
+  tap,
+  timer,
+} from 'rxjs';
+import { VisibilityDirective } from '../../directives/visibility.directive';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { UserService } from '../../user.service';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
@@ -34,6 +43,7 @@ import { DocumentDomComponent } from './document-dom/document-dom.component';
     MatDividerModule,
     AsyncPipe,
     RouterModule,
+    VisibilityDirective,
   ],
   templateUrl: './post-view.component.html',
   styleUrl: './post-view.component.scss',
@@ -74,6 +84,13 @@ export class PostViewComponent {
       : {};
   });
 
+  loadSimilliarPosts$ = new BehaviorSubject<boolean>(false);
+  similliarPosts$ = this.loadSimilliarPosts$.pipe(
+    pairwise(),
+    filter(([prev, cur]) => !prev && cur),
+    switchMap(() => this.postsService.getSimilliarPosts(this.post().id))
+  );
+
   tagClicked(tag: string) {
     throw new Error('Method not implemented.');
   }
@@ -92,7 +109,7 @@ export class PostViewComponent {
         this.post.update((p) => {
           if (!p.liked) {
             p.liked = true;
-            p.likes += 1;
+            p.likes = (p.likes || 0) + 1;
           }
 
           return p;
@@ -104,11 +121,18 @@ export class PostViewComponent {
       this.post.update((p) => {
         if (p.liked) {
           p.liked = false;
-          p.likes -= 1;
+          p.likes = (p.likes || 1) - 1;
         }
 
         return p;
       });
     });
+  }
+
+  onMoveFromIntersecting($event: boolean) {
+    if (!$event) {
+      return;
+    }
+    this.loadSimilliarPosts$.next(true);
   }
 }

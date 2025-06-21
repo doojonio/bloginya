@@ -19,6 +19,10 @@ async sub create_p ($self, $vals) {
   return $id;
 }
 
+async sub get_by_title_p($self, $title) {
+  (await $self->db->select_p('categories', [qw(title id priority description)], {title => $title}))->hashes->first;
+}
+
 async sub list_all_categories_p($self) {
   return (await $self->db->select_p('categories', [qw(id title)]))->hashes;
 }

@@ -25,6 +25,7 @@
     </div>
     <div class="meta">
       <div class="actions">
+        @if (p.enable_likes) {
         <div>
           <button
             matIconButton
@@ -37,6 +38,8 @@
           {{ p.likes }}
           }
         </div>
+        } @if (p.enable_comments) {
+
         <div>
           <button matIconButton>
             <mat-icon>comment</mat-icon>
@@ -45,8 +48,7 @@
           {{ p.comments }}
           }
         </div>
-
-        @if (currentUser$ | async; as user) { @if (user.role == "owner" ||
+        } @if (currentUser$ | async; as user) { @if (user.role == "owner" ||
         user.id == p.id) {
         <div>
           <button matIconButton routerLink="/edit/{{ p.id }}">
@@ -59,5 +61,22 @@
     </div>
   </div>
   <mat-divider></mat-divider>
+  @if (p.category_id) {
+  <div>
+    <div
+      appVisibility
+      [threshold]="0"
+      [debounceTime]="50"
+      (isIntersecting)="onMoveFromIntersecting($event)"
+      i18n
+    >
+      More from <b>{{ p.category_title }}</b>
+    </div>
+
+    @for (post of (similliarPosts$ | async); track post.id) {
+    <div>POST</div>
+    }
+  </div>
+  }
 </div>
 }

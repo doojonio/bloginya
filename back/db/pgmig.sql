@@ -39,7 +39,7 @@ create table
         id cool_id primary key default random_string (),
         user_id uuid not null references users (id),
         parent_id cool_id references categories (id),
-        title text,
+        title text not null unique,
         priority integer,
         description text,
         created_at timestamp not null default now()
@@ -105,6 +105,7 @@ create table
     );
 
 create index post_fts_idx on post_fts using GIN (fts);
+
 create index post_fts_sim_idx on post_fts using GIN (plain_content gin_trgm_ops);
 
 -- TODO not sure i'm doing it right here

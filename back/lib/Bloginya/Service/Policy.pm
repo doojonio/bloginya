@@ -22,7 +22,7 @@ async sub can_read_post_p($self, $post_id) {
   my $user = $self->current_user;
   return 1 if $user && $user->{role} eq USER_ROLE_OWNER;
   return $self->can_read_post(
-    (await $self->db->select_p('posts', ['user_id', 'status'], {id => $post_id}))->hashes->first);
+    (await $self->db->select_p('posts', ['user_id', 'status'], {id => $post_id}))->hashes->first // die 'not found');
 }
 
 sub can_update_post($self, $post) {
@@ -35,7 +35,8 @@ sub can_update_post($self, $post) {
 async sub can_update_post_p($self, $post_id) {
   return 0 unless $self->current_user;
   return 1 if $self->current_user->{role} eq USER_ROLE_OWNER;
-  $self->can_update_post((await $self->db->select_p('posts', 'user_id', {id => $post_id}))->hashes->first);
+  $self->can_update_post((await $self->db->select_p('posts', 'user_id', {id => $post_id}))->hashes->first
+      // die 'not found');
 }
 
 sub can_create_post($self) {

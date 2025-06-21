@@ -61,7 +61,6 @@ sub _setup_routes($self) {
   my $api_U = $api->under(
     '/' => sub ($c) {
       $c->current_user_p->then(sub {
-        warn "AAAA";
         $c->continue;
       });
 
@@ -70,15 +69,16 @@ sub _setup_routes($self) {
   );
 
   # Unauthorized routes
-  $api_U->get('/settings')->to('App#settings');
-  $api_U->get('/oauth/to_google')->to('OAuth#to_google');
+  $api_U->get('/categories')->to('Category#get');
+  $api_U->get('/categories/list')->to('Category#list');
   $api_U->get('/oauth/from_google')->to('OAuth#from_google');
+  $api_U->get('/oauth/to_google')->to('OAuth#to_google');
   $api_U->get('/posts')->to('Post#get');
   $api_U->get('/posts/home')->to('Post#list_home');
   $api_U->get('/posts/list')->to('Post#list');
-  $api_U->get('/categories/list')->to('Category#list');
-  $api_U->get('/categories')->to('Category#get');
+  $api_U->get('/settings')->to('App#settings');
   $api_U->get('/shortnames/item')->to('Shortname#get_item_by_name');
+  $api_U->get('posts/similliar')->to('Post#search_similliar_posts');
 
   # Authorized routes
   my $api_A = $api->under(
@@ -96,17 +96,17 @@ sub _setup_routes($self) {
     }
   );
 
-  $api_A->get('/shortnames')->to('Shortname#get_by_name');
-
-  $api_A->post('/drive')->to('File#put_file');
-  $api_A->post('/posts/new')->to('Post#create_draft');
+  $api_A->delete('/posts/like')->to('Post#unlike');
+  $api_A->get('/categories/by_title')->to('Category#get_by_title');
   $api_A->get('/posts/for_edit')->to('Post#get_for_edit');
+  $api_A->get('/shortnames')->to('Shortname#get_by_name');
+  $api_A->post('/categories')->to('Category#save');
+  $api_A->post('/drive')->to('File#put_file');
+  $api_A->post('/posts/like')->to('Post#like');
+  $api_A->post('/posts/new')->to('Post#create_draft');
+  $api_A->post('/posts/publish')->to('Post#publish');
   $api_A->put('/posts/draft')->to('Post#update_draft');
   $api_A->put('posts')->to('Post#apply_changes');
-  $api_A->post('/posts/publish')->to('Post#publish');
-  $api_A->post('/categories')->to('Category#save');
-  $api_A->post('/posts/like')->to('Post#like');
-  $api_A->delete('/posts/like')->to('Post#unlike');
 }
 
 

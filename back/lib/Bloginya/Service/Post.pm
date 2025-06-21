@@ -69,9 +69,91 @@ async sub read_p($self, $post_id) {
     $p->{'liked'} = 0;
   }
 
+  $self->_handle_society($p);
+
   # TODO: remove extra info for visitors
 
   return $p;
+}
+
+async sub search_similliar_posts_p($self, $post_id, $limit = 12) {
+  return unless await $self->se_policy->can_read_post_p($post_id);
+
+  my $result = await $self->db->query_p(
+    q~
+    with this_cont as (
+      select plain_content
+      from post_fts
+      where post_id = (?)
+    ),
+    this_post as (
+      select category_id
+      from posts
+      where id = (?)
+    ),
+    this_tags as (
+      select tag_id
+      from post_tags
+      where
+        post_id = (?)
+    )
+
+    select
+      p.id,
+      p.title,
+      p.description,
+      coalesce(upre.medium, upre.original) as picture_pre,
+      (
+        select
+          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from post_tags pt join tags t on t.id = pt.tag_id
+        where pt.post_id = p.id
+      ) as tags,
+
+      round(
+        similarity(
+          pfts.plain_content,
+          (select plain_content from this_cont)
+        )::numeric,
+        1
+      ) as similarity,
+
+      (select count(*) from (
+        select tag_id from this_tags
+        intersect
+        select tag_id from (
+          select tag_id from post_tags
+          where post_id = p.id
+        )
+      )) as tags_similarity,
+
+      sn.name as shortname
+
+    from posts p
+    join post_fts pfts on pfts.post_id = p.id
+    left join uploads upre on picture_pre = upre.id
+    left join shortnames sn on sn.post_id = p.id
+    where
+      p.status = 'pub' and
+      p.category_id = (select category_id from this_post)
+      and p.id != (?)
+    order by
+     similarity desc,
+     tags_similarity desc
+    limit (?)
+  ~, ($post_id) x 4, $limit
+  );
+
+  return $result->hashes;
+}
+
+sub _handle_society($self, $p) {
+  if (!$p->{enable_likes}) {
+    delete @{$p}{qw(likes liked)};
+  }
+  if (!$p->{enable_comments}) {
+    delete($p->{comments});
+  }
 }
 
 async sub like_post_p ($self, $post_id) {
@@ -150,9 +232,11 @@ async sub apply_changes_p ($self, $post_id, $meta) {
     any { $_ eq $a } qw (category_id status enable_likes enable_comments)
   } keys %$meta;
 
+  die "missing category" if $post_values{status} eq POST_STATUS_PUB && !$post_values{category_id};
+
   $post_values{modified_at}  = \'now()';
-  $post_values{deleted_at}   = \'now()' if $post_values{status} eq 'del';
-  $post_values{published_at} = \'now()' if $post_values{status} eq 'pub';
+  $post_values{deleted_at}   = \'now()' if $post_values{status} eq POST_STATUS_DEL;
+  $post_values{published_at} = \'now()' if $post_values{status} eq POST_STATUS_PUB;
 
   my sub _fdraft ($n) {
     \["(select $n from post_drafts where post_id = (?))", $post_id];
@@ -211,6 +295,8 @@ async sub _update_meta_from_content_p($self, $post_id) {
   my $text    = $it_text->();
 
   my $pics_num = @$img_ids;
+  my ($picture_pre) = @$img_ids;
+
   for (@picture_cols) {
     push @$img_ids, $row->{$_} if $row->{$_};
   }
@@ -229,7 +315,11 @@ async sub _update_meta_from_content_p($self, $post_id) {
     {on_conflict => [['post_id', 'lcode'] => {fts => \'EXCLUDED.fts'}]},
   );
   await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => $img_ids}});
-  await $self->db->update_p('posts', {meta => {-json => {ttr => $ttr, pics => $pics_num}}}, {id => $post_id});
+  await $self->db->update_p(
+    'posts',
+    {meta => {-json => {ttr => $ttr, pics => $pics_num}}, picture_pre => $picture_pre},
+    {id   => $post_id}
+  );
 }
 
 

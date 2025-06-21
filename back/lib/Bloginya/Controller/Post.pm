@@ -62,6 +62,25 @@ async sub get($self) {
   return $self->render(json => $post);
 }
 
+async sub search_similliar_posts($self) {
+  my $post_id = $self->i('id' => 'cool_id');
+
+  my $posts;
+  try {
+    $posts = await $self->service('post')->search_similliar_posts_p($post_id);
+  }
+  catch ($e) {
+    if ($e =~ /not found/) {
+      return $self->msg('Post Not Found', 404);
+    }
+    else {
+      die $e;
+    }
+  }
+
+  return $self->render(json => $posts);
+}
+
 async sub get_for_edit($self) {
   my ($id) = $self->i(id => 'cool_id');
 
@@ -111,7 +130,10 @@ async sub apply_changes ($self) {
   }
   catch ($e) {
     if ($e =~ /no rights/) {
-      $ok = undef;
+      return $self->msg('NORIGHT', 403);
+    }
+    elsif ($e =~ /missing category/) {
+      return $self->msg('NOCAT', 400);
     }
     else {
       die $e;
