@@ -10,12 +10,14 @@ import {
   inject,
   input,
   model,
+  OnDestroy,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import {
   BehaviorSubject,
@@ -29,6 +31,8 @@ import {
 import { VisibilityDirective } from '../../directives/visibility.directive';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { UserService } from '../../user.service';
+import { PostListMedComponent } from '../post-list-med/post-list-med.component';
+import { PostMedComponent } from '../post-med/post-med.component';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
 
 @Component({
@@ -44,11 +48,13 @@ import { DocumentDomComponent } from './document-dom/document-dom.component';
     AsyncPipe,
     RouterModule,
     VisibilityDirective,
+    MatProgressSpinnerModule,
+    PostListMedComponent,
   ],
   templateUrl: './post-view.component.html',
   styleUrl: './post-view.component.scss',
 })
-export class PostViewComponent {
+export class PostViewComponent implements OnDestroy {
   postsService = inject(PostsService);
   usersService = inject(UserService);
 
@@ -134,5 +140,9 @@ export class PostViewComponent {
       return;
     }
     this.loadSimilliarPosts$.next(true);
+  }
+
+  ngOnDestroy(): void {
+    this.loadSimilliarPosts$.next(false);
   }
 }

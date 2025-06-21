@@ -62,19 +62,29 @@
   </div>
   <mat-divider></mat-divider>
   @if (p.category_id) {
-  <div>
+  <div class="more-from">
     <div
+      class="more-from-title"
       appVisibility
       [threshold]="0"
       [debounceTime]="50"
       (isIntersecting)="onMoveFromIntersecting($event)"
       i18n
     >
-      More from <b>{{ p.category_title }}</b>
+      <span
+        >More from <b>{{ p.category_title }}</b></span
+      >
     </div>
 
-    @for (post of (similliarPosts$ | async); track post.id) {
-    <div>POST</div>
+    @if(similliarPosts$ | async; as posts) {
+      <app-post-list-med [posts]="posts"></app-post-list-med>
+    <!-- <div class="more-posts">
+      @for (post of posts; track post.id) {
+      <app-post-med [post]="post"></app-post-med>
+      }
+    </div> -->
+    } @else {
+    <mat-spinner></mat-spinner>
     }
   </div>
   }

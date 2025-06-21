@@ -24,7 +24,7 @@ sub detect_by_category ($self, $category) {
   return unless $category;
   for (qw(CHINESE RUSSIAN ENGLISH JAPANESE KOREAN)) {
     if ($category =~ /$_/i) {
-      return &$_;
+      return __PACKAGE__->can($_)->();
     }
   }
 }

@@ -101,3 +101,25 @@
   justify-content: center;
   align-items: center;
 }
+
+.more-from {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.more-from-title {
+  display: flex;
+  justify-content: flex-start;
+  padding: 2rem 0;
+  font: var(--mat-sys-body-large);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.more-posts {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+}

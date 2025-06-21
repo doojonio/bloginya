@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer } from '@angular/platform-browser';
-import { RouterOutlet } from '@angular/router';
+import { RouterEvent, RouterOutlet } from '@angular/router';
 import { NavigationComponent } from './navigation/navigation.component';
 
 @Component({
@@ -17,8 +17,6 @@ import { NavigationComponent } from './navigation/navigation.component';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = '인해의 블로그';
-
   constructor(matIconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
     for (const icon of ['facebook', 'instagram', 'twitter', 'tiktok']) {
       matIconRegistry.addSvgIcon(

@@ -92,10 +92,11 @@ export class PostsService {
   }
 
   getSimilliarPosts(id: string) {
-    return this.http.get<CatPost[]>('/api/posts/similliar', {
+    return this.http.get<PostMed[]>('/api/posts/similliar', {
       params: { id },
     });
   }
+
 
   private notifyError(httpErr: HttpErrorResponse) {
     const err = this.mapError(httpErr);
@@ -261,5 +262,14 @@ export interface NewPost {
   category_name: string;
   created_at: Date;
   title: string;
+  tags: string[];
+}
+
+export interface PostMed {
+  title: string;
+  id: string;
+  shortname: string | null;
+  picture_pre: string | null;
+  description: string | null;
   tags: string[];
 }

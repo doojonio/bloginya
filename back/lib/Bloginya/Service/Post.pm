@@ -102,7 +102,7 @@ async sub search_similliar_posts_p($self, $post_id, $limit = 12) {
       p.id,
       p.title,
       p.description,
-      coalesce(upre.medium, upre.original) as picture_pre,
+      coalesce(upre.thumbnail, upre.original) as picture_pre,
       (
         select
           coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
@@ -294,6 +294,8 @@ async sub _update_meta_from_content_p($self, $post_id) {
   my $img_ids = $it_img_ids->();
   my $text    = $it_text->();
 
+  my $descr = substr($text, 0, 200) . (length($text) > 200 ? '...' : '');
+
   my $pics_num = @$img_ids;
   my ($picture_pre) = @$img_ids;
 
@@ -317,7 +319,7 @@ async sub _update_meta_from_content_p($self, $post_id) {
   await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => $img_ids}});
   await $self->db->update_p(
     'posts',
-    {meta => {-json => {ttr => $ttr, pics => $pics_num}}, picture_pre => $picture_pre},
+    {meta => {-json => {ttr => $ttr, pics => $pics_num}}, picture_pre => $picture_pre, description => $descr},
     {id   => $post_id}
   );
 }

@@ -1,0 +1,6 @@
+@for (item of posts(); track item.id; let last = $last) {
+<app-post-med [post]="item"></app-post-med>
+@if(!last) {
+<mat-divider></mat-divider>
+
+} }
