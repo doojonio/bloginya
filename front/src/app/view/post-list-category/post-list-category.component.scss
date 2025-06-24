@@ -1,5 +1,5 @@
 @use "@angular/material" as mat;
-@use "../../../../mixins.scss" as mixs;
+@use '../../../mixins' as mixs;
 
 .title {
   color: var(--mat-sys-primary);
@@ -7,7 +7,7 @@
   box-shadow: var(--mat-sys-level0);
   margin-bottom: 20px;
 }
-.langs {
+.cats {
   overflow-x: auto;
 
   mat-chip-listbox {

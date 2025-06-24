@@ -1,0 +1,22 @@
+@if (title(); as title) {
+<p class="title">{{ title }}</p>
+}
+<div class="posts noscrollbar">
+  @for (item of posts(); track item) {
+  <div class="post">
+    <img src="{{ item.picture_pre }}" />
+    <div class="post-descr">
+      <p
+        class="post-title"
+        #postTitle
+        [style.minHeight]="maxTitleHeight >= 65 ? '64px' : ''"
+      >
+        {{ item.title }}
+      </p>
+      <p class="post-subtitle">
+        {{ item.category_name | uppercase }}
+      </p>
+    </div>
+  </div>
+  }
+</div>

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LangPostsComponent } from './lang-posts.component';
+import { PostListOnelineComponent } from './post-list-oneline.component';
 
-describe('LangPostsComponent', () => {
-  let component: LangPostsComponent;
-  let fixture: ComponentFixture<LangPostsComponent>;
+describe('NewPostsComponent', () => {
+  let component: PostListOnelineComponent;
+  let fixture: ComponentFixture<PostListOnelineComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LangPostsComponent]
+      imports: [PostListOnelineComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(LangPostsComponent);
+    fixture = TestBed.createComponent(PostListOnelineComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

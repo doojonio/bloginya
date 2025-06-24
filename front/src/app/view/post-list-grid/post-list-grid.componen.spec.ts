@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PopularPostsComponent } from './popular-posts.component';
+import { PostListGridComponent } from './post-list-grid.componen';
 
 describe('PopularPostsComponent', () => {
-  let component: PopularPostsComponent;
-  let fixture: ComponentFixture<PopularPostsComponent>;
+  let component: PostListGridComponent;
+  let fixture: ComponentFixture<PostListGridComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PopularPostsComponent]
+      imports: [PostListGridComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PopularPostsComponent);
+    fixture = TestBed.createComponent(PostListGridComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

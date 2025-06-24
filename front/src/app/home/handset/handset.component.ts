@@ -1,3 +1,4 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, inject, input, model, OnDestroy } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
@@ -5,16 +6,17 @@ import { Observable } from 'rxjs';
 import { AppService } from '../../app.service';
 import { VisibilityDirective } from '../../directives/visibility.directive';
 import { Category, CatPost, NewPost, PopularPost } from '../../posts.service';
-import { LangPostsComponent } from './lang-posts/lang-posts.component';
-import { NewPostsComponent } from './new-posts/new-posts.component';
-import { PopularPostsComponent } from './popular-posts/popular-posts.component';
+import { PostListCategoryComponent } from '../../view/post-list-category/post-list-category.component';
+import { PostListGridComponent } from '../../view/post-list-grid/post-list-grid.componen';
+import { PostListOnelineComponent } from '../../view/post-list-oneline/post-list-oneline.component';
 
 @Component({
   selector: 'app-handset',
   imports: [
-    NewPostsComponent,
-    LangPostsComponent,
-    PopularPostsComponent,
+    AsyncPipe,
+    PostListOnelineComponent,
+    PostListCategoryComponent,
+    PostListGridComponent,
     RouterModule,
     VisibilityDirective,
     MatDividerModule,

@@ -11,21 +11,27 @@
     </p>
     <p class="text">I Learn Languages!</p>
   </div>
-  <app-new-posts
+  <app-post-list-oneline
+    title="NEW POSTS"
+    i18n-title
     class="content-block"
-    [newPosts$]="newPosts$()"
-  ></app-new-posts>
+    [posts]="(newPosts$() | async) || []"
+  ></app-post-list-oneline>
   <mat-divider></mat-divider>
-  <app-lang-posts
+  <app-post-list-category
     class="content-block"
-    [(selectedLang)]="selectedLang"
-    [langs$]="langs$()"
-    [langPosts$]="langPosts$()"
-  ></app-lang-posts>
+    title="5 LANGUAGES"
+    i18n-title
+    [(selectedCat)]="selectedLang"
+    [cats]="(langs$() | async) || []"
+    [posts]="(langPosts$() | async) || []"
+  ></app-post-list-category>
   <mat-divider></mat-divider>
-  <app-popular-posts
+  <app-post-list-grid
     class="content-block"
-    [popularPosts$]="popularPosts$()"
-  ></app-popular-posts>
+    title="POPULAR"
+    i18n-title
+    [posts]="(popularPosts$() | async) || []"
+  ></app-post-list-grid>
   <mat-divider class="divider-footer"></mat-divider>
 </div>

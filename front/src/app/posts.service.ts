@@ -255,6 +255,7 @@ export interface CatPost {
 }
 export interface PopularPost {
   id: string;
+  name: string | null;
   picture_pre: string;
 }
 export interface NewPost {
