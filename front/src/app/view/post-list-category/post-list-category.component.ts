@@ -2,10 +2,11 @@ import { UpperCasePipe } from '@angular/common';
 import { Component, input, model } from '@angular/core';
 import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { Category, CatPost } from '../../posts.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-post-list-category',
-  imports: [MatChipsModule, UpperCasePipe],
+  imports: [MatChipsModule, UpperCasePipe, RouterModule],
   templateUrl: './post-list-category.component.html',
   styleUrl: './post-list-category.component.scss',
 })

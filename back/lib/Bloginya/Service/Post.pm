@@ -371,22 +371,17 @@ async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
     = ('p.id', 'sn.name', [thumbnail_variant('upre') => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
   my $res = await $self->db->select_p(
     [
-      \'posts p',                                         [-left => \'shortnames sn', 'p.id' => 'shortnames.post_id'],
+      \'posts p',                                         [-left => \'shortnames sn', 'p.id'      => 'sn.post_id'],
       [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t',        'pt.tag_id' => 't.id'],
 
       [-left => \'uploads upre', 'upre.id' => 'p.picture_pre'],
     ],
-    [@p_fields, [\'array_remove(array_agg(tags.name), NULL)' => 'tags'],],
+    [@p_fields, [\'array_remove(array_agg(t.name), NULL)' => 'tags'],],
     {'p.category_id' => $category_id, 'status' => POST_STATUS_PUB},
-    {group_by        => \@p_fields,   order_by => {-desc => 'p.created_at'}}
+    {group_by => ['p.id', 'upre.id', 'sn.name'], order_by => {-desc => 'p.created_at'}, limit => $limit}
   );
 
-  my %posts_by_category;
-  for my $row ($res->hashes->@*) {
-    $posts_by_category{$row->{category_id}} = $row;
-  }
-
-  return \%posts_by_category;
+  return $res->hashes;
 }
 
 async sub list_popular_posts_p($self, $limit = 18, $offset = 0) {

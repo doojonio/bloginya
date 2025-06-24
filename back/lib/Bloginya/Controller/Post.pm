@@ -25,6 +25,12 @@ async sub list_home ($self) {
     json => {new_posts => $new_posts, cats => $cats, top_cat => \%top_cat, popular_posts => $popular});
 }
 
+async sub list_by_category($self) {
+  my $id = $self->i(id => 'cool_id');
+
+  return $self->render(json => (await $self->service('post')->list_posts_by_category_p($id)));
+}
+
 async sub create_draft($self) {
   my $id = await $self->service('post')->create_draft_p();
   return $self->render(json => {id => $id});

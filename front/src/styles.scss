@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @use "@angular/material" as mat;
-@use '_theme-colors.scss' as ptheme;
+@use "_theme-colors.scss" as ptheme;
 
 :root {
   --post-max-width: 80ch;
@@ -11,7 +11,7 @@
   --post-text-color: var(--mat-sys-on-surface);
   --post-placeholder-color: var(--mat-sys-on-surface);
   --post-border-radius: 4px;
-  --post-border-color: ''; // var(--mat-sys-outline-variant);
+  --post-border-color: ""; // var(--mat-sys-outline-variant);
   --post-wrapper-border-color: var(--mat-sys-outline-variant);
 
   --post-menubar-bg-color: var(--mat-sys-surface);
@@ -25,6 +25,11 @@
 html {
   height: 100%;
   color-scheme: light dark;
+
+  a {
+    all: unset;
+    cursor: pointer;
+  }
 
   @include mat.theme(
     (

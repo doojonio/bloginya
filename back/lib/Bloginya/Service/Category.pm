@@ -29,9 +29,8 @@ async sub list_all_categories_p($self) {
 
 async sub list_site_priority_categories_p($self) {
   my $res = await $self->db->select_p(
-    ['categories',    ['shortnames', 'categories.id' => 'shortnames.category_id']],
-    ['categories.id', 'categories.title', 'shortnames.name'], {parent_id => undef},
-    {order_by => [\'priority asc nulls last', {-asc => 'created_at'}]}
+    [\'categories c', [-left => \'shortnames sn', 'c.id' => 'sn.category_id']], ['c.id', 'c.title', 'sn.name'],
+    {parent_id => undef}, {order_by => [\'priority asc nulls last', {-asc => 'created_at'}]}
 
   );
 

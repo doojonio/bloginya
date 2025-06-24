@@ -1,26 +1,31 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { catchError, map, Observable, share, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  throwError,
+} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PostsService {
   private http = inject(HttpClient);
-  home$: Observable<HomeResponse>;
+
+  private updateHome$ = new BehaviorSubject<boolean>(true);
+  home$ = this.updateHome$.pipe(
+    switchMap((_) => this.http.get<HomeResponse>('/api/posts/home')),
+    shareReplay(1)
+  );
 
   private snackBar = inject(MatSnackBar);
   // request to home: GET /api/posts/home
   //
-
-  constructor() {
-    this.home$ = this.http.get<HomeResponse>('/api/posts/home').pipe(share());
-  }
-
-  updateHome() {
-    this.home$ = this.http.get<HomeResponse>('/api/posts/home').pipe(share());
-  }
 
   getPopularPosts() {
     return this.home$.pipe(map((res) => res.popular_posts));
@@ -32,14 +37,19 @@ export class PostsService {
 
   getHomeCatPosts(catId: string) {
     return this.home$.pipe(
-      map((res) => {
+      switchMap((res) => {
         if (res.top_cat.id == catId) {
-          return res.top_cat.posts || [];
+          return of(res.top_cat.posts || []);
         }
-
-        return [];
+        return this.getPostByCategory(catId);
       })
     );
+  }
+
+  getPostByCategory(catId: string) {
+    return this.http.get<CatPost[]>('/api/posts/by_category', {
+      params: { id: catId },
+    });
   }
 
   getHomeCats() {
@@ -96,7 +106,6 @@ export class PostsService {
       params: { id },
     });
   }
-
 
   private notifyError(httpErr: HttpErrorResponse) {
     const err = this.mapError(httpErr);
@@ -248,6 +257,7 @@ export interface Category {
 }
 export interface CatPost {
   id: string;
+  name: string | null;
   picture_pre: string;
   title: string;
   descr: string;
