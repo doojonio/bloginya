@@ -33,6 +33,7 @@ import { VisibilityDirective } from '../../directives/visibility.directive';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { UserService } from '../../user.service';
 import { PostListMedComponent } from '../post-list-med/post-list-med.component';
+import { CommentsComponent } from './comments/comments.component';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
 
 @Component({
@@ -50,6 +51,7 @@ import { DocumentDomComponent } from './document-dom/document-dom.component';
     VisibilityDirective,
     MatProgressSpinnerModule,
     PostListMedComponent,
+    CommentsComponent,
   ],
   templateUrl: './post-view.component.html',
   styleUrl: './post-view.component.scss',
@@ -102,6 +104,11 @@ export class PostViewComponent implements OnDestroy {
     filter(([prev, cur]) => !prev && cur),
     switchMap(() => this.postsService.getSimilliarPosts(this.post().id))
   );
+
+  showComments = false;
+  enableShowComments() {
+    this.showComments = true;
+  }
 
   tagClicked(tag: string) {
     throw new Error('Method not implemented.');

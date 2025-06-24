@@ -41,7 +41,7 @@
         } @if (p.enable_comments) {
 
         <div>
-          <button matIconButton>
+          <button (click)="enableShowComments()" matIconButton>
             <mat-icon>comment</mat-icon>
           </button>
           @if (p.comments) {
@@ -60,6 +60,9 @@
       <div class="date">{{ p.date | date : "yyyy.MM.dd" }}</div>
     </div>
   </div>
+  @if (showComments) {
+    <app-comments postId="postId()"></app-comments>
+  }
   <mat-divider></mat-divider>
   @if (p.category_id) {
   <div class="more-from">
@@ -77,7 +80,7 @@
     </div>
 
     @if(similliarPosts$ | async; as posts) {
-      <app-post-list-med [posts]="posts"></app-post-list-med>
+    <app-post-list-med [posts]="posts"></app-post-list-med>
     <!-- <div class="more-posts">
       @for (post of posts; track post.id) {
       <app-post-med [post]="post"></app-post-med>

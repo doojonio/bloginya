@@ -1,0 +1,14 @@
+<img src="{{avatar | async}}" [style]="getAvatarProps()"/>
+<div class="comment">
+  <mat-form-field>
+    <textarea
+      matInput
+      i18n-placeholder
+      placeholder="Enter comment..."
+    ></textarea>
+  </mat-form-field>
+  <div class="actions">
+    <button matButton="elevated" i18n>Cancel</button>
+    <button matButton="filled" i18n>Comment</button>
+  </div>
+</div>

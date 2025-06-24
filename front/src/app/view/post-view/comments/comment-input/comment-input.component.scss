@@ -1,0 +1,24 @@
+
+:host {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+img {
+    border-radius: 100%;
+}
+
+.comment {
+    flex: 1;
+}
+
+mat-form-field {
+    width: 100%
+}
+
+.actions {
+    display: flex;
+    justify-content: right;
+}

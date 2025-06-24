@@ -2,7 +2,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Toolbar } from 'ngx-editor';
-import { BehaviorSubject, map, Observable, of, share, shareReplay } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, shareReplay } from 'rxjs';
 import { Category, PostStatuses } from './posts.service';
 
 @Injectable({
@@ -136,7 +136,7 @@ export interface Social {
 }
 
 export interface SettingsResponse {
-  user: SettingsUser;
+  user: SettingsUser | null;
   categories: Category;
   socials: Social;
 }
