@@ -3,8 +3,6 @@ use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
 use experimental 'try';
 
-use Bloginya::Util::CoolId qw(is_cool_id);
-
 async sub list_home ($self) {
   my $u       = await $self->current_user_p;
   my $se_post = $self->service('post');

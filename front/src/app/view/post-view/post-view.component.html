@@ -61,7 +61,7 @@
     </div>
   </div>
   @if (showComments) {
-    <app-comments postId="postId()"></app-comments>
+    <app-comments [postId]="p.id"></app-comments>
   }
   <mat-divider></mat-divider>
   @if (p.category_id) {

@@ -8,13 +8,21 @@ export class CommentsService {
   constructor(private http: HttpClient) {}
 
   getComments(postId: string) {
-    return this.http.get<Comment[]>('/api/comments', {
+    return this.http.get<GetCommentResponseItem[]>('/api/comments', {
       params: { post_id: postId },
+    });
+  }
+
+  addComment(postId: string, content: string, replyId?: string) {
+    return this.http.post('/api/comments', {
+      post_id: postId,
+      reply_to_id: replyId,
+      content: content,
     });
   }
 }
 
-interface Comment {
+interface GetCommentResponseItem {
   id: string;
   created_at: string;
   edited_at: string | null;

@@ -108,6 +108,7 @@ sub _setup_routes($self) {
   $api_A->post('/posts/publish')->to('Post#publish');
   $api_A->put('/posts/draft')->to('Post#update_draft');
   $api_A->put('posts')->to('Post#apply_changes');
+  $api_A->post('comments')->to('Comment#add_comment');
 }
 
 

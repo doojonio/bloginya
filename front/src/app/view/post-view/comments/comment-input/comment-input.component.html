@@ -1,14 +1,28 @@
-<img src="{{avatar | async}}" [style]="getAvatarProps()"/>
+<img src="{{ avatar | async }}" [style]="getAvatarProps()" />
 <div class="comment">
   <mat-form-field>
     <textarea
       matInput
+      [formControl]="content"
       i18n-placeholder
+      (click)="startTyping()"
       placeholder="Enter comment..."
     ></textarea>
+
+    @if (this.content.getError('minlength')) {
+    <mat-error i18n>Too short</mat-error>
+    } @else if (this.content.getError('maxlength')) {
+    <mat-error i18n>Too long</mat-error>
+    }
   </mat-form-field>
+  @if(isTyping) {
   <div class="actions">
-    <button matButton="elevated" i18n>Cancel</button>
-    <button matButton="filled" i18n>Comment</button>
+    <button matButton="elevated" [disabled]="isLocked" (click)="cancel()" i18n>
+      Cancel
+    </button>
+    <button (click)="comment()" [disabled]="isLocked" matButton="filled" i18n>
+      Comment
+    </button>
   </div>
+  }
 </div>

@@ -3,6 +3,8 @@ use Mojo::Base -base, -signatures, -async_await;
 
 use experimental 'try';
 
+use List::Util qw(any);
+
 use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 
 has 'db';
@@ -31,6 +33,21 @@ async sub list_by_post_p($self, $post_id) {
   );
 
   $res->hashes;
+}
+
+async sub add_comment_p($self, $fields) {
+  die 'no rights to create comment on this post' unless await $self->se_policy->can_read_post_p($fields->{post_id});
+  die 'unauthorized'                             unless $self->current_user;
+
+  my %fields = map { $_ => $fields->{$_} } grep {
+    my $a = $_;
+    any { $_ eq $a } qw(post_id reply_to_id content)
+  } keys %$fields;
+
+  $fields{user_id} = $self->current_user->{id};
+
+  my $res = await $self->db->insert_p('comments', \%fields, {returning => 'id'});
+  return $res->hashes->first->{id};
 }
 
 

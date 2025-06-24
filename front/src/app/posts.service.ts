@@ -269,6 +269,8 @@ export interface PopularPost {
   picture_pre: string;
 }
 export interface NewPost {
+  id: string;
+  name: string | null;
   picture_pre: string;
   category_name: string;
   created_at: Date;
