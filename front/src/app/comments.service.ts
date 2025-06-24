@@ -14,7 +14,7 @@ export class CommentsService {
   }
 
   addComment(postId: string, content: string, replyId?: string) {
-    return this.http.post('/api/comments', {
+    return this.http.post<string>('/api/comments', {
       post_id: postId,
       reply_to_id: replyId,
       content: content,
@@ -22,7 +22,7 @@ export class CommentsService {
   }
 }
 
-interface GetCommentResponseItem {
+export interface GetCommentResponseItem {
   id: string;
   created_at: string;
   edited_at: string | null;

@@ -80,6 +80,7 @@ sub _setup_routes($self) {
   $api_U->get('/shortnames/item')->to('Shortname#get_item_by_name');
   $api_U->get('/posts/similliar')->to('Post#search_similliar_posts');
   $api_U->get('/posts/by_category')->to('Post#list_by_category');
+  $api_U->get('comments')->to('Comment#list_by_post');
 
   # Authorized routes
   my $api_A = $api->under(

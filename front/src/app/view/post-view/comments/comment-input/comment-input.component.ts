@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,6 +22,7 @@ import { UserService } from '../../../../user.service';
 })
 export class CommentInputComponent {
   userService = inject(UserService);
+  onAddComment = output<string>();
 
   postId = input.required<string>();
   replyToId = input<string>();
@@ -72,6 +73,9 @@ export class CommentInputComponent {
           this.isLocked = false;
         })
       )
-      .subscribe((res) => this.content.setValue(''));
+      .subscribe((id) => {
+        this.onAddComment.emit(id);
+        this.cancel();
+      });
   }
 }

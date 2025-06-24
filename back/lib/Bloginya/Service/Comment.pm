@@ -26,7 +26,7 @@ async sub list_by_post_p($self, $post_id) {
       'u.username',
       [\"u.google_userinfo->>'picture'" => 'picture'],
       \'(select count(cl.*) from comment_likes cl where cl.comment_id = c.id) as likes',
-      \'select (count(cr.id) from comments cr where cr.reply_to_id = c.id) as replies',
+      \'(select count(cr.id) from comments cr where cr.reply_to_id = c.id) as replies',
     ],
     {post_id  => $post_id},
     {order_by => {-desc => 'c.created_at'}},

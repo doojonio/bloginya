@@ -27,26 +27,30 @@ async sub read_p($self, $post_id) {
 
   my @tables = (
     \'posts p',
-    [-left => \'post_tags pt',   'p.id'          => 'pt.post_id'],
-    [-left => \'tags t',         'pt.tag_id'     => 't.id'],
-    [-left => \'categories c',   'p.category_id' => 'c.id'],
-    [-left => \'comments com',   'com.post_id'   => 'p.id'],
-    [-left => \'post_likes lik', 'lik.post_id'   => 'p.id'],
-    [-left => \'uploads uwp',    'uwp.id'        => 'p.picture_wp'],
+    [-left => \'post_tags pt', 'p.id'          => 'pt.post_id'],
+    [-left => \'categories c', 'p.category_id' => 'c.id'],
+    [-left => \'uploads uwp',  'uwp.id'        => 'p.picture_wp'],
   );
+
   my @select = (
     qw(p.id p.title p.document p.enable_likes p.enable_comments),
     [\'coalesce(p.published_at, now())', 'date'],
     [\"p.meta->>'pics'",                 'pics'],
     [\"p.meta->>'ttr'",                  'ttr'],
     'p.category_id',
-    ['c.title'                                => 'category_title'],
-    [\'array_remove(array_agg(t.name), NULL)' => 'tags'],
-    [\'count(distinct(com.id))'               => 'comments'],
-    [\'count(distinct(lik.user_id))'          => 'likes'],
-    [large_variant('uwp')                     => 'picture_wp'],
+    ['c.title' => 'category_title'],
+    [
+      \'(
+        select
+          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from post_tags pt join tags t on t.id = pt.tag_id
+        where pt.post_id = p.id
+      )' => 'tags'
+    ],
+    [\'( select count(com.id) from comments com where com.post_id = p.id )'        => 'comments'],
+    [\'( select count(lik.user_id) from post_likes lik where lik.post_id = p.id )' => 'likes'],
+    [large_variant('uwp')                                                          => 'picture_wp'],
   );
-  my @group_by = ('p.id', 'c.id', 'uwp.id');
 
   if (my $user = $self->current_user) {
 
@@ -58,12 +62,11 @@ async sub read_p($self, $post_id) {
       ];
 
     # stats
-    push @tables, [-left                                   => \'post_stats ps', 'ps.post_id' => 'p.id'];
-    push @select, [\'sum(ps.medium_views + ps.long_views)' => 'views'];
+    push @select,
+      [\'(select sum(ps.medium_views + ps.long_views) from post_stats ps where ps.post_id = p.id)' => 'views'];
   }
 
-  my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id}, {group_by => \@group_by}))
-    ->expand->hashes->first;
+  my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id},))->expand->hashes->first;
 
   if (!$self->current_user) {
     $p->{'liked'} = 0;
@@ -173,9 +176,11 @@ async sub get_for_edit_p($self, $post_id) {
     = (\'posts p', [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t', 'pt.tag_id' => 't.id'],);
   my @select = (
     qw(p.user_id p.category_id p.status p.description p.enable_likes p.enable_comments),
-    [\'array_remove(array_agg(t.name), NULL)' => 'tags']
+    [
+      \'( select array_remove(array_agg(t.name), NULL) from post_tags pt join tags t on pt.tag_id = t.id where pt.post_id = p.id )'
+        => 'tags'
+    ]
   );
-  my @group_by = ('p.id');
 
   # draft
   push @tables, [-left => \'post_drafts pd', 'pd.post_id' => 'p.id'],
@@ -183,15 +188,12 @@ async sub get_for_edit_p($self, $post_id) {
 
   push @select, ['pd.title' => 'title'], ['pd.document' => 'document',],
     [large_variant('uwp') => 'picture_wp', [medium_variant('upre') => 'picture_pre']];
-  push @group_by, 'pd.post_id', 'uwp.id', 'upre.id';
 
   # shortname
-  push @tables,   [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
-  push @select,   ['sn.name' => 'shortname'];
-  push @group_by, 'shortname';
+  push @tables, [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
+  push @select, ['sn.name' => 'shortname'];
 
-  my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id}, {group_by => \@group_by}))
-    ->expand->hashes->first;
+  my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id},))->expand->hashes->first;
 
   return $p;
 }

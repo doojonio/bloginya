@@ -32,6 +32,7 @@ import {
 } from 'ngx-editor';
 
 import { AsyncPipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -128,9 +129,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   meta = new FormGroup({
     tags: new FormControl<string[]>([]),
     status: new FormControl(PostStatuses.Draft, [Validators.required]),
-    category_id: new FormControl<string | null>(null, [
-      this.validatePubCategoryId.bind(this),
-    ]),
+    category_id: new FormControl<string | null>(null),
     shortname: new FormControl<null | string>(
       null,
       [
@@ -175,25 +174,21 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       }
     });
 
+  statusControlSubs = this.meta
+    .get('status')!
+    .valueChanges.pipe(takeUntilDestroyed())
+    .subscribe((status) => {
+      if (status == PostStatuses.Pub) {
+        this.meta.get('category_id')!.setValidators([Validators.required]);
+        this.meta.get('category_id')!.updateValueAndValidity();
+      } else {
+        this.meta.get('category_id')!.clearValidators();
+        this.meta.get('category_id')!.updateValueAndValidity();
+      }
+    });
+
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   isApplyDisabled = false;
-
-  // readonly newCatData = inject<AddCategoryResponse>(MAT_DIALOG_DATA);
-
-  validatePubCategoryId(control: AbstractControl) {
-    if (!this.meta) {
-      return null;
-    }
-    if (this.meta.value.status != PostStatuses.Pub) {
-      return null;
-    }
-
-    if (!control.value) {
-      return { pubCategoryRequired: true };
-    }
-
-    return null;
-  }
 
   validateUniqueShortname(control: AbstractControl) {
     const { value } = control;

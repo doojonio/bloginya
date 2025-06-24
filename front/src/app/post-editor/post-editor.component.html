@@ -99,7 +99,7 @@
               }}</mat-option>
               }
             </mat-select>
-            @if (this.meta.getError('pubCategoryRequired', 'category_id')) {
+            @if (this.meta.getError('required', 'category_id')) {
             <mat-error i18n>Category is required for public posts</mat-error>
             }
           </mat-form-field>

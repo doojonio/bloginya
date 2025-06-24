@@ -4,6 +4,7 @@
     <textarea
       matInput
       [formControl]="content"
+      [disabled]="isLocked"
       i18n-placeholder
       (click)="startTyping()"
       placeholder="Enter comment..."
