@@ -28,7 +28,6 @@ a {
   }
 }
 
-
 .visible {
   visibility: visible;
   opacity: 1;
@@ -44,6 +43,12 @@ a {
 .title {
   font: var(--mat-sys-title-large);
   color: var(--mat-sys-primary);
+
+  // background: linear-gradient(to right, #cc408d, #ff81be);
+  // -webkit-background-clip: text;
+  // background-clip: text;
+  // color: transparent;
+
   font-weight: bold;
   line-height: 100%;
   text-align: center;

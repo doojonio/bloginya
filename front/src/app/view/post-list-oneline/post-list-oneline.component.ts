@@ -6,10 +6,11 @@ import {
   input,
   viewChildren,
 } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-post-list-oneline',
-  imports: [UpperCasePipe],
+  imports: [UpperCasePipe, RouterModule],
   templateUrl: './post-list-oneline.component.html',
   styleUrl: './post-list-oneline.component.scss',
 })
@@ -30,6 +31,8 @@ export class PostListOnelineComponent implements AfterViewInit {
 }
 
 export interface PostOneLinePost {
+  id: string;
+  name: string | null;
   picture_pre: string;
   category_name: string;
   created_at: Date;
