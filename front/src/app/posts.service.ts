@@ -248,17 +248,17 @@ export interface Category {
 }
 export interface CatPost {
   id: string;
-  picture: string;
+  picture_pre: string;
   title: string;
   descr: string;
   tags: string[];
 }
 export interface PopularPost {
   id: string;
-  picture: string;
+  picture_pre: string;
 }
 export interface NewPost {
-  picture: string;
+  picture_pre: string;
   category_name: string;
   created_at: Date;
   title: string;

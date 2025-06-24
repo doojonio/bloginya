@@ -55,7 +55,7 @@ sub register {
 
   $app->helper(
     'current_user_p' => async sub ($c) {
-      return $c->stash(CURRENT_USER_STASH_NAME) if exists $c->stash->{&CURRENT_USER_STASH_NAME};
+      return $c->stash(CURRENT_USER_STASH_NAME) if exists $c->stash->{&CURRENT_USER_STASH_NAME()};
 
       my $user_p = async sub {
         my $cname = $c->config->{sessions}{name};
@@ -83,7 +83,7 @@ sub register {
 
   $app->helper(
     'current_user' => sub ($c) {
-      die 'No current user fetched' unless exists $c->stash->{&CURRENT_USER_STASH_NAME};
+      die 'No current user fetched' unless exists $c->stash->{&CURRENT_USER_STASH_NAME()};
       return $c->stash(CURRENT_USER_STASH_NAME);
     }
   );

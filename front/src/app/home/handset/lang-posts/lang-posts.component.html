@@ -11,7 +11,7 @@
 <div class="posts">
   @for (item of ( langPosts$()| async ); track item.id) {
   <div class="post">
-    <img src="{{ item.picture }}" />
+    <img src="{{ item.picture_pre }}" />
     <div class="post-text">
       <p class="post-title">{{ item.title }}</p>
       <p class="post-descr">{{ item.descr }}</p>

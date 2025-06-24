@@ -5,7 +5,7 @@ use experimental 'try';
 
 use Bloginya::Model::Post        qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
 use Bloginya::Model::ProseMirror qw(is_image is_text);
-use Bloginya::Model::Upload      qw(large_variant medium_variant upload_id);
+use Bloginya::Model::Upload      qw(large_variant medium_variant upload_id thumbnail_variant);
 use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Iterator::Simple             qw(:all);
 use List::Util                   qw(none any);
@@ -353,23 +353,28 @@ async sub create_draft_p($self) {
 
 async sub list_new_posts_p($self, $limit = 8) {
   my $res = await $self->db->select_p(
-    ['posts',    [-left => 'shortnames', 'posts.id' => 'shortnames.post_id']],
-    ['posts.id', 'posts.picture', 'posts.title', 'posts.created_at', 'shortnames.name'],
+    [
+      \'posts p',
+      [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
+      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre']
+    ],
+    ['p.id', [thumbnail_variant('upre') => 'picture_pre'], 'p.title', 'p.created_at', 'sn.name'],
     {'status' => POST_STATUS_PUB},
-    {order_by => [{-desc => 'posts.created_at'}], limit => $limit}
+    {order_by => [{-desc => 'p.published_at'}], limit => $limit}
   );
 
   return $res->hashes;
 }
 
 async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
-  my @p_fields = ('p.id', 'shortnames.name', 'p.picture', 'p.category_id', 'p.title', 'p.description',);
-  my $res      = await $self->db->select_p(
+  my @p_fields
+    = ('p.id', 'sn.name', [thumbnail_variant('upre') => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
+  my $res = await $self->db->select_p(
     [
-      \'posts p',
-      [-left => 'shortnames', 'p.id'             => 'shortnames.post_id'],
-      [-left => 'post_tags',  'p.id'             => 'post_tags.post_id'],
-      [-left => 'tags',       'post_tags.tag_id' => 'tags.id']
+      \'posts p',                                         [-left => \'shortnames sn', 'p.id' => 'shortnames.post_id'],
+      [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t',        'pt.tag_id' => 't.id'],
+
+      [-left => \'uploads upre', 'upre.id' => 'p.picture_pre'],
     ],
     [@p_fields, [\'array_remove(array_agg(tags.name), NULL)' => 'tags'],],
     {'p.category_id' => $category_id, 'status' => POST_STATUS_PUB},
@@ -387,29 +392,20 @@ async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
 async sub list_popular_posts_p($self, $limit = 18, $offset = 0) {
   my $res = await $self->db->select_p(
     [
-      'posts',
-      [-left => 'shortnames', 'posts.id' => 'shortnames.post_id'],
-      [-left => 'post_stats', 'posts.id' => 'post_stats.post_id'],
-      [-left => 'comments',   'posts.id' => 'comments.post_id'],
-      [-left => 'post_likes', 'posts.id' => 'post_likes.post_id']
+      \'posts p',
+      [-left => \'shortnames sn',  'p.id'    => 'sn.post_id'],
+      [-left => \'post_stats ps',  'p.id'    => 'ps.post_id'],
+      [-left => \'comments com',   'p.id'    => 'com.post_id'],
+      [-left => \'post_likes lik', 'p.id'    => 'lik.post_id'],
+      [-left => \'uploads upre',   'upre.id' => 'p.picture_pre'],
     ],
     [
-      'posts.id',
-      'posts.picture',
-      'shortnames.name',
-      [
-        \'(post_stats.short_views + post_stats.medium_views + post_stats.long_views + count(comments.id) + count(post_likes.*))'
-          => 'popularity'
-      ]
+      'p.id', 'sn.name',
+      [thumbnail_variant('upre')                                                            => 'picture_pre'],
+      [\'(ps.short_views + ps.medium_views + ps.long_views + count(com.id) + count(lik.*))' => 'popularity']
     ],
     {'status' => POST_STATUS_PUB},
-    {
-      group_by => [
-        'posts.id', 'shortnames.name', 'posts.picture', 'post_stats.short_views',
-        'post_stats.medium_views', 'post_stats.long_views'
-      ],
-      order_by => [{-desc => 'popularity'}]
-    },
+    {group_by => ['p.id', 'sn.name', 'ps.post_id', 'upre.id'], order_by => [{-desc => 'popularity'}]},
 
     {limit => $limit, offset => $offset}
   );

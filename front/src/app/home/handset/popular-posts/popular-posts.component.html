@@ -3,7 +3,7 @@
   @for (item of (popularPosts$() | async); track item) {
   <mat-grid-tile
     class="image"
-    [style]="{ 'background-image': 'url(' + item.picture + ')' }"
+    [style]="{ 'background-image': 'url(' + item.picture_pre + ')' }"
   ></mat-grid-tile>
   }
 </mat-grid-list>
