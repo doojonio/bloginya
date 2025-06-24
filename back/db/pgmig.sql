@@ -169,12 +169,24 @@ create table
         id cool_id primary key default random_string (),
         user_id uuid not null references users (id),
         post_id cool_id not null references posts (id),
+        reply_to_id cool_id references comments (id),
         content text not null,
         created_at timestamp not null default now(),
         edited_at timestamp
     );
 
 create index comments_post_id_idx on comments (post_id);
+
+create index comments_reply_to_id_idx on comments (reply_to_id);
+
+create table
+    comment_likes (
+        comment_id cool_id not null references comments (id),
+        user_id uuid not null references users (id),
+        primary key (comment_id, user_id)
+    );
+
+create index comment_likes_post_id_idx on comment_likes (comment_id);
 
 create table
     post_likes (
@@ -197,6 +209,8 @@ create table
 drop table post_stats;
 
 drop table post_likes;
+
+drop table comment_likes;
 
 drop table comments;
 
