@@ -1,0 +1,30 @@
+:host {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1rem;
+}
+
+img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 100%;
+}
+
+.top {
+  display: flex;
+  flex-flow: row nowrap;
+
+  font: var(--mat-sys-body-medium);
+  gap: 0.5rem;
+}
+
+.uname {
+  color: var(--mat-sys-primary);
+}
+
+.actions {
+  font-size: var(--mat-sys-body-medium);
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}

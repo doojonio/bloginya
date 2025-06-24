@@ -30,5 +30,6 @@ export interface GetCommentResponseItem {
   username: string;
   picture: string | null;
   likes: number;
+  liked?: boolean;
   replies: number;
 }

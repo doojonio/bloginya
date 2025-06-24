@@ -1,1 +1,19 @@
-<p>comment-view works!</p>
+@if (comment(); as com) {
+<img src="{{ com.picture }}" />
+<div>
+  <div class="top">
+    <a class="uname">{{ "@" + com.username }}</a>
+    <a class="date">{{ com.created_at | date }}</a>
+  </div>
+  <div class="content">
+    {{ com.content }}
+  </div>
+  <div class="actions">
+    <button matIconButton (click)="com.liked ? unlike() : like()">
+      <mat-icon>{{ com.liked ? "favorite" : "favorite_border" }}</mat-icon>
+    </button>
+
+    <button matButton="text" i18n>Reply</button>
+  </div>
+</div>
+}

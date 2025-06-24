@@ -177,7 +177,7 @@ async sub get_for_edit_p($self, $post_id) {
   my @select = (
     qw(p.user_id p.category_id p.status p.description p.enable_likes p.enable_comments),
     [
-      \'( select array_remove(array_agg(t.name), NULL) from post_tags pt join tags t on pt.tag_id = t.id where pt.post_id = p.id )'
+      \'( select coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[]) from post_tags pt join tags t on pt.tag_id = t.id where pt.post_id = p.id )'
         => 'tags'
     ]
   );

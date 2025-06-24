@@ -33,9 +33,6 @@
   margin-bottom: 2rem;
 }
 
-.content {
-  margin-bottom: 2rem;
-}
 
 .tags {
   display: flex;
@@ -100,6 +97,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+mat-divider {
+  margin: 2rem 0;
 }
 
 .more-from {

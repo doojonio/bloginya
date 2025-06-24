@@ -20,8 +20,6 @@
     "@angular/platform-browser-dynamic": "^20.0.2",
     "@angular/router": "^20.0.2",
     "ngx-editor": "^19.0.0-beta.1",
-    "ngx-logger": "^5.0.12",
-    "ngx-mask": "^19.0.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
