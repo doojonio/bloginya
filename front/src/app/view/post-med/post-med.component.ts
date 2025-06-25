@@ -13,14 +13,14 @@ export class PostMedComponent {
   post = input.required<PostMed>();
 
   linkForPost(post: PostMed) {
-    return post.shortname ? '/' + post.shortname : '/p/' + post.id;
+    return post.name ? '/' + post.name : '/p/' + post.id;
   }
 }
 
 export interface PostMed {
   title: string;
   id: string;
-  shortname: string | null;
+  name: string | null;
   picture_pre: string | null;
   description: string | null;
   tags: string[];

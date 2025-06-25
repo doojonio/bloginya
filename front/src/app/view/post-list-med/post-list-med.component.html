@@ -1,6 +1,5 @@
 @for (item of posts(); track item.id; let last = $last) {
-<app-post-med [post]="item"></app-post-med>
-@if(!last) {
+<app-post-med [imageFirst]="imageFirst()" [class]="divider() ? '' : 'with-margin' " [post]="item"></app-post-med>
+@if(divider() && !last) {
 <mat-divider></mat-divider>
-
 } }

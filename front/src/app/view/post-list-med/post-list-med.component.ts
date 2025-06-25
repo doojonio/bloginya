@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
-import { PostMed, PostMedComponent } from '../post-med/post-med.component';
 import { MatDividerModule } from '@angular/material/divider';
+import { PostMed, PostMedComponent } from '../post-med/post-med.component';
 
 @Component({
   selector: 'app-post-list-med',
@@ -10,4 +10,6 @@ import { MatDividerModule } from '@angular/material/divider';
 })
 export class PostListMedComponent {
   posts = input.required<PostMed[]>();
+  divider = input<boolean>(false);
+  imageFirst = input(false);
 }

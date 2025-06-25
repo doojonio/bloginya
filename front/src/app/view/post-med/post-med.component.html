@@ -1,15 +1,19 @@
 @if (post(); as post) {
 <ng-template #image>
-  <img src="{{ post.picture_pre }}" routerLink="{{ linkForPost(post) }}" />
+  <a
+    class="post-pic"
+    [style]="{ 'background-image': 'url('+ post.picture_pre + ')', }"
+    routerLink="{{ linkForPost(post) }}"
+  ></a>
 </ng-template>
 
 @if(imageFirst()) {
 <ng-container *ngTemplateOutlet="image"></ng-container>
 }
 <div class="post-text">
-  <p class="post-title" routerLink="{{ linkForPost(post) }}">
+  <a class="post-title" routerLink="{{ linkForPost(post) }}">
     {{ post.title }}
-  </p>
+  </a>
   <p class="post-descr">{{ post.description }}</p>
   <p class="post-tags">
     @for (tag of post.tags; track tag) {

@@ -281,7 +281,7 @@ export interface NewPost {
 export interface PostMed {
   title: string;
   id: string;
-  shortname: string | null;
+  name: string | null;
   picture_pre: string | null;
   description: string | null;
   tags: string[];

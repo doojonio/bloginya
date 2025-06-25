@@ -130,7 +130,7 @@ async sub search_similliar_posts_p($self, $post_id, $limit = 12) {
         )
       )) as tags_similarity,
 
-      sn.name as shortname
+      sn.name
 
     from posts p
     join post_fts pfts on pfts.post_id = p.id
@@ -172,8 +172,7 @@ async sub get_for_edit_p($self, $post_id) {
   die 'no rights to edit this post' unless await $self->se_policy->can_update_post_p($post_id);
 
   await $self->_ensure_draft_p($post_id);
-  my @tables
-    = (\'posts p', [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t', 'pt.tag_id' => 't.id'],);
+  my @tables = (\'posts p');
   my @select = (
     qw(p.user_id p.category_id p.status p.description p.enable_likes p.enable_comments),
     [
@@ -373,14 +372,23 @@ async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
     = ('p.id', 'sn.name', [thumbnail_variant('upre') => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
   my $res = await $self->db->select_p(
     [
-      \'posts p',                                         [-left => \'shortnames sn', 'p.id'      => 'sn.post_id'],
-      [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t',        'pt.tag_id' => 't.id'],
-
-      [-left => \'uploads upre', 'upre.id' => 'p.picture_pre'],
+      \'posts p',
+      [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
+      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre'],
     ],
-    [@p_fields, [\'array_remove(array_agg(t.name), NULL)' => 'tags'],],
-    {'p.category_id' => $category_id, 'status' => POST_STATUS_PUB},
-    {group_by => ['p.id', 'upre.id', 'sn.name'], order_by => {-desc => 'p.created_at'}, limit => $limit}
+    [
+      @p_fields,
+      [
+        \'(
+        select
+          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from post_tags pt join tags t on t.id = pt.tag_id
+        where pt.post_id = p.id
+      )' => 'tags'
+      ],
+    ],
+    {'p.category_id' => $category_id,              'status' => POST_STATUS_PUB},
+    {order_by        => {-desc => 'p.created_at'}, limit    => $limit}
   );
 
   return $res->hashes;
@@ -390,21 +398,29 @@ async sub list_popular_posts_p($self, $limit = 18, $offset = 0) {
   my $res = await $self->db->select_p(
     [
       \'posts p',
-      [-left => \'shortnames sn',  'p.id'    => 'sn.post_id'],
-      [-left => \'post_stats ps',  'p.id'    => 'ps.post_id'],
-      [-left => \'comments com',   'p.id'    => 'com.post_id'],
-      [-left => \'post_likes lik', 'p.id'    => 'lik.post_id'],
-      [-left => \'uploads upre',   'upre.id' => 'p.picture_pre'],
+      [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
+      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre'],
     ],
     [
-      'p.id', 'sn.name',
-      [thumbnail_variant('upre')                                                            => 'picture_pre'],
-      [\'(ps.short_views + ps.medium_views + ps.long_views + count(com.id) + count(lik.*))' => 'popularity']
+      'p.id',
+      'sn.name',
+      [thumbnail_variant('upre') => 'picture_pre'],
+      [
+        \q~
+        (
+        select
+          coalesce((select count(*) from comments com where com.post_id = p.id), 0) * 4
+          +
+          coalesce((select count(*) from post_likes lik where lik.post_id = p.id), 0) * 2
+          +
+          coalesce((select (short_views * 0.5 + medium_views + long_views * 2) from post_stats ps where ps.post_id = p.id), 0)
+        )
+      ~ => 'popularity'
+      ]
     ],
     {'status' => POST_STATUS_PUB},
-    {group_by => ['p.id', 'sn.name', 'ps.post_id', 'upre.id'], order_by => [{-desc => 'popularity'}]},
-
-    {limit => $limit, offset => $offset}
+    {order_by => {-desc => 'popularity'}},
+    {limit    => $limit, offset => $offset}
   );
 
   return $res->hashes;
