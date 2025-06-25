@@ -45,7 +45,7 @@ img {
 }
 
 .animate {
-  animation: like-animation 0.5s ease-in;
+  animation: like-animation 0.25s ease-out;
 }
 
 @keyframes like-animation {
@@ -53,7 +53,7 @@ img {
     transform: translate(0, 0) scale(1);
   }
   50% {
-    transform: translate(-10%, -10%) scale(1.5);
+    transform: translate(0, -20%) scale(1.5);
   }
   100% {
     transform: translate(0, 0) scale(1);
