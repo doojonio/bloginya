@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -24,5 +24,10 @@ export class AppComponent {
         sanitizer.bypassSecurityTrustResourceUrl(`../assets/icons/${icon}.svg`)
       );
     }
+  }
+
+  @ViewChild('nav', {static: true}) el!: NavigationComponent;
+  onActivate($event: any) {
+    this.el.scrollToTop();
   }
 }

@@ -18,6 +18,10 @@ img {
   gap: 0.5rem;
 }
 
+.date {
+  color: var(--mat-sys-outline);
+}
+
 .uname {
   color: var(--mat-sys-primary);
 }
@@ -27,4 +31,8 @@ img {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+
+  .btn-like {
+    transform: scale(0.9);
+  }
 }

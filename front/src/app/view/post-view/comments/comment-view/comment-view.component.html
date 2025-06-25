@@ -9,7 +9,7 @@
     {{ com.content }}
   </div>
   <div class="actions">
-    <button matIconButton (click)="com.liked ? unlike() : like()">
+    <button class="btn-like" matIconButton (click)="com.liked ? unlike() : like()">
       <mat-icon>{{ com.liked ? "favorite" : "favorite_border" }}</mat-icon>
     </button>
 
