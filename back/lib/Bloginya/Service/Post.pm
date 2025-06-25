@@ -357,9 +357,15 @@ async sub list_new_posts_p($self, $limit = 8) {
     [
       \'posts p',
       [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
-      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre']
+      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre'],
+      [-left => \'categories c',  'c.id'    => 'p.category_id'],
     ],
-    ['p.id', [thumbnail_variant('upre') => 'picture_pre'], 'p.title', 'p.created_at', 'sn.name'],
+    [
+      'p.id',
+      ['c.title'                 => 'category_name'],
+      [thumbnail_variant('upre') => 'picture_pre'],
+      'p.title', 'p.created_at', 'sn.name'
+    ],
     {'status' => POST_STATUS_PUB},
     {order_by => [{-desc => 'p.published_at'}], limit => $limit}
   );
