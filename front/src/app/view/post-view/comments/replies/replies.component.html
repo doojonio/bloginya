@@ -1,0 +1,5 @@
+<div class="replies">
+  @for (comment of (replies$() | async); track comment.id) {
+  <app-reply-view [postId]="postId()" [comment]="comment"></app-reply-view>
+  }
+</div>

@@ -1,28 +1,17 @@
-import { DatePipe } from '@angular/common';
 import { Component, inject, input, model, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { take, tap, timer } from 'rxjs';
 import {
   CommentsService,
   GetCommentResponseItem,
-} from '../../../../comments.service';
-import { CommentInputComponent } from '../comment-input/comment-input.component';
-import { RepliesComponent } from '../replies/replies.component';
+} from '../../../../../comments.service';
 
 @Component({
-  selector: 'app-comment-view',
-  imports: [
-    DatePipe,
-    MatIconModule,
-    MatButtonModule,
-    CommentInputComponent,
-    RepliesComponent,
-  ],
-  templateUrl: './comment-view.component.html',
-  styleUrl: './comment-view.component.scss',
+  selector: 'app-reply-view',
+  imports: [],
+  templateUrl: './reply-view.component.html',
+  styleUrl: './reply-view.component.scss',
 })
-export class CommentViewComponent {
+export class ReplyViewComponent {
   comment = model.required<GetCommentResponseItem>();
 
   commentsService = inject(CommentsService);
@@ -74,10 +63,5 @@ export class CommentViewComponent {
   }
   onAddReply($event: string) {
     this.isReplying = false;
-  }
-
-  isShowingReplies = false;
-  toggleReplies() {
-    this.isShowingReplies = !this.isShowingReplies;
   }
 }

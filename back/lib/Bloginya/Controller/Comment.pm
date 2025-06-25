@@ -5,11 +5,11 @@ use experimental 'try';
 
 
 async sub list_by_post($self) {
-  my ($post_id) = $self->i(post_id => 'cool_id');
+  my ($post_id, $reply_to_id) = $self->i(post_id => 'cool_id', 'reply_to_id' => 'cool_id|undef');
 
   my $comments;
   try {
-    $comments = await $self->service('comment')->list_by_post_p($post_id);
+    $comments = await $self->service('comment')->list_by_post_p($post_id, $reply_to_id);
   }
   catch ($e) {
     if ($e =~ /no rights/) {

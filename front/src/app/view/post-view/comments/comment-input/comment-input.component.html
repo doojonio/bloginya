@@ -1,5 +1,5 @@
 <img src="{{ avatar | async }}" [style]="getAvatarProps()" />
-<form class="comment">
+<div class="comment">
   <mat-form-field>
     <textarea
       matInput
@@ -15,14 +15,19 @@
     <mat-error i18n>Too long</mat-error>
     }
   </mat-form-field>
-  @if(isTyping) {
+  @if(isTyping || mode() == 'reply') {
   <div class="actions">
     <button matButton="elevated" [disabled]="isLocked" (click)="cancel()" i18n>
       Cancel
     </button>
-    <button (click)="comment($event)"[disabled]="isLocked" matButton="filled" i18n>
-      Comment
+    <button
+      (click)="comment($event)"
+      [disabled]="isLocked"
+      matButton="filled"
+      i18n
+    >
+      {{ mode() == "reply" ? "Reply" : "Comment" }}
     </button>
   </div>
   }
-</form>
+</div>

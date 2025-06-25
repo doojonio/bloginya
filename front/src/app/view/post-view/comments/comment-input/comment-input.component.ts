@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,14 +31,15 @@ export class CommentInputComponent {
 
   commentsService = inject(CommentsService);
 
-  mode = input<'comment' | 'reply'>('comment');
+  // mode = input<'comment' | 'reply'>('comment');
+  mode = computed(() => (this.replyToId() ? 'reply' : 'comment'));
 
   getAvatarProps() {
     return this.mode() == 'comment'
       ? { width: '2.5rem', height: '2.5rem' }
       : {
-          width: '1rem',
-          height: '1rem',
+          width: '2rem',
+          height: '2rem',
         };
   }
 
@@ -53,10 +54,13 @@ export class CommentInputComponent {
     this.isTyping = true;
   }
 
+  onCancel = output();
+
   cancel() {
     this.content.setValue(null);
     this.content.markAsUntouched();
     this.isTyping = false;
+    this.onCancel.emit();
   }
 
   isLocked = false;
@@ -68,7 +72,7 @@ export class CommentInputComponent {
 
     this.isLocked = true;
     this.commentsService
-      .addComment(this.postId(), this.content.value || '')
+      .addComment(this.postId(), this.content.value || '', this.replyToId())
       .pipe(
         finalize(() => {
           this.isLocked = false;

@@ -14,6 +14,7 @@ sub startup ($self) {
       my ($next, $c, $action, $last) = @_;
       my $res = $next->();
       $res->catch(\&Carp::cluck) if blessed($res) && $res->isa('Mojo::Promise');
+      $res;
     }
   );
 

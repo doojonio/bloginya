@@ -20,8 +20,25 @@
     @if (com.likes) {
     {{ com.likes }}
     }
-
-    <button matButton="text" i18n>Reply</button>
+    <button matButton="text" (click)="startReply()" i18n>Reply</button>
   </div>
+
+  @if (isReplying) {
+  <app-comment-input
+    [postId]="postId()"
+    [replyToId]="com.id"
+    (onCancel)="stopReply()"
+    (onAddComment)="onAddReply($event)"
+  ></app-comment-input>
+  } @if (com.replies) {
+  <button matButton="text" (click)="toggleReplies()">
+    <mat-icon inline>{{
+      isShowingReplies ? "arrow_drop_up" : "arrow_drop_down"
+    }}</mat-icon
+    >{{ com.replies }} replies
+  </button>
+  } @if (isShowingReplies) {
+  <app-replies [postId]="postId()" [comId]="com.id"></app-replies>
+  }
 </div>
 }

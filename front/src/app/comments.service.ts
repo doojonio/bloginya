@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -7,9 +7,16 @@ import { Injectable } from '@angular/core';
 export class CommentsService {
   constructor(private http: HttpClient) {}
 
-  getComments(postId: string) {
+  getComments(postId: string, comId?: string) {
+    let params = new HttpParams();
+
+    params = params.set('post_id', postId);
+    if (comId) {
+      params = params.set('comment_id', comId);
+    }
+
     return this.http.get<GetCommentResponseItem[]>('/api/comments', {
-      params: { post_id: postId },
+      params,
     });
   }
 

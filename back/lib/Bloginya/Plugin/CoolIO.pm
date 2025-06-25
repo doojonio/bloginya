@@ -42,7 +42,7 @@ sub _hook {
     $res->catch(sub { _handle_err(shift, $c) });
   }
 
-  $res;
+  return $res;
 }
 
 sub _handle_err ($e, $c) {
