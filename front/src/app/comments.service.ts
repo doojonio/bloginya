@@ -20,6 +20,21 @@ export class CommentsService {
       content: content,
     });
   }
+
+  unlike(id: string) {
+    return this.http.delete<OkResponse>('/api/comments/like', {
+      params: { id },
+    });
+  }
+  like(id: string) {
+    return this.http.post<OkResponse>('/api/comments/like', null, {
+      params: { id },
+    });
+  }
+}
+
+export interface OkResponse {
+  message: 'OK';
 }
 
 export interface GetCommentResponseItem {

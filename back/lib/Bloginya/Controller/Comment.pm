@@ -31,5 +31,17 @@ async sub add_comment($self) {
   return $self->render(json => $id);
 }
 
+async sub like($self) {
+  my $id = $self->i(id => 'cool_id');
+  await $self->service('comment')->like_p($id);
+  return $self->msg('OK');
+}
+
+async sub unlike($self) {
+  my $id = $self->i(id => 'cool_id');
+  await $self->service('comment')->unlike_p($id);
+  return $self->msg('OK');
+}
+
 
 1

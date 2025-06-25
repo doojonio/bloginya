@@ -9,9 +9,17 @@
     {{ com.content }}
   </div>
   <div class="actions">
-    <button class="btn-like" matIconButton (click)="com.liked ? unlike() : like()">
+    <button
+      class="btn-like"
+      [class]="likeAnimClass()"
+      matIconButton
+      (click)="com.liked ? unlike() : like()"
+    >
       <mat-icon>{{ com.liked ? "favorite" : "favorite_border" }}</mat-icon>
     </button>
+    @if (com.likes) {
+    {{ com.likes }}
+    }
 
     <button matButton="text" i18n>Reply</button>
   </div>

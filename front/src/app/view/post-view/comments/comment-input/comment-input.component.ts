@@ -60,7 +60,8 @@ export class CommentInputComponent {
   }
 
   isLocked = false;
-  comment() {
+  comment($event: Event) {
+    $event.preventDefault();
     if (this.content.invalid) {
       return;
     }

@@ -1,3 +1,4 @@
+@use "@angular/material" as mat;
 :host {
   display: flex;
   flex-flow: row nowrap;
@@ -34,5 +35,27 @@ img {
 
   .btn-like {
     transform: scale(0.9);
+
+    @include mat.icon-overrides(
+      (
+        color: var(--mat-sys-primary),
+      )
+    );
+  }
+}
+
+.animate {
+  animation: like-animation 0.5s ease-in;
+}
+
+@keyframes like-animation {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-10%, -10%) scale(1.5);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
   }
 }

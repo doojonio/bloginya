@@ -98,18 +98,20 @@ sub _setup_routes($self) {
     }
   );
 
-  $api_A->delete('/posts/like')->to('Post#unlike');
   $api_A->get('/categories/by_title')->to('Category#get_by_title');
   $api_A->get('/posts/for_edit')->to('Post#get_for_edit');
   $api_A->get('/shortnames')->to('Shortname#get_by_name');
   $api_A->post('/categories')->to('Category#save');
   $api_A->post('/drive')->to('File#put_file');
+  $api_A->delete('/posts/like')->to('Post#unlike');
   $api_A->post('/posts/like')->to('Post#like');
   $api_A->post('/posts/new')->to('Post#create_draft');
   $api_A->post('/posts/publish')->to('Post#publish');
   $api_A->put('/posts/draft')->to('Post#update_draft');
   $api_A->put('posts')->to('Post#apply_changes');
   $api_A->post('comments')->to('Comment#add_comment');
+  $api_A->delete('/comments/like')->to('Comment#unlike');
+  $api_A->post('/comments/like')->to('Comment#like');
 }
 
 

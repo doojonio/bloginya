@@ -1,5 +1,5 @@
 <img src="{{ avatar | async }}" [style]="getAvatarProps()" />
-<div class="comment">
+<form class="comment">
   <mat-form-field>
     <textarea
       matInput
@@ -20,9 +20,9 @@
     <button matButton="elevated" [disabled]="isLocked" (click)="cancel()" i18n>
       Cancel
     </button>
-    <button (click)="comment()" [disabled]="isLocked" matButton="filled" i18n>
+    <button (click)="comment($event)"[disabled]="isLocked" matButton="filled" i18n>
       Comment
     </button>
   </div>
   }
-</div>
+</form>
