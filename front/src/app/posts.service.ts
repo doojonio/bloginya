@@ -260,7 +260,7 @@ export interface CatPost {
   name: string | null;
   picture_pre: string;
   title: string;
-  descr: string;
+  description: string;
   tags: string[];
 }
 export interface PopularPost {
