@@ -14,25 +14,25 @@ import { PopularPost } from '../../posts.service';
 export class PostListGridComponent {
   title = input<string>();
   posts = input.required<PopularPost[]>();
-  POSTS_PER_PAGE = 18;
+  posts_per_page = input(18);
 
   firstPage = computed(() => {
     const posts = this.posts();
 
-    if (posts.length <= this.POSTS_PER_PAGE) {
+    if (posts.length <= this.posts_per_page()) {
       return posts;
     } else {
-      return posts.slice(0, this.POSTS_PER_PAGE);
+      return posts.slice(0, this.posts_per_page());
     }
   });
 
   secondPage = computed(() => {
     const posts = this.posts();
 
-    if (posts.length <= this.POSTS_PER_PAGE) {
+    if (posts.length <= this.posts_per_page()) {
       return null;
     } else {
-      return posts.slice(this.POSTS_PER_PAGE);
+      return posts.slice(this.posts_per_page());
     }
   });
 
