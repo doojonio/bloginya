@@ -1,4 +1,7 @@
-<img src="{{ avatar | async }}" [style]="getAvatarProps()" />
+<img
+  src="{{ avatar$ | async }}"
+  [class]="mode() == 'reply' ? 'av-small' : 'av'"
+/>
 <div class="comment">
   <mat-form-field>
     <textarea
@@ -7,6 +10,9 @@
       i18n-placeholder
       (click)="startTyping()"
       placeholder="Enter comment..."
+      cdkTextareaAutosize
+      cdkAutosizeMinRows="1"
+      cdkAutosizeMaxRows="24"
     ></textarea>
 
     @if (this.content.getError('minlength')) {

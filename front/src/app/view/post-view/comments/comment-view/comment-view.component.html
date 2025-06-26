@@ -1,5 +1,5 @@
 @if (comment(); as com) {
-<img src="{{ com.picture }}" />
+<img [class]="replyToId() ? 'av-small' : 'av'" src="{{ com.picture }}" />
 <div>
   <div class="top">
     <a class="uname">{{ "@" + com.username }}</a>
@@ -26,11 +26,12 @@
   @if (isReplying) {
   <app-comment-input
     [postId]="postId()"
-    [replyToId]="com.id"
+    [replyToId]="replyToId() || com.id"
+    [initialInput]="replyToId() ? '@' + com.username : ''"
     (onCancel)="stopReply()"
     (onAddComment)="onAddReply($event)"
   ></app-comment-input>
-  } @if (com.replies) {
+  } @if (!replyToId() && com.replies) {
   <button matButton="text" (click)="toggleReplies()">
     <mat-icon inline>{{
       isShowingReplies ? "arrow_drop_up" : "arrow_drop_down"
@@ -38,7 +39,7 @@
     >{{ com.replies }} replies
   </button>
   } @if (isShowingReplies) {
-  <app-replies [postId]="postId()" [comId]="com.id"></app-replies>
+  <app-comments [postId]="postId()" [replyToId]="com.id"></app-comments>
   }
 </div>
 }

@@ -1,9 +1,0 @@
-<app-comment-input
-  (onAddComment)="onNewCommit($event)"
-  [postId]="postId()"
-></app-comment-input>
-<div class="comments">
-  @for (comment of (comments$() | async); track comment.id) {
-  <app-comment-view [postId]="postId()" [comment]="comment"></app-comment-view>
-  }
-</div>

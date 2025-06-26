@@ -1,0 +1,16 @@
+@if(!isReply()) {
+<app-comment-input
+  (onAddComment)="onNewCommit($event)"
+  [postId]="postId()"
+></app-comment-input>
+}
+<div [class]="!replyToId() ? 'comments-padding' : ''">
+  @for (comment of (comments$() | async); track comment.id) {
+  <app-comment-view
+    [postId]="postId()"
+    [replyToId]="replyToId()"
+    [comment]="comment"
+    [class]="replyToId() ? 'reply-comment' : 'comment'"
+  ></app-comment-view>
+  }
+</div>

@@ -33,7 +33,7 @@ import { VisibilityDirective } from '../../directives/visibility.directive';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { UserService } from '../../user.service';
 import { PostListMedComponent } from '../post-list-med/post-list-med.component';
-import { CommentsComponent } from './comments/comments.component';
+import { CommentsModule } from './comments/comments.module';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
 
 @Component({
@@ -51,7 +51,7 @@ import { DocumentDomComponent } from './document-dom/document-dom.component';
     VisibilityDirective,
     MatProgressSpinnerModule,
     PostListMedComponent,
-    CommentsComponent,
+    CommentsModule,
   ],
   templateUrl: './post-view.component.html',
   styleUrl: './post-view.component.scss',
@@ -106,8 +106,8 @@ export class PostViewComponent implements OnDestroy {
   );
 
   showComments = false;
-  enableShowComments() {
-    this.showComments = true;
+  toggleShowComments() {
+    this.showComments = !this.showComments;
   }
 
   tagClicked(tag: string) {

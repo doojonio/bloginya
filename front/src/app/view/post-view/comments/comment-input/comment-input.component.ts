@@ -1,33 +1,30 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  output,
+} from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { finalize, map } from 'rxjs';
 import { CommentsService } from '../../../../comments.service';
 import { UserService } from '../../../../user.service';
 
 @Component({
+  standalone: false,
   selector: 'app-comment-input',
-  imports: [
-    AsyncPipe,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    ReactiveFormsModule,
-  ],
   templateUrl: './comment-input.component.html',
   styleUrl: './comment-input.component.scss',
 })
-export class CommentInputComponent {
+export class CommentInputComponent implements OnInit {
   userService = inject(UserService);
   onAddComment = output<string>();
 
   postId = input.required<string>();
   replyToId = input<string>();
 
-  avatar = this.userService.getCurrentUser().pipe(map((u) => u?.picture));
+  avatar$ = this.userService.getCurrentUser().pipe(map((u) => u?.picture));
 
   commentsService = inject(CommentsService);
 
@@ -38,12 +35,18 @@ export class CommentInputComponent {
     return this.mode() == 'comment'
       ? { width: '2.5rem', height: '2.5rem' }
       : {
-          width: '2rem',
-          height: '2rem',
+          width: '1.5rem',
+          height: '1.5rem',
         };
   }
 
-  content = new FormControl('', [
+  initialInput = input<string>('');
+
+  ngOnInit(): void {
+    this.content.setValue(this.initialInput());
+  }
+
+  content = new FormControl(this.initialInput(), [
     Validators.required,
     Validators.minLength(3),
     Validators.maxLength(500),

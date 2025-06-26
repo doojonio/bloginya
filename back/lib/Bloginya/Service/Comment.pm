@@ -42,8 +42,8 @@ async sub list_by_post_p($self, $post_id, $reply_to_id = undef) {
       \'(select count(cr.id) from comments cr where cr.reply_to_id = c.id) as replies',
       @more_sel,
     ],
-    {post_id  => $post_id, reply_to_id => undef},
-    {order_by => {-desc => 'c.created_at'}},
+    {post_id  => $post_id, reply_to_id => $reply_to_id},
+    {order_by => {($reply_to_id ? '-asc' : '-desc') => 'c.created_at'}},
   );
 
   $res->hashes;

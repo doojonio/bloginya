@@ -2,13 +2,20 @@
 :host {
   display: flex;
   flex-flow: row nowrap;
-  gap: 1rem;
 }
 
 img {
-  width: 2rem;
-  height: 2rem;
   border-radius: 100%;
+  &.av-small {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.25rem;
+  }
+  &.av {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
+  }
 }
 
 .top {
@@ -34,7 +41,7 @@ img {
   align-items: center;
 
   .btn-like {
-    transform: scale(0.9);
+    transform: scale(0.8);
 
     @include mat.icon-overrides(
       (

@@ -41,7 +41,7 @@
         } @if (p.enable_comments) {
 
         <div>
-          <button (click)="enableShowComments()" matIconButton>
+          <button (click)="toggleShowComments()" matIconButton>
             <mat-icon>comment</mat-icon>
           </button>
           @if (p.comments) {
@@ -61,7 +61,7 @@
     </div>
   </div>
   @if (showComments) {
-    <app-comments [postId]="p.id"></app-comments>
+    <app-comments class="post-comments" [postId]="p.id"></app-comments>
   }
   <mat-divider></mat-divider>
   @if (p.category_id) {

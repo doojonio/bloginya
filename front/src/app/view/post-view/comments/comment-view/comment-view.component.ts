@@ -1,29 +1,20 @@
-import { DatePipe } from '@angular/common';
 import { Component, inject, input, model, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { take, tap, timer } from 'rxjs';
 import {
   CommentsService,
   GetCommentResponseItem,
 } from '../../../../comments.service';
-import { CommentInputComponent } from '../comment-input/comment-input.component';
-import { RepliesComponent } from '../replies/replies.component';
 
 @Component({
+  standalone: false,
   selector: 'app-comment-view',
-  imports: [
-    DatePipe,
-    MatIconModule,
-    MatButtonModule,
-    CommentInputComponent,
-    RepliesComponent,
-  ],
   templateUrl: './comment-view.component.html',
   styleUrl: './comment-view.component.scss',
 })
 export class CommentViewComponent {
   comment = model.required<GetCommentResponseItem>();
+
+  replyToId = input<string>();
 
   commentsService = inject(CommentsService);
 
