@@ -1,5 +1,6 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, model } from '@angular/core';
 import { CommentsService } from '../../../../comments.service';
+import { CommentDto } from '../comment-view/comment-view.component';
 
 @Component({
   standalone: false,
@@ -14,8 +15,12 @@ export class CommentsComponent {
   isReply = computed(() => !!this.replyToId());
 
   commentsService = inject(CommentsService);
-  comments$ = computed(() => this.commentsService.getComments(this.postId(), this.replyToId()));
+  comments$ = computed(() =>
+    this.commentsService.getComments(this.postId(), this.replyToId())
+  );
 
-  newComments = [];
-  onNewCommit(id: string) {}
+  newComments = model<CommentDto[]>([]);
+  onNewCommit(newComment: CommentDto) {
+    this.newComments.update((com) => [newComment, ...com]);
+  }
 }

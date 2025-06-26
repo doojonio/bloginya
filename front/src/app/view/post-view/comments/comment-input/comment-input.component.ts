@@ -6,10 +6,12 @@ import {
   OnInit,
   output,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, Validators } from '@angular/forms';
 import { finalize, map } from 'rxjs';
 import { CommentsService } from '../../../../comments.service';
 import { UserService } from '../../../../user.service';
+import { CommentDto } from '../comment-view/comment-view.component';
 
 @Component({
   standalone: false,
@@ -19,12 +21,14 @@ import { UserService } from '../../../../user.service';
 })
 export class CommentInputComponent implements OnInit {
   userService = inject(UserService);
-  onAddComment = output<string>();
+  onAddComment = output<CommentDto>();
 
   postId = input.required<string>();
   replyToId = input<string>();
 
+  user = toSignal(this.userService.getCurrentUser());
   avatar$ = this.userService.getCurrentUser().pipe(map((u) => u?.picture));
+  avatar = computed(() => this.user()?.picture);
 
   commentsService = inject(CommentsService);
 
@@ -43,10 +47,13 @@ export class CommentInputComponent implements OnInit {
   initialInput = input<string>('');
 
   ngOnInit(): void {
-    this.content.setValue(this.initialInput());
+    const initial = this.initialInput();
+    if (initial) {
+      this.content.setValue(initial);
+    }
   }
 
-  content = new FormControl(this.initialInput(), [
+  content = new FormControl('', [
     Validators.required,
     Validators.minLength(3),
     Validators.maxLength(500),
@@ -67,22 +74,32 @@ export class CommentInputComponent implements OnInit {
   }
 
   isLocked = false;
-  comment($event: Event) {
-    $event.preventDefault();
-    if (this.content.invalid) {
+  comment() {
+    const user = this.user();
+    if (this.content.invalid || !user) {
       return;
     }
 
     this.isLocked = true;
+    const content = this.content.value || '';
     this.commentsService
-      .addComment(this.postId(), this.content.value || '', this.replyToId())
+      .addComment(this.postId(), content, this.replyToId())
       .pipe(
         finalize(() => {
           this.isLocked = false;
         })
       )
       .subscribe((id) => {
-        this.onAddComment.emit(id);
+        this.onAddComment.emit({
+          id: id,
+          edited_at: null,
+          created_at: new Date().toISOString(),
+          content: content,
+          username: user.username,
+          picture: user.picture,
+          likes: 0,
+          replies: 0,
+        });
         this.cancel();
       });
   }

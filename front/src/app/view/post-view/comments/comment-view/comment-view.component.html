@@ -39,7 +39,11 @@
     >{{ com.replies }} replies
   </button>
   } @if (isShowingReplies) {
-  <app-comments [postId]="postId()" [replyToId]="com.id"></app-comments>
+  <app-comments
+    [newComments]="newReplies()"
+    [postId]="postId()"
+    [replyToId]="com.id"
+  ></app-comments>
   }
 </div>
 }

@@ -148,6 +148,7 @@ export enum UserRoles {
 }
 export interface SettingsUser {
   id: string;
+  username: string;
   role: UserRoles;
   picture: string;
 }

@@ -1,9 +1,6 @@
 import { Component, inject, input, model, signal } from '@angular/core';
 import { take, tap, timer } from 'rxjs';
-import {
-  CommentsService,
-  GetCommentResponseItem,
-} from '../../../../comments.service';
+import { CommentsService } from '../../../../comments.service';
 
 @Component({
   standalone: false,
@@ -12,7 +9,7 @@ import {
   styleUrl: './comment-view.component.scss',
 })
 export class CommentViewComponent {
-  comment = model.required<GetCommentResponseItem>();
+  comment = model.required<CommentDto>();
 
   replyToId = input<string>();
 
@@ -63,12 +60,31 @@ export class CommentViewComponent {
   stopReply() {
     this.isReplying = false;
   }
-  onAddReply($event: string) {
+
+  newReplies = model<CommentDto[]>([]);
+  onAddReply(newReply: CommentDto) {
     this.isReplying = false;
+    this.newReplies.update((repl) => [...repl, newReply]);
+    this.comment.update((com) => {
+      com.replies += 1;
+      return com;
+    });
   }
 
   isShowingReplies = false;
   toggleReplies() {
     this.isShowingReplies = !this.isShowingReplies;
   }
+}
+
+export interface CommentDto {
+  id: string;
+  created_at: string;
+  edited_at: string | null;
+  content: string;
+  username: string;
+  picture: string | null;
+  likes: number;
+  liked?: boolean;
+  replies: number;
 }

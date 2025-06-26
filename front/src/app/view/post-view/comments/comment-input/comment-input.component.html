@@ -1,7 +1,4 @@
-<img
-  src="{{ avatar$ | async }}"
-  [class]="mode() == 'reply' ? 'av-small' : 'av'"
-/>
+<img src="{{ avatar() }}" [class]="mode() == 'reply' ? 'av-small' : 'av'" />
 <div class="comment">
   <mat-form-field>
     <textarea
@@ -26,12 +23,7 @@
     <button matButton="elevated" [disabled]="isLocked" (click)="cancel()" i18n>
       Cancel
     </button>
-    <button
-      (click)="comment($event)"
-      [disabled]="isLocked"
-      matButton="filled"
-      i18n
-    >
+    <button (click)="comment()" [disabled]="isLocked" matButton="filled" i18n>
       {{ mode() == "reply" ? "Reply" : "Comment" }}
     </button>
   </div>

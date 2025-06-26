@@ -9,9 +9,10 @@ async sub settings ($self) {
   my %user;
 
   if (my $user = await $self->current_user_p) {
-    $user{picture} = $user->{google_userinfo}{picture};
-    $user{id}      = $user->{id};
-    $user{role}    = $user->{role};
+    $user{picture}  = $user->{google_userinfo}{picture};
+    $user{id}       = $user->{id};
+    $user{role}     = $user->{role};
+    $user{username} = $user->{username};
   }
 
   my $se_post = $self->service('post');
