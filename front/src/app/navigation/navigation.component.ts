@@ -1,6 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { AppService } from '../app.service';
@@ -27,4 +27,10 @@ export class NavigationComponent implements OnInit {
 
   appService = inject(AppService);
   isHandset$ = this.appService.isHandset();
+
+  @ViewChild('content', { static: true }) content!: MatSidenavContent;
+
+  scrollToTop() {
+    this.content.scrollTo({ top: 0 });
+  }
 }

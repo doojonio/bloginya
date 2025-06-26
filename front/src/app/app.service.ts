@@ -2,7 +2,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Toolbar } from 'ngx-editor';
-import { BehaviorSubject, map, Observable, of, share, shareReplay } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, shareReplay } from 'rxjs';
 import { Category, PostStatuses } from './posts.service';
 
 @Injectable({
@@ -24,7 +24,7 @@ export class AppService {
   private http = inject(HttpClient);
   private settings$ = this.http
     .get<SettingsResponse>('/api/settings')
-    .pipe(share());
+    .pipe(shareReplay(1));
 
   isHandset() {
     return this.isHandset$;
@@ -55,15 +55,34 @@ export class AppService {
     return this.settings$;
   }
 
-  getEditorToolbar() {
-    return of<Toolbar>([
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'ordered_list', 'bullet_list'],
-      [{ heading: ['h1', 'h2', 'h3'] }],
-      ['text_color', 'background_color'],
-      ['link'],
-      ['align_left', 'align_center', 'align_right', 'align_justify'],
-    ]);
+  getEditorToolbar(): Observable<Toolbar> {
+    return this.isHandset().pipe(
+      map((isHandset) =>
+        isHandset
+          ? [
+              [
+                'bold',
+                'italic',
+                'underline',
+                'strike',
+                'blockquote',
+                'ordered_list',
+                'bullet_list',
+                'text_color',
+                'background_color',
+                'link',
+              ],
+            ]
+          : [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'ordered_list', 'bullet_list'],
+              [{ heading: ['h1', 'h2', 'h3'] }],
+              ['text_color', 'background_color'],
+              ['link'],
+              ['align_left', 'align_center', 'align_right', 'align_justify'],
+            ]
+      )
+    );
   }
 
   getPostStatuses() {
@@ -117,9 +136,19 @@ export interface Social {
 }
 
 export interface SettingsResponse {
-  user: SettingsUser;
+  user: SettingsUser | null;
   categories: Category;
   socials: Social;
 }
 
-export interface SettingsUser {}
+export enum UserRoles {
+  OWNER = 'owner',
+  CREATOR = 'creator',
+  VISITOR = 'visitor',
+}
+export interface SettingsUser {
+  id: string;
+  username: string;
+  role: UserRoles;
+  picture: string;
+}

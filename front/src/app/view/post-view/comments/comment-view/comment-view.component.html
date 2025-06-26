@@ -1,0 +1,49 @@
+@if (comment(); as com) {
+<img [class]="replyToId() ? 'av-small' : 'av'" src="{{ com.picture }}" />
+<div>
+  <div class="top">
+    <a class="uname">{{ "@" + com.username }}</a>
+    <a class="date">{{ com.created_at | date }}</a>
+  </div>
+  <div class="content">
+    {{ com.content }}
+  </div>
+  <div class="actions">
+    <button
+      class="btn-like"
+      [class]="likeAnimClass()"
+      matIconButton
+      (click)="com.liked ? unlike() : like()"
+    >
+      <mat-icon>{{ com.liked ? "favorite" : "favorite_border" }}</mat-icon>
+    </button>
+    @if (com.likes) {
+    {{ com.likes }}
+    }
+    <button matButton="text" (click)="startReply()" i18n>Reply</button>
+  </div>
+
+  @if (isReplying) {
+  <app-comment-input
+    [postId]="postId()"
+    [replyToId]="replyToId() || com.id"
+    [initialInput]="replyToId() ? '@' + com.username : ''"
+    (onCancel)="stopReply()"
+    (onAddComment)="onAddReply($event)"
+  ></app-comment-input>
+  } @if (!replyToId() && com.replies) {
+  <button matButton="text" (click)="toggleReplies()">
+    <mat-icon inline>{{
+      isShowingReplies ? "arrow_drop_up" : "arrow_drop_down"
+    }}</mat-icon
+    >{{ com.replies }} replies
+  </button>
+  } @if (isShowingReplies) {
+  <app-comments
+    [postId]="postId()"
+    [replyToId]="com.id"
+    #replies
+  ></app-comments>
+  }
+</div>
+}

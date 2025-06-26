@@ -1,0 +1,125 @@
+@use "@angular/material" as mat;
+
+.title-image {
+  height: 18rem;
+
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: column;
+  align-items: center;
+
+  border-bottom: 1px solid var(--mat-sys-primary);
+
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-label-medium);
+  padding: 1rem 0;
+}
+
+.title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-headline-large);
+  font-weight: bold;
+  padding: 0 1rem;
+  margin: 2rem 0;
+  text-wrap: wrap;
+  text-align: center;
+}
+
+.content-container {
+  padding: 0rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.tags {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  color: var(--mat-sys-outline);
+  font: var(--mat-sys-body-large);
+  margin-bottom: 2rem;
+
+  & > * {
+    cursor: pointer;
+  }
+}
+
+.meta {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: nowrap;
+
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-primary),
+    )
+  );
+  color: var(--mat-sys-primary);
+
+  & > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.animate {
+  animation: like-animation 0.5s ease-out;
+}
+
+@keyframes like-animation {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(0, -50%) scale(2.5);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.date {
+  color: var(--mat-sys-outline);
+  font: var(--mat-sys-body-large);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-divider {
+  margin: 2rem 0;
+}
+
+.more-from {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.more-from-title {
+  display: flex;
+  justify-content: flex-start;
+  padding: 2rem 0;
+  font: var(--mat-sys-body-large);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.more-posts {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+}

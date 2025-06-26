@@ -1,0 +1,19 @@
+@if (title(); as title) {
+<p class="title">{{ title }}</p>
+}
+<div class="cats noscrollbar">
+  <mat-chip-listbox (change)="onChange($event)">
+    @for (cat of cats() ; track cat.id) {
+    <mat-chip-option
+      selected="{{ cat.id == selectedCat()?.id }}"
+      [value]="cat"
+      >{{ cat.title | uppercase }}</mat-chip-option
+    >
+    }
+  </mat-chip-listbox>
+</div>
+<app-post-list-med
+  [imageFirst]="true"
+  [posts]="posts()"
+  [divider]="false"
+></app-post-list-med>

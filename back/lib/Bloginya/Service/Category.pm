@@ -5,7 +5,7 @@ use List::Util qw(any);
 
 has 'db';
 has 'redis';
-has 'user';
+has 'current_user';
 
 async sub create_p ($self, $vals) {
   my %fields = map { $_ => $vals->{$_} } grep {
@@ -13,10 +13,14 @@ async sub create_p ($self, $vals) {
     any { $_ eq $a } qw (title parent_id description priority)
   } keys %$vals;
 
-  $fields{user_id} = $self->user->{id};
+  $fields{user_id} = $self->current_user->{id};
 
   my $id = (await $self->db->insert_p('categories', \%fields, {returning => ['id']}))->hashes->first->{id};
   return $id;
+}
+
+async sub get_by_title_p($self, $title) {
+  (await $self->db->select_p('categories', [qw(title id priority description)], {title => $title}))->hashes->first;
 }
 
 async sub list_all_categories_p($self) {
@@ -25,9 +29,8 @@ async sub list_all_categories_p($self) {
 
 async sub list_site_priority_categories_p($self) {
   my $res = await $self->db->select_p(
-    ['categories',    ['shortnames', 'categories.id' => 'shortnames.category_id']],
-    ['categories.id', 'categories.title', 'shortnames.name'], {parent_id => undef},
-    {order_by => [\'priority asc nulls last', {-asc => 'created_at'}]}
+    [\'categories c', [-left => \'shortnames sn', 'c.id' => 'sn.category_id']], ['c.id', 'c.title', 'sn.name'],
+    {parent_id => undef}, {order_by => [\'priority asc nulls last', {-asc => 'created_at'}]}
 
   );
 

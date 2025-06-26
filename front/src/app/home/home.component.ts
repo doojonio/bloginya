@@ -1,13 +1,18 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 import { Observable, of, tap } from 'rxjs';
 import { AppService } from '../app.service';
+import { VisibilityDirective } from '../directives/visibility.directive';
 import { Category, PostsService } from '../posts.service';
-import { HandsetComponent } from './handset/handset.component';
+import { PostListCategoryComponent } from '../view/post-list-category/post-list-category.component';
+import { PostListGridComponent } from '../view/post-list-grid/post-list-grid.componen';
+import { PostListOnelineComponent } from '../view/post-list-oneline/post-list-oneline.component';
 
 @Component({
   selector: 'app-home',
@@ -17,15 +22,20 @@ import { HandsetComponent } from './handset/handset.component';
     MatGridListModule,
     MatIconModule,
     MatButtonModule,
-    HandsetComponent,
+    AsyncPipe,
+    PostListOnelineComponent,
+    PostListCategoryComponent,
+    PostListGridComponent,
+    RouterModule,
+    VisibilityDirective,
+    MatDividerModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnDestroy {
   appService = inject(AppService);
   isHandset$: Observable<boolean> = this.appService.isHandset();
-
   postsService = inject(PostsService);
 
   newPosts$ = this.postsService.getNewPosts();
@@ -44,5 +54,10 @@ export class HomeComponent implements OnInit {
   });
   popularPosts$ = this.postsService.getPopularPosts();
 
-  ngOnInit() {}
+  onSloganIntersecting($event: boolean) {
+    this.appService.setIsShowingToolbarTitle(!$event);
+  }
+  ngOnDestroy(): void {
+    this.appService.setIsShowingToolbarTitle(true);
+  }
 }

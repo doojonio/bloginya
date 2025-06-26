@@ -4,7 +4,7 @@ use Bloginya::Plugin::CoolIO::SchemaList;
 use Bloginya::Util::UUID   qw(is_uuid);
 use Bloginya::Util::CoolId qw(is_cool_id);
 use Scalar::Util           qw(blessed looks_like_number);
-use Ref::Util              qw(is_ref);
+use Ref::Util              qw(is_ref is_hashref is_arrayref);
 
 schema any => sub {
   1;
@@ -33,8 +33,12 @@ schema str => sub {
   return 1;
 };
 
-schema sname => sub {
-  $_[0] && length($_[0]) >= 3 && length($_[0]) <= 16;
+schema hashref => sub {
+  is_hashref($_[0]);
+};
+
+schema arrayref => sub {
+  is_arrayref($_[0]);
 };
 
 schema cool_id => sub {

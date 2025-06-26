@@ -22,7 +22,7 @@ async sub to_google($self) {
 async sub from_google($self) {
   my $code = $self->i(code => 'str');
 
-  my $google_service = $self->app->service('google');
+  my $google_service = $self->service('google');
   my $token          = await $google_service->get_token_p($code);
   my $userinfo       = await $google_service->get_userinfo_p($token);
 

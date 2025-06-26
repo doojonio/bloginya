@@ -1,0 +1,27 @@
+@use "@angular/material" as mat;
+@use "../../../mixins" as mixs;
+
+.title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-medium);
+  box-shadow: var(--mat-sys-level0);
+  margin-bottom: 20px;
+}
+.cats {
+  overflow-x: auto;
+
+  mat-chip-listbox {
+    padding: 0;
+    width: max-content;
+  }
+
+  @include mat.chips-overrides(
+    (
+      container-shape-radius: 20px,
+      container-height: 48px,
+      outline-color: var(--mat-sys-outline-variant),
+      elevated-selected-container-color: var(--mat-sys-secondary-container),
+      // label-text-color: var(--mat-sys-on-),
+    )
+  );
+}

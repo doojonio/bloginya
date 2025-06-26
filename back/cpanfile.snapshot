@@ -280,6 +280,22 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.64
       Scalar::Util 0
       perl 5.008001
+  Image-Magick-7.1.1
+    pathname: J/JC/JCRISTY/Image-Magick-7.1.1-28.tar.gz
+    provides:
+      Image::Magick 7.001001
+    requirements:
+      ExtUtils::MakeMaker 0
+      parent 0
+  Iterator-Simple-0.07
+    pathname: M/MI/MICHAEL/Iterator-Simple-0.07.tar.gz
+    provides:
+      Iterator::Simple 0.07
+      Iterator::Simple::Iterator 0.07
+    requirements:
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      Test::More 0
   MIME-Types-2.28
     pathname: M/MA/MARKOV/MIME-Types-2.28.tar.gz
     provides:

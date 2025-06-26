@@ -1,12 +1,37 @@
-@if (isHandset$ | async) {
-<app-handset
-  [newPosts$]="newPosts$"
-  [langPosts$]="langPosts$()"
-  [popularPosts$]="popularPosts$"
-  [langs$]="langs$"
-  [(selectedLang)]="selectedLang"
-></app-handset>
-
-} @else {
-<p>TODO</p>
-}
+<div class="content">
+  <div class="slogan" i18n>
+    <p
+      class="title"
+      appVisibility
+      [threshold]="0"
+      [debounceTime]="50"
+      (isIntersecting)="onSloganIntersecting($event)"
+    >
+      POLYINE
+    </p>
+    <p class="text">I Learn Languages!</p>
+  </div>
+  <app-post-list-oneline
+    title="NEW POSTS"
+    i18n-title
+    class="content-block"
+    [posts]="(newPosts$ | async) || []"
+  ></app-post-list-oneline>
+  <mat-divider></mat-divider>
+  <app-post-list-category
+    class="content-block"
+    title="5 LANGUAGES"
+    i18n-title
+    [(selectedCat)]="selectedLang"
+    [cats]="(langs$ | async) || []"
+    [posts]="(langPosts$() | async) || []"
+  ></app-post-list-category>
+  <mat-divider></mat-divider>
+  <app-post-list-grid
+    class="content-block"
+    title="POPULAR"
+    i18n-title
+    [posts]="(popularPosts$ | async) || []"
+  ></app-post-list-grid>
+  <mat-divider class="divider-footer"></mat-divider>
+</div>

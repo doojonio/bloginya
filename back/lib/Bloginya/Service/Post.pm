@@ -3,111 +3,241 @@ use Mojo::Base -base, -signatures, -async_await;
 
 use experimental 'try';
 
-use Bloginya::Model::Post qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT is_updatable_field);
-use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
-use Time::Piece           ();
-use List::Util            qw(none any);
+use Bloginya::Model::Post        qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
+use Bloginya::Model::ProseMirror qw(is_image is_text);
+use Bloginya::Model::Upload      qw(large_variant medium_variant upload_id thumbnail_variant);
+use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
+use Iterator::Simple             qw(:all);
+use List::Util                   qw(none any);
+use Time::Piece                  ();
 
 has 'db';
 has 'redis';
 has 'current_user';
-has 's_tags';
-has 's_shortname';
+has 'se_tags';
+has 'se_shortname';
+has 'se_policy';
+has 'se_prose_mirror';
+has 'se_drive';
+has 'se_language';
 
 
 async sub read_p($self, $post_id) {
-  my @tables
-    = (\'posts p', [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t', 'pt.tag_id' => 't.id'],);
-  my @select   = ('p.*', [\'array_agg(t.name)' => 'tags']);
-  my @group_by = ('p.id');
+  die 'no rights to read post' unless await $self->se_policy->can_read_post_p($post_id);
 
-  if ($self->current_user) {
+  my @tables = (
+    \'posts p',
+    [-left => \'post_tags pt', 'p.id'          => 'pt.post_id'],
+    [-left => \'categories c', 'p.category_id' => 'c.id'],
+    [-left => \'uploads uwp',  'uwp.id'        => 'p.picture_wp'],
+  );
+
+  my @select = (
+    qw(p.id p.title p.document p.enable_likes p.enable_comments),
+    [\'coalesce(p.published_at, now())', 'date'],
+    [\"p.meta->>'pics'",                 'pics'],
+    [\"p.meta->>'ttr'",                  'ttr'],
+    'p.category_id',
+    ['c.title' => 'category_title'],
+    [
+      \'(
+        select
+          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from post_tags pt join tags t on t.id = pt.tag_id
+        where pt.post_id = p.id
+      )' => 'tags'
+    ],
+    [\'( select count(com.id) from comments com where com.post_id = p.id )'        => 'comments'],
+    [\'( select count(lik.user_id) from post_likes lik where lik.post_id = p.id )' => 'likes'],
+    [large_variant('uwp')                                                          => 'picture_wp'],
+  );
+
+  if (my $user = $self->current_user) {
+
+    # current_like
+    push @select,
+      \[
+      '( select exists(select 1 from post_likes where post_id = (?) and user_id = (?)) ) as liked ',
+      $post_id, $user->{id}
+      ];
 
     # stats
-    push @tables, [-left                                   => \'post_stats ps', 'ps.post_id' => 'p.id'];
-    push @select, [\'sum(ps.medium_views + ps.long_views)' => 'views'];
+    push @select,
+      [\'(select sum(ps.medium_views + ps.long_views) from post_stats ps where ps.post_id = p.id)' => 'views'];
   }
 
-  my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id}, {group_by => \@group_by}))
-    ->expand->hashes->first;
+  my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id},))->expand->hashes->first;
+
+  if (!$self->current_user) {
+    $p->{'liked'} = 0;
+  }
+
+  $self->_handle_society($p);
 
   # TODO: remove extra info for visitors
 
-  die 'no rights to read this post' if $p && !$self->_can_read_post($p);
   return $p;
 }
 
+async sub search_similliar_posts_p($self, $post_id, $limit = 12) {
+  return unless await $self->se_policy->can_read_post_p($post_id);
+
+  my $result = await $self->db->query_p(
+    q~
+    with this_cont as (
+      select plain_content
+      from post_fts
+      where post_id = (?)
+    ),
+    this_post as (
+      select category_id
+      from posts
+      where id = (?)
+    ),
+    this_tags as (
+      select tag_id
+      from post_tags
+      where
+        post_id = (?)
+    )
+
+    select
+      p.id,
+      p.title,
+      p.description,
+      coalesce(upre.thumbnail, upre.original) as picture_pre,
+      (
+        select
+          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from post_tags pt join tags t on t.id = pt.tag_id
+        where pt.post_id = p.id
+      ) as tags,
+
+      round(
+        similarity(
+          pfts.plain_content,
+          (select plain_content from this_cont)
+        )::numeric,
+        1
+      ) as similarity,
+
+      (select count(*) from (
+        select tag_id from this_tags
+        intersect
+        select tag_id from (
+          select tag_id from post_tags
+          where post_id = p.id
+        )
+      )) as tags_similarity,
+
+      sn.name
+
+    from posts p
+    join post_fts pfts on pfts.post_id = p.id
+    left join uploads upre on picture_pre = upre.id
+    left join shortnames sn on sn.post_id = p.id
+    where
+      p.status = 'pub' and
+      p.category_id = (select category_id from this_post)
+      and p.id != (?)
+    order by
+     similarity desc,
+     tags_similarity desc
+    limit (?)
+  ~, ($post_id) x 4, $limit
+  );
+
+  return $result->hashes;
+}
+
+sub _handle_society($self, $p) {
+  if (!$p->{enable_likes}) {
+    delete @{$p}{qw(likes liked)};
+  }
+  if (!$p->{enable_comments}) {
+    delete($p->{comments});
+  }
+}
+
+async sub like_post_p ($self, $post_id) {
+  die 'no rights' unless my $u = $self->current_user;
+  await $self->db->insert_p('post_likes', {user_id => $u->{id}, post_id => $post_id}, {on_conflict => undef});
+}
+async sub unlike_post_p ($self, $post_id) {
+  die 'no rights' unless my $u = $self->current_user;
+  await $self->db->delete_p('post_likes', {user_id => $u->{id}, post_id => $post_id});
+}
+
 async sub get_for_edit_p($self, $post_id) {
-  die 'no rights to edit this post' unless $self->current_user;
+  die 'no rights to edit this post' unless await $self->se_policy->can_update_post_p($post_id);
 
   await $self->_ensure_draft_p($post_id);
-  my @tables
-    = (\'posts p', [-left => \'post_tags pt', 'p.id' => 'pt.post_id'], [-left => \'tags t', 'pt.tag_id' => 't.id'],);
+  my @tables = (\'posts p');
   my @select = (
     qw(p.user_id p.category_id p.status p.description p.enable_likes p.enable_comments),
-    [\'array_remove(array_agg(t.name), NULL)' => 'tags']
+    [
+      \'( select coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[]) from post_tags pt join tags t on pt.tag_id = t.id where pt.post_id = p.id )'
+        => 'tags'
+    ]
   );
-  my @group_by = ('p.id');
 
   # draft
-  push @tables, [-left => \'post_drafts pd', 'pd.post_id' => 'p.id'];
+  push @tables, [-left => \'post_drafts pd', 'pd.post_id' => 'p.id'],
+    [-left => \'uploads uwp', 'uwp.id' => 'pd.picture_wp'], [-left => \'uploads upre', 'upre.id' => 'pd.picture_pre'];
+
   push @select, ['pd.title' => 'title'], ['pd.document' => 'document',],
-    ['pd.picture_wp' => 'picture_wp', ['pd.picture_pre' => 'picture_pre']];
-  push @group_by, 'pd.post_id';
+    [large_variant('uwp') => 'picture_wp', [medium_variant('upre') => 'picture_pre']];
 
   # shortname
-  push @tables,   [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
-  push @select,   ['sn.name' => 'shortname'];
-  push @group_by, 'shortname';
+  push @tables, [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
+  push @select, ['sn.name' => 'shortname'];
 
-  my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id}, {group_by => \@group_by}))
-    ->expand->hashes->first;
+  my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id},))->expand->hashes->first;
 
-  die 'no rights to edit this post' if $p && !$self->_can_update_post($p);
   return $p;
 }
 
 async sub _ensure_draft_p($self, $post_id) {
-  try {
-    my $f = join(',', qw(title document picture_wp picture_pre));
-    await $self->db->query_p(
-      qq~
+  my $f = join(',', qw(title document picture_wp picture_pre));
+  await $self->db->query_p(
+    qq~
       insert into post_drafts (post_id, $f)
       select id, $f from posts where id = (?)
       on conflict do nothing~, $post_id
-    );
-  }
-  catch ($e) {
-    die $e;
-  }
+  );
 }
 
 async sub update_draft_p ($self, $post_id, $fields) {
-  die "no rights"
-    unless $self->_can_update_post((await $self->db->select_p('posts', 'user_id', {id => $post_id}))->hashes->first);
+  die "no rights" unless (await $self->se_policy->can_update_post_p($post_id));
 
   my %fields = map { $_ => $fields->{$_} } grep {
     my $a = $_;
     any { $_ eq $a } qw(title document picture_wp picture_pre)
   } keys %$fields;
 
+  # $fields{title} =~ s/(\s)\s+/\1/;
   $fields{document} = {-json => $fields{document}} if exists $fields{document};
+  for (qw(picture_wp picture_pre)) {
+    next unless $fields{$_};
+    $fields{$_} = upload_id($fields{$_});
+  }
 
   await $self->db->update_p('post_drafts', \%fields, {post_id => $post_id});
 }
 
 async sub apply_changes_p ($self, $post_id, $meta) {
-  die "no rights"
-    unless $self->_can_update_post((await $self->db->select_p('posts', 'user_id', {id => $post_id}))->hashes->first);
+  die "no rights" unless (await $self->se_policy->can_update_post_p($post_id));
 
   my %post_values = map { $_ => $meta->{$_} } grep {
     my $a = $_;
     any { $_ eq $a } qw (category_id status enable_likes enable_comments)
   } keys %$meta;
 
+  die "missing category" if $post_values{status} eq POST_STATUS_PUB && !$post_values{category_id};
+
   $post_values{modified_at}  = \'now()';
-  $post_values{deleted_at}   = \'now()' if $post_values{status} eq 'del';
-  $post_values{published_at} = \'now()' if $post_values{status} eq 'pub';
+  $post_values{deleted_at}   = \'now()' if $post_values{status} eq POST_STATUS_DEL;
+  $post_values{published_at} = \'now()' if $post_values{status} eq POST_STATUS_PUB;
 
   my sub _fdraft ($n) {
     \["(select $n from post_drafts where post_id = (?))", $post_id];
@@ -120,63 +250,88 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   await $self->db->delete_p('post_drafts', {post_id => $post_id});
 
   if (my $tags = $meta->{tags}) {
-    await $self->s_tags->apply_tags_p($post_id, $tags) if @$tags;
+    await $self->se_tags->apply_tags_p($post_id, $tags) if @$tags;
   }
 
   if (my $sn = $meta->{shortname}) {
-    await $self->s_shortname->set_shortname_for_post($post_id, $sn);
+    await $self->se_shortname->set_shortname_for_post($post_id, $sn);
   }
 
+  await $self->_update_meta_from_content_p($post_id);
+
   $tx->commit;
+
   return 1;
+}
+
+async sub _update_meta_from_content_p($self, $post_id) {
+  my @picture_cols = qw(
+    picture_wp
+    picture_pre
+  );
+
+  my $row = (await $self->db->select_p(
+    ['posts',    [-left     => \'categories c', 'c.id' => 'posts.category_id']],
+    ['document', ['c.title' => 'ctitle'], map {"posts.$_"} @picture_cols],
+    {'posts.id' => $post_id},
+  ))->expand->hashes->first;
+  die "not found post $post_id" unless $row;
+
+  my $doc = $row->{document};
+
+  my $it_ttr     = $self->se_prose_mirror->it_ttr;
+  my $it_img_ids = $self->se_prose_mirror->it_img_ids;
+  my $it_text    = $self->se_prose_mirror->it_text;
+
+  my $iterator = igrep { is_image($_) || is_text($_) } $self->se_prose_mirror->iterate($doc);
+
+  while (my $el = <$iterator>) {
+    $it_ttr->($el);
+    $it_img_ids->($el);
+    $it_text->($el);
+  }
+
+  my $ttr     = $it_ttr->();
+  my $img_ids = $it_img_ids->();
+  my $text    = $it_text->();
+
+  my $descr = substr($text, 0, 200) . (length($text) > 200 ? '...' : '');
+
+  my $pics_num = @$img_ids;
+  my ($picture_pre) = @$img_ids;
+
+  for (@picture_cols) {
+    push @$img_ids, $row->{$_} if $row->{$_};
+  }
+
+  my $lang = await $self->se_language->detect_lang_p($text, $row->{ctitle});
+  await $self->db->insert_p('languages', {code => $lang}, {on_conflict => undef});
+  await $self->db->delete_p('post_fts', {post_id => $post_id});
+  await $self->db->insert_p(
+    'post_fts',
+    {
+      post_id       => $post_id,
+      lcode         => $lang,
+      plain_content => $text,
+      fts           => \['to_tsvector((select fts_cfg from languages where code = (?)), (?))', $lang, $text],
+    },
+    {on_conflict => [['post_id', 'lcode'] => {fts => \'EXCLUDED.fts'}]},
+  );
+  await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => $img_ids}});
+  await $self->db->update_p(
+    'posts',
+    {meta => {-json => {ttr => $ttr, pics => $pics_num}}, picture_pre => $picture_pre, description => $descr},
+    {id   => $post_id}
+  );
 }
 
 
 async sub link_upload_to_post_p($self, $post_id, $upload_path) {
-  await $self->db->insert_p('post_uploads', {post_id => $post_id, path => $upload_path}, {on_conflict => undef});
-}
-
-async sub update_post_p($self, $post_id, $update_fields) {
-  my $post = await $self->find_p($post_id);
-  die "This user can't update post" unless $self->_can_update_post($post);
-
-  my %post_values = map { $_ => $update_fields->{$_} } grep { is_updatable_field($_) } keys %$update_fields;
-  die 'invalid values' unless %post_values;
-
-  $post_values{document} = {-json => $post_values{document}} if exists $post_values{document};
-
-  $post_values{modified_at}  = \'now()';
-  $post_values{deleted_at}   = \'now()' if $post_values{status} eq 'del';
-  $post_values{published_at} = \'now()' if $post_values{status} eq 'pub';
-
-  await $self->update_p('posts', \%post_values, {id => $post_id});
-}
-
-sub _can_read_post($self, $post) {
-  return 1 if $post->{status} eq POST_STATUS_PUB;
-
-  my $user = $self->current_user;
-  return 1 if $post->{user_id} eq $user->{id};
-  return 1 if $user->{role} eq USER_ROLE_OWNER;
-  return undef;
-}
-
-sub _can_update_post($self, $post) {
-  my $user = $self->current_user;
-  return undef unless $user;
-  return 1 if $user->{id} eq $post->{user_id} || $user->{role} eq USER_ROLE_OWNER;
-  return undef;
-}
-
-sub _can_create_post($self) {
-  my $user = $self->current_user;
-  return undef unless $user;
-  return undef if none { $_ eq $user->{role} } USER_ROLE_CREATOR, USER_ROLE_OWNER;
-  return 1;
+  await $self->db->insert_p('post_uploads', {post_id => $post_id, upload_id => $upload_path}, {on_conflict => undef});
 }
 
 async sub create_draft_p($self) {
-  die "This user can't create post" unless $self->_can_create_post;
+  die "no rights to create draft" unless $self->se_policy->can_create_post;
 
   my $t = Time::Piece->new;
   $t = join ' ', ($t->mday, $t->monname);
@@ -185,7 +340,12 @@ async sub create_draft_p($self) {
 
   my $res = await $self->db->insert_p(
     'posts',
-    {user_id   => $user_id, document => {-json => {type => 'doc', content => []}}, title => "Draft $t"},
+    {
+      user_id  => $user_id,
+      document => {-json => {type => 'doc', content => []}},
+      meta     => {-json => {ttr  => 0,     pics    => 0}},
+      title    => "Draft $t"
+    },
     {returning => 'id'},
   );
 
@@ -194,65 +354,79 @@ async sub create_draft_p($self) {
 
 async sub list_new_posts_p($self, $limit = 8) {
   my $res = await $self->db->select_p(
-    ['posts',    [-left => 'shortnames', 'posts.id' => 'shortnames.post_id']],
-    ['posts.id', 'posts.picture', 'posts.title', 'posts.created_at', 'shortnames.name'],
+    [
+      \'posts p',
+      [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
+      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre'],
+      [-left => \'categories c',  'c.id'    => 'p.category_id'],
+    ],
+    [
+      'p.id',
+      ['c.title'                 => 'category_name'],
+      [thumbnail_variant('upre') => 'picture_pre'],
+      'p.title', 'p.created_at', 'sn.name'
+    ],
     {'status' => POST_STATUS_PUB},
-    {order_by => [{-desc => 'posts.created_at'}], limit => $limit}
+    {order_by => [{-desc => 'p.published_at'}], limit => $limit}
   );
 
   return $res->hashes;
 }
 
 async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
-  my @p_fields = ('p.id', 'shortnames.name', 'p.picture', 'p.category_id', 'p.title', 'p.description',);
-  my $res      = await $self->db->select_p(
+  my @p_fields
+    = ('p.id', 'sn.name', [thumbnail_variant('upre') => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
+  my $res = await $self->db->select_p(
     [
       \'posts p',
-      [-left => 'shortnames', 'p.id'             => 'shortnames.post_id'],
-      [-left => 'post_tags',  'p.id'             => 'post_tags.post_id'],
-      [-left => 'tags',       'post_tags.tag_id' => 'tags.id']
+      [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
+      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre'],
     ],
-    [@p_fields, [\'array_agg(tags.name)' => 'tags'],],
-    {'p.category_id' => $category_id, 'status' => POST_STATUS_PUB},
-    {group_by        => \@p_fields,   order_by => {-desc => 'p.created_at'}}
+    [
+      @p_fields,
+      [
+        \'(
+        select
+          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from post_tags pt join tags t on t.id = pt.tag_id
+        where pt.post_id = p.id
+      )' => 'tags'
+      ],
+    ],
+    {'p.category_id' => $category_id,              'status' => POST_STATUS_PUB},
+    {order_by        => {-desc => 'p.created_at'}, limit    => $limit}
   );
 
-  my %posts_by_category;
-  for my $row ($res->hashes->@*) {
-    $posts_by_category{$row->{category_id}} = $row;
-  }
-
-  return \%posts_by_category;
+  return $res->hashes;
 }
 
 async sub list_popular_posts_p($self, $limit = 18, $offset = 0) {
   my $res = await $self->db->select_p(
     [
-      'posts',
-      [-left => 'shortnames', 'posts.id' => 'shortnames.post_id'],
-      [-left => 'post_stats', 'posts.id' => 'post_stats.post_id'],
-      [-left => 'comments',   'posts.id' => 'comments.post_id'],
-      [-left => 'post_likes', 'posts.id' => 'post_likes.post_id']
+      \'posts p',
+      [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
+      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre'],
     ],
     [
-      'posts.id',
-      'posts.picture',
-      'shortnames.name',
+      'p.id',
+      'sn.name',
+      [thumbnail_variant('upre') => 'picture_pre'],
       [
-        \'(post_stats.short_views + post_stats.medium_views + post_stats.long_views + count(comments.id) + count(post_likes.*))'
-          => 'popularity'
+        \q~
+        (
+        select
+          coalesce((select count(*) from comments com where com.post_id = p.id), 0) * 4
+          +
+          coalesce((select count(*) from post_likes lik where lik.post_id = p.id), 0) * 2
+          +
+          coalesce((select (short_views * 0.5 + medium_views + long_views * 2) from post_stats ps where ps.post_id = p.id), 0)
+        )
+      ~ => 'popularity'
       ]
     ],
     {'status' => POST_STATUS_PUB},
-    {
-      group_by => [
-        'posts.id', 'shortnames.name', 'posts.picture', 'post_stats.short_views',
-        'post_stats.medium_views', 'post_stats.long_views'
-      ],
-      order_by => [{-desc => 'popularity'}]
-    },
-
-    {limit => $limit, offset => $offset}
+    {order_by => {-desc => 'popularity'}},
+    {limit    => $limit, offset => $offset}
   );
 
   return $res->hashes;

@@ -11,8 +11,10 @@ requires 'Carp::Always';
 requires 'Ref::Util';
 requires 'Ref::Util::XS';
 
-# Installed by system
-# requires 'Image::Magick';
+requires 'Role::Tiny';
+requires 'Iterator::Simple';
+
+requires 'Image::Magick';
 
 on 'develop' => sub {
   requires 'DDP';

@@ -17,49 +17,50 @@ has 'current_user';
 has 'im' => sub { Image::Magick->new };
 has 'mt' => sub { MIME::Types->new };
 
-async sub put($self, $file) {
-  my $ext = (split /\./, $file->filename)[-1] // '';
-  $ext = '.' . $ext if $ext;
+async sub put($self, $file_path, $extname) {
+  my $mtype = $self->mt->mimeTypeOf($extname);
+  if (!$mtype || $mtype !~ /^image/) {
+    die 'not image';
+  }
 
   my $t = Time::Piece->new();
   my ($year, $month, $day) = ($t->year, $t->mon, $t->mday);
 
-  my $dir = $self->app->home->child('public', 'drive', $year, $month, $day);
+  my $file = Mojo::File->new($file_path);
+
+  my $dir = $self->app->home->child('public', 'drive', $year, $month, $day, uuid4);
   $dir->make_path;
 
-  my $id   = uuid4;
-  my $path = $dir->child($id . $ext);
-  $file->move_to($path);
+  my $path = $dir->child("original.$extname");
+  $file = $file->copy_to($path);
 
-  # TODO if image
-  my $var_paths = $self->_generate_diff_sizes($path, $ext, $dir->child($id)->make_path);
+  my $var_paths = $self->_generate_diff_sizes($path, $dir);
 
   my sub _path {
     (split /public\//, shift)[-1];
   }
 
-  my %files = (
-    path => _path($path),
-    type => $self->mt->mimeTypeOf($path),
-    map { $_ => _path($$var_paths{$_}) } keys %$var_paths,
-  );
+  my %files
+    = (original => _path($path), original_type => $mtype, map { $_ => _path($var_paths->{$_}) } keys %$var_paths,);
 
+  my $id = _path($dir);
   await $self->db->insert_p(
     'uploads',
     {
-      path           => $files{path},
-      type           => $files{type},
-      user_id        => $self->current_user->{id},
-      thumbnail_path => $files{thumbnail},
-      medium_path    => $files{medium},
-      large_path     => $files{large},
+      id            => $id,
+      user_id       => $self->current_user->{id},
+      original_type => $files{original_type},
+      original      => $files{original},
+      thumbnail     => $files{thumbnail},
+      medium        => $files{medium},
+      large         => $files{large},
     },
   );
 
-  return \%files;
+  return $id, \%files;
 }
 
-sub _generate_diff_sizes($self, $file_path, $ext, $dir) {
+sub _generate_diff_sizes($self, $file_path, $dir) {
   my $im = $self->im;
   $im->Read($file_path);
 

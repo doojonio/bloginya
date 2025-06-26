@@ -1,0 +1,17 @@
+app-comment-input {
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+app-comment-view {
+  &.reply-comment {
+    margin: 0.5rem 0;
+  }
+  &.comment {
+    margin: 1rem 0;
+  }
+}
+
+.comments-padding {
+  padding: 0 1rem;
+}

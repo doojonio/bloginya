@@ -3,27 +3,30 @@ use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
 use experimental 'try';
 
-use Bloginya::Util::CoolId qw(is_cool_id);
-use List::Util             qw(reduce);
-
 async sub list_home ($self) {
-  my $u      = await $self->current_user_p;
-  my $s_post = $self->service('post');
-  my $s_cat  = $self->service('category');
+  my $u       = await $self->current_user_p;
+  my $se_post = $self->service('post');
+  my $se_cat  = $self->service('category');
 
-  my $new_posts = await $s_post->list_new_posts_p();
+  my $new_posts = await $se_post->list_new_posts_p();
 
-  my $cats = await $s_cat->list_site_priority_categories_p;
+  my $cats = await $se_cat->list_site_priority_categories_p;
   my %top_cat;
   if (@$cats) {
     %top_cat = $cats->[0]->%*;
-    $top_cat{posts} = (await $s_post->list_posts_by_category_p($top_cat{id}));
+    $top_cat{posts} = (await $se_post->list_posts_by_category_p($top_cat{id}));
   }
 
-  my $popular = await $s_post->list_popular_posts_p();
+  my $popular = await $se_post->list_popular_posts_p();
 
   return $self->render(
     json => {new_posts => $new_posts, cats => $cats, top_cat => \%top_cat, popular_posts => $popular});
+}
+
+async sub list_by_category($self) {
+  my $id = $self->i(id => 'cool_id');
+
+  return $self->render(json => (await $self->service('post')->list_posts_by_category_p($id)));
 }
 
 async sub create_draft($self) {
@@ -31,27 +34,16 @@ async sub create_draft($self) {
   return $self->render(json => {id => $id});
 }
 
-sub _extract_title_n_pic($self, $doc) {
-  my ($title, $picture) = ('', undef);
+async sub like($self) {
+  my $id = $self->i(id => 'cool_id');
+  await $self->service('post')->like_post_p($id);
+  return $self->msg('OK');
+}
 
-  my @elements = $doc->{doc}{content}->@*;
-
-  while (my $el = shift @elements) {
-    if (!$title && $el->{type} eq 'heading') {
-      $title = reduce { $a . $b } map { $_->{text} } $el->{content}->@*;
-    }
-    if (!$picture && $el->{type} eq 'image') {
-      $picture = $el->{attrs}{src};
-    }
-
-    last if $title && $picture;
-
-    if (my $content = $el->{content}) {
-      unshift @elements, $content->@*;
-    }
-  }
-
-  return $title, $picture;
+async sub unlike($self) {
+  my $id = $self->i(id => 'cool_id');
+  await $self->service('post')->unlike_post_p($id);
+  return $self->msg('OK');
 }
 
 async sub get($self) {
@@ -70,8 +62,27 @@ async sub get($self) {
     }
   }
 
-  return $self->render(status => 404, json => {message => 'Blog not found'}) unless $post;
-  return $self->render(json   => $post);
+  return $self->msg('Not Found', 404) unless $post;
+  return $self->render(json => $post);
+}
+
+async sub search_similliar_posts($self) {
+  my $post_id = $self->i('id' => 'cool_id');
+
+  my $posts;
+  try {
+    $posts = await $self->service('post')->search_similliar_posts_p($post_id);
+  }
+  catch ($e) {
+    if ($e =~ /not found/) {
+      return $self->msg('Post Not Found', 404);
+    }
+    else {
+      die $e;
+    }
+  }
+
+  return $self->render(json => $posts);
 }
 
 async sub get_for_edit($self) {
@@ -123,7 +134,10 @@ async sub apply_changes ($self) {
   }
   catch ($e) {
     if ($e =~ /no rights/) {
-      $ok = undef;
+      return $self->msg('NORIGHT', 403);
+    }
+    elsif ($e =~ /missing category/) {
+      return $self->msg('NOCAT', 400);
     }
     else {
       die $e;
@@ -132,5 +146,6 @@ async sub apply_changes ($self) {
 
   return $self->msg('OK');
 }
+
 
 1

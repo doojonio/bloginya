@@ -1,4 +1,6 @@
 @use "@angular/material" as mat;
+@use "../../mixins" as m;
+
 :host {
   --ngx-editor-border-radius: --var(--post-border-radius);
   --ngx-editor-background-color: var(--post-background-color);
@@ -43,7 +45,12 @@
 }
 
 .container {
-  width: 900px;
+  @include m.for-size(handset) {
+    width: 100%;
+  }
+  @include m.for-size(desktop) {
+    width: 57rem;
+  }
 }
 
 .title-bordered {
@@ -56,7 +63,7 @@
 
 .title {
   position: relative;
-  height: 250px;
+  height: 20rem;
   margin-bottom: 2rem;
 
   display: flex;
@@ -66,13 +73,16 @@
   justify-content: center;
   align-items: center;
 
-  input {
+  textarea {
     all: unset;
     color: var(--mat-sys-primary);
     font: var(--mat-sys-display-medium);
     text-align: center;
     text-wrap: wrap;
     width: 80%;
+    max-width: 80%;
+    overflow: hidden;
+    resize: none;
     font-weight: bold;
   }
 
@@ -104,25 +114,48 @@
   }
 }
 
+@include m.for-size(handset) {
+  .editor {
+    margin: 0 1rem;
+  }
+
+  .meta-editor {
+    margin: 0 1rem;
+  }
+}
+
 mat-divider {
   margin: 2rem 0;
+
+  @include m.for-size(handset) {
+    margin: 2rem 1rem;
+  }
 }
 
 .opt-row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  padding: 0.5rem 0;
+  @include m.for-size(desktop) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    padding: 0.5rem 0;
+  }
 }
 .opt-title {
   font: var(--mat-sys-title-medium);
   min-width: 15rem;
 }
 .opt-value {
-  flex: 1;
-
   display: flex;
-  justify-content: space-between;
+
+  @include m.for-size(handset) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @include m.for-size(desktop) {
+    flex: 1;
+    justify-content: space-between;
+  }
 }
 
 .opt-toggles {

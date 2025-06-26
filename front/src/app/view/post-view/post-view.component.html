@@ -1,0 +1,95 @@
+@if (post(); as p) {
+<div class="container">
+  <div class="title-image" [style]="title_image_style()">
+    <p>{{ p.category_title }}</p>
+    <p i18n>
+      {{ p.ttr | number : "1.0-0" }} minute read @if (p.pics) { · {{ p.pics }}
+      {{ p.pics | i18nPlural : { "=1": "pic", other: "pics" } }} }
+    </p>
+  </div>
+  <div class="content-container">
+    <div class="title">
+      @for (line of p.title.split("\n"); track line) {
+      {{ line }}<br />
+      }
+    </div>
+    <app-document-dom
+      class="content"
+      [document]="p.document"
+    ></app-document-dom>
+
+    <div class="tags">
+      @for (tag of p.tags; track tag) {
+      <span (click)="tagClicked(tag)">#{{ tag }}</span>
+      }
+    </div>
+    <div class="meta">
+      <div class="actions">
+        @if (p.enable_likes) {
+        <div>
+          <button
+            matIconButton
+            (click)="p.liked ? unlike() : like()"
+            [class]="likeAnimClass()"
+          >
+            <mat-icon>{{ p.liked ? "favorite" : "favorite_border" }}</mat-icon>
+          </button>
+          @if (p.likes) {
+          {{ p.likes }}
+          }
+        </div>
+        } @if (p.enable_comments) {
+
+        <div>
+          <button (click)="toggleShowComments()" matIconButton>
+            <mat-icon>comment</mat-icon>
+          </button>
+          @if (p.comments) {
+          {{ p.comments }}
+          }
+        </div>
+        } @if (currentUser$ | async; as user) { @if (user.role == "owner" ||
+        user.id == p.id) {
+        <div>
+          <button matIconButton routerLink="/edit/{{ p.id }}">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        } }
+      </div>
+      <div class="date">{{ p.date | date : "yyyy.MM.dd" }}</div>
+    </div>
+  </div>
+  @if (showComments) {
+    <app-comments class="post-comments" [postId]="p.id"></app-comments>
+  }
+  <mat-divider></mat-divider>
+  @if (p.category_id) {
+  <div class="more-from">
+    <div
+      class="more-from-title"
+      appVisibility
+      [threshold]="0"
+      [debounceTime]="50"
+      (isIntersecting)="onMoveFromIntersecting($event)"
+      i18n
+    >
+      <span
+        >More from <b>{{ p.category_title }}</b></span
+      >
+    </div>
+
+    @if(similliarPosts$ | async; as posts) {
+    <app-post-list-med [posts]="posts"></app-post-list-med>
+    <!-- <div class="more-posts">
+      @for (post of posts; track post.id) {
+      <app-post-med [post]="post"></app-post-med>
+      }
+    </div> -->
+    } @else {
+    <mat-spinner></mat-spinner>
+    }
+  </div>
+  }
+</div>
+}

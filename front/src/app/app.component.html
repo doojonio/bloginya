@@ -1,5 +1,5 @@
-<app-navigation>
+<app-navigation #nav>
   <div style="min-height: 100%">
-    <router-outlet />
+    <router-outlet (activate)="onActivate($event)" />
   </div>
 </app-navigation>

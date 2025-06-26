@@ -1,0 +1,48 @@
+@use "@angular/material" as mat;
+@use "../../theme-colors" as theme;
+.content {
+  padding: 0 20px;
+}
+
+.slogan {
+  height: 180px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  box-shadow: var(--mat-sys-level0);
+
+  p {
+    margin: 0;
+  }
+
+  .title {
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-headline-small);
+    font-weight: bold;
+  }
+
+  .text {
+    font: var(--mat-sys-label-small);
+  }
+}
+
+.content-block {
+  margin-bottom: 8px;
+}
+
+mat-divider {
+  margin: 30px 0;
+
+  &.divider-footer {
+    margin-bottom: 60px;
+  }
+
+  @include mat.divider-overrides(
+    (
+      color: var(--mat-sys-outline-variant),
+    )
+  );
+}

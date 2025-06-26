@@ -1,0 +1,33 @@
+:host {
+  display: flex;
+  flex-direction: row;
+}
+
+img {
+  border-radius: 100%;
+
+  &.av-small {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.25rem;
+  }
+
+  &.av {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+.comment {
+  flex: 1;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  justify-content: right;
+}

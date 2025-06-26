@@ -1,0 +1,22 @@
+@use "@angular/material" as mat;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+}
+
+.with-margin {
+  margin-bottom: 1rem;
+}
+
+mat-divider {
+  margin: 1.5rem 0;
+
+  @include mat.divider-overrides(
+    (
+      color: var(--mat-sys-outline-variant),
+    )
+  );
+}

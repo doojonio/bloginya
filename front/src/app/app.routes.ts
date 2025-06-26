@@ -2,9 +2,13 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { PostEditorComponent } from './post-editor/post-editor.component';
+import { AnyViewComponent } from './view/any-view/any-view.component';
+import { PostViewComponent } from './view/post-view/post-view.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'edit/:postId', component: PostEditorComponent },
+  { path: 'p/:postId', component: PostViewComponent },
+  { path: ':shortname', component: AnyViewComponent },
   { path: '**', component: PageNotFoundComponent },
 ];

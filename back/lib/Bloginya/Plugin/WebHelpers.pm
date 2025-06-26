@@ -55,30 +55,35 @@ sub register {
 
   $app->helper(
     'current_user_p' => async sub ($c) {
-      return $c->stash(CURRENT_USER_STASH_NAME) if exists $c->stash->{&CURRENT_USER_STASH_NAME};
+      return $c->stash(CURRENT_USER_STASH_NAME) if exists $c->stash->{&CURRENT_USER_STASH_NAME()};
 
-      my $cname = $c->config->{sessions}{name};
-      my $sid   = $c->cookie($cname);
+      my $user_p = async sub {
+        my $cname = $c->config->{sessions}{name};
+        my $sid   = $c->cookie($cname);
 
-      return undef if !$sid;
+        return undef if !$sid;
 
-      my $serv = $c->service('session');
-      my $uid  = await $serv->uid_by_sid_p($sid);
-      return undef unless $uid;
+        my $serv = $c->service('session');
+        my $uid  = await $serv->uid_by_sid_p($sid);
+        return undef unless $uid;
 
-      await $serv->update_ip_ua_p($sid, $c->real_ip, $c->user_agent);
+        await $serv->update_ip_ua_p($sid, $c->real_ip, $c->user_agent);
 
-      my $userv = $c->service('user');
+        my $userv = $c->service('user');
 
-      my $user = await $userv->find_p($uid);
+        await $userv->find_p($uid);
+      };
+
+      my $user = await $user_p->();
       $c->stash(CURRENT_USER_STASH_NAME, $user);
       return $user;
+
     }
   );
 
   $app->helper(
     'current_user' => sub ($c) {
-      die 'No current user fetched' unless exists $c->stash->{&CURRENT_USER_STASH_NAME};
+      die 'No current user fetched' unless exists $c->stash->{&CURRENT_USER_STASH_NAME()};
       return $c->stash(CURRENT_USER_STASH_NAME);
     }
   );
