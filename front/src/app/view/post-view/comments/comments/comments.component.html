@@ -1,17 +1,20 @@
 @if(!isReply()) {
 <app-comment-input
-  (onAddComment)="onNewCommit($event)"
+  (onAddComment)="addNewComment($event)"
   [postId]="postId()"
 ></app-comment-input>
 }
 <div [class]="!replyToId() ? 'comments-padding' : ''">
-  @for (arr of [newComments(), (comments$() | async)]; track arr) { @for
+  @if(comments$() | async; as comments) { @for (arr of (extraFirst() ?
+  [extraComments, comments] : [comments, extraComments]); track arr) { @for
   (comment of arr; track comment.id) {
   <app-comment-view
     [postId]="postId()"
     [replyToId]="replyToId()"
     [comment]="comment"
     [class]="replyToId() ? 'reply-comment' : 'comment'"
+    (replyGotReply)="isReply() ? addNewComment($event) : null"
   ></app-comment-view>
-  } }
+
+  } } }
 </div>

@@ -1,6 +1,15 @@
-import { Component, inject, input, model, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { take, tap, timer } from 'rxjs';
 import { CommentsService } from '../../../../comments.service';
+import { CommentsComponent } from '../comments/comments.component';
 
 @Component({
   standalone: false,
@@ -61,14 +70,23 @@ export class CommentViewComponent {
     this.isReplying = false;
   }
 
-  newReplies = model<CommentDto[]>([]);
+  @ViewChild('replies') replies?: CommentsComponent;
+
+  replyGotReply = output<CommentDto>();
   onAddReply(newReply: CommentDto) {
     this.isReplying = false;
-    this.newReplies.update((repl) => [...repl, newReply]);
     this.comment.update((com) => {
       com.replies += 1;
       return com;
     });
+
+    if (this.replies) {
+      this.replies.addNewComment(newReply);
+    } else {
+      this.replyGotReply.emit(newReply);
+    }
+
+    this.isShowingReplies = true;
   }
 
   isShowingReplies = false;

@@ -40,9 +40,9 @@
   </button>
   } @if (isShowingReplies) {
   <app-comments
-    [newComments]="newReplies()"
     [postId]="postId()"
     [replyToId]="com.id"
+    #replies
   ></app-comments>
   }
 </div>
