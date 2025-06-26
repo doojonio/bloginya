@@ -2,12 +2,16 @@
 <p class="title" i18n>POPULAR</p>
 }
 <mat-grid-list gutterSize="2" cols="3" rowHeight="130">
-  @for (item of ( onSecondPage ? secondPage() : firstPage() ) ; track item) {
-  <mat-grid-tile
-    class="image"
-    [style]="{ 'background-image': 'url(' + item.picture_pre + ')' }"
-    routerLink="/{{ item.name ? item.name : 'p/' + item.id }}"
-  ></mat-grid-tile>
+  @for (item of ( onSecondPage ? secondPage() : firstPage() ) ; track item; let
+  first = $first) {
+  <a routerLink="/{{ item.name ? item.name : 'p/' + item.id }}">
+    <mat-grid-tile
+      class="image"
+      [style]="{ 'background-image': 'url(' + item.picture_pre + ')' }"
+      [colspan]="first ? 2 : 1"
+      [rowspan]="first ? 2 : 1"
+    ></mat-grid-tile>
+  </a>
   }
 </mat-grid-list>
 @if(this.secondPage()) {
