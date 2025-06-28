@@ -22,6 +22,6 @@ export class SidenavComponent implements OnInit {
   addDraft() {
     this.postsService
       .createDraft()
-      .subscribe((id) => this.router.navigate(['edit', id]));
+      .subscribe((id) => this.router.navigate(['e', id]));
   }
 }

@@ -29,5 +29,6 @@ export class AppComponent {
   @ViewChild('nav', { static: true }) el!: NavigationComponent;
   onActivate($event: any) {
     this.el.scrollToTop();
+    this.el!.closeDrawer();
   }
 }

@@ -5,8 +5,8 @@
   <mat-sidenav
     #drawer
     class="sidenav"
-    [mode]="(isHandset$ | async) ? 'over' : 'side'"
-    [opened]="!(isHandset$ | async)"
+    [mode]="isHandset() ? 'over' : 'side'"
+    [opened]="!isHandset()"
   >
     <app-sidenav></app-sidenav>
   </mat-sidenav>

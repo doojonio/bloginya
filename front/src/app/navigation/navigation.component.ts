@@ -1,7 +1,10 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import {
+  MatDrawer,
+  MatSidenavContent,
+  MatSidenavModule,
+} from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { AppService } from '../app.service';
@@ -16,7 +19,6 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
   imports: [
     MatToolbarModule,
     MatSidenavModule,
-    AsyncPipe,
     RouterModule,
     ToolbarComponent,
     SidenavComponent,
@@ -27,7 +29,7 @@ export class NavigationComponent implements OnInit {
   ngOnInit(): void {}
 
   appService = inject(AppService);
-  isHandset$ = this.appService.isHandset();
+  isHandset = toSignal(this.appService.isHandset());
 
   private scrollToTopSub = this.appService
     .getScrollToTop()
@@ -38,5 +40,13 @@ export class NavigationComponent implements OnInit {
 
   scrollToTop() {
     this.content.scrollTo({ top: 0 });
+  }
+
+  @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
+
+  closeDrawer() {
+    if (this.isHandset()) {
+      this.drawer.close();
+    }
   }
 }

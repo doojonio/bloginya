@@ -51,7 +51,7 @@
         } @if (currentUser$ | async; as user) { @if (user.role == "owner" ||
         user.id == p.id) {
         <div>
-          <button matIconButton routerLink="/edit/{{ p.id }}">
+          <button matIconButton routerLink="/e/{{ p.id }}">
             <mat-icon>edit</mat-icon>
           </button>
         </div>
@@ -61,19 +61,12 @@
     </div>
   </div>
   @if (showComments) {
-    <app-comments class="post-comments" [postId]="p.id"></app-comments>
+  <app-comments class="post-comments" [postId]="p.id"></app-comments>
   }
   <mat-divider></mat-divider>
   @if (p.category_id) {
   <div class="more-from">
-    <div
-      class="more-from-title"
-      appVisibility
-      [threshold]="0"
-      [debounceTime]="50"
-      (isIntersecting)="onMoveFromIntersecting($event)"
-      i18n
-    >
+    <div class="more-from-title" appVisibility i18n>
       <span
         >More from <b>{{ p.category_title }}</b></span
       >
@@ -81,11 +74,6 @@
 
     @if(similliarPosts$ | async; as posts) {
     <app-post-list-med [posts]="posts"></app-post-list-med>
-    <!-- <div class="more-posts">
-      @for (post of posts; track post.id) {
-      <app-post-med [post]="post"></app-post-med>
-      }
-    </div> -->
     } @else {
     <mat-spinner></mat-spinner>
     }
