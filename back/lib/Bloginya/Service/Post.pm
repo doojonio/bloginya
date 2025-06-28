@@ -365,10 +365,10 @@ async sub list_new_posts_p($self, $limit = 8) {
     ],
     [
       'p.id',
-      ['c.title'                 => 'category_title'],
-      ['c.id'                    => 'category_id'],
-      ['csn.name'                => 'category_name'],
-      [thumbnail_variant('upre') => 'picture_pre'],
+      ['c.title'              => 'category_title'],
+      ['c.id'                 => 'category_id'],
+      ['csn.name'             => 'category_name'],
+      [medium_variant('upre') => 'picture_pre'],
       'p.title', 'p.created_at', 'sn.name'
     ],
     {'status' => POST_STATUS_PUB},
@@ -380,7 +380,7 @@ async sub list_new_posts_p($self, $limit = 8) {
 
 async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
   my @p_fields
-    = ('p.id', 'sn.name', [thumbnail_variant('upre') => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
+    = ('p.id', 'sn.name', [medium_variant('upre') => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
   my $res = await $self->db->select_p(
     [
       \'posts p',
@@ -415,7 +415,7 @@ async sub list_popular_posts_p($self, $limit = 18, $offset = 0) {
     [
       'p.id',
       'sn.name',
-      [thumbnail_variant('upre') => 'picture_pre'],
+      [medium_variant('upre') => 'picture_pre'],
       [
         \q~
         (
