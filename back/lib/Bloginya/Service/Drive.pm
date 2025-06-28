@@ -8,7 +8,7 @@ use Time::Piece   ();
 use UUID          qw(uuid4);
 
 use constant SIZES =>
-  ({name => 'thumbnail', width => 300}, {name => 'medium', width => 900}, {name => 'large', width => 1600},);
+  ({name => 'thumbnail', size => 150}, {name => 'medium', size => 900}, {name => 'large', size => 1600},);
 
 has 'app';
 has 'db';
@@ -64,14 +64,24 @@ sub _generate_diff_sizes($self, $file_path, $dir) {
   my $im = $self->im;
   $im->Read($file_path);
 
-  my $orig_width = $im->Get('width');
+  my ($orig_width, $orig_height) = $im->Get('width', 'height');
+  my $orig_size    = $orig_width * $orig_height;
+  my $reduce_width = $orig_width > $orig_height;
+
   my %paths;
   for my $size (SIZES) {
-    my $width = $size->{width};
-    next if $width > $orig_width;
-
+    my $px_size = $size->{size};
+    next if $px_size * 2 > $orig_size;
     my $variant = $im->Clone();
-    $variant->Resize($width . 'x');
+    my $max     = $px_size;
+
+    if ($reduce_width) {
+      $variant->Resize($max . 'x');
+    }
+    else {
+      $variant->Resize('x' . $max);
+    }
+
     $variant->Set(magick => 'webp');
     my $path = $dir->child($size->{name} . '.webp');
     $variant->Write($path);
