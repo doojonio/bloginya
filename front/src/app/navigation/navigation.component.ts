@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
@@ -27,6 +28,11 @@ export class NavigationComponent implements OnInit {
 
   appService = inject(AppService);
   isHandset$ = this.appService.isHandset();
+
+  private scrollToTopSub = this.appService
+    .getScrollToTop()
+    .pipe(takeUntilDestroyed())
+    .subscribe(() => this.scrollToTop());
 
   @ViewChild('content', { static: true }) content!: MatSidenavContent;
 

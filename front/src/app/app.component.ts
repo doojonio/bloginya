@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer } from '@angular/platform-browser';
-import { RouterEvent, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { NavigationComponent } from './navigation/navigation.component';
 
 @Component({
@@ -26,7 +26,7 @@ export class AppComponent {
     }
   }
 
-  @ViewChild('nav', {static: true}) el!: NavigationComponent;
+  @ViewChild('nav', { static: true }) el!: NavigationComponent;
   onActivate($event: any) {
     this.el.scrollToTop();
   }

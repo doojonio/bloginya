@@ -29,6 +29,7 @@ import {
   tap,
   timer,
 } from 'rxjs';
+import { AppService } from '../../app.service';
 import { VisibilityDirective } from '../../directives/visibility.directive';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { UserService } from '../../user.service';
@@ -77,7 +78,12 @@ export class PostViewComponent implements OnDestroy {
       });
     });
 
+  private readonly appService = inject(AppService);
   post = model.required<ReadPostResponse>();
+  scrollToTopEffect = effect(() => {
+    this.post();
+    this.appService.scrolToTop();
+  });
   likeAnimClass = signal('');
 
   title_image_style = computed(() => {
