@@ -1,13 +1,18 @@
 @if (title(); as title) {
-<p class="title" i18n>POPULAR</p>
+<p class="title">{{ title }}</p>
 }
 <mat-grid-list gutterSize="2" cols="3" rowHeight="130">
   @for (item of ( onSecondPage ? secondPage() : firstPage() ) ; track item; let
-  idx = $index; let count = $count ) { @let dim = calculateDimension(idx, count);
+  idx = $index; let count = $count ) { @let dim = calculateDimension(idx,
+  count);
   <a routerLink="/{{ item.name ? item.name : 'p/' + item.id }}">
     <mat-grid-tile
       class="image"
-      [style]="{ 'background-image': 'url(' + item.picture_pre + ')' }"
+      [style]="
+        item.picture_pre
+          ? { 'background-image': 'url(' + item.picture_pre + ')' }
+          : { background: 'rgb(117, 85, 112)' }
+      "
       [colspan]="dim[0]"
       [rowspan]="dim[1]"
     ></mat-grid-tile>

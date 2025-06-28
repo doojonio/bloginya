@@ -1,7 +1,11 @@
 @if (post(); as p) {
 <div class="container">
   <div class="title-image" [style]="title_image_style()">
-    <p>{{ p.category_title }}</p>
+    @if (p.category_title) {
+    <a [routerLink]="getCategoryLink(p)">{{ p.category_title }}</a>
+    } @else {
+    <p></p>
+    }
     <p i18n>
       {{ p.ttr | number : "1.0-0" }} minute read @if (p.pics) { · {{ p.pics }}
       {{ p.pics | i18nPlural : { "=1": "pic", other: "pics" } }} }
@@ -68,7 +72,10 @@
   <div class="more-from">
     <div class="more-from-title" appVisibility i18n>
       <span
-        >More from <b>{{ p.category_title }}</b></span
+        >More from
+        <b
+          ><a [routerLink]="getCategoryLink(p)">{{ p.category_title }} </a></b
+        ></span
       >
     </div>
 

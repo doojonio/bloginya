@@ -1,0 +1,15 @@
+.title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10rem;
+
+  font: var(--mat-sys-title-medium);
+  background: rgb(117, 85, 112);
+  color: var(--mat-sys-primary);
+
+  margin-bottom: 1rem;
+}
+.content {
+  padding: 0 1rem;
+}

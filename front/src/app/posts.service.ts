@@ -193,6 +193,7 @@ export interface ReadPostResponse {
   date: string;
   pics: number;
   ttr: number;
+  category_name: string | null;
   category_id: string | null;
   category_title: string | null;
   picture_wp: string | null;
@@ -272,7 +273,9 @@ export interface NewPost {
   id: string;
   name: string | null;
   picture_pre: string;
+  category_title: string;
   category_name: string;
+  category_id: string;
   created_at: Date;
   title: string;
   tags: string[];

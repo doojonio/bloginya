@@ -27,9 +27,10 @@ async sub read_p($self, $post_id) {
 
   my @tables = (
     \'posts p',
-    [-left => \'post_tags pt', 'p.id'          => 'pt.post_id'],
-    [-left => \'categories c', 'p.category_id' => 'c.id'],
-    [-left => \'uploads uwp',  'uwp.id'        => 'p.picture_wp'],
+    [-left => \'post_tags pt',   'p.id'          => 'pt.post_id'],
+    [-left => \'categories c',   'p.category_id' => 'c.id'],
+    [-left => \'shortnames csn', 'c.id'          => 'csn.category_id'],
+    [-left => \'uploads uwp',    'uwp.id'        => 'p.picture_wp'],
   );
 
   my @select = (
@@ -38,7 +39,8 @@ async sub read_p($self, $post_id) {
     [\"p.meta->>'pics'",                 'pics'],
     [\"p.meta->>'ttr'",                  'ttr'],
     'p.category_id',
-    ['c.title' => 'category_title'],
+    ['c.title'  => 'category_title'],
+    ['csn.name' => 'category_name'],
     [
       \'(
         select
@@ -356,13 +358,16 @@ async sub list_new_posts_p($self, $limit = 8) {
   my $res = await $self->db->select_p(
     [
       \'posts p',
-      [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
-      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre'],
-      [-left => \'categories c',  'c.id'    => 'p.category_id'],
+      [-left => \'shortnames sn',  'p.id'    => 'sn.post_id'],
+      [-left => \'uploads upre',   'upre.id' => 'p.picture_pre'],
+      [-left => \'categories c',   'c.id'    => 'p.category_id'],
+      [-left => \'shortnames csn', 'c.id'    => 'csn.category_id'],
     ],
     [
       'p.id',
-      ['c.title'                 => 'category_name'],
+      ['c.title'                 => 'category_title'],
+      ['c.id'                    => 'category_id'],
+      ['csn.name'                => 'category_name'],
       [thumbnail_variant('upre') => 'picture_pre'],
       'p.title', 'p.created_at', 'sn.name'
     ],

@@ -43,6 +43,7 @@ async sub put($self, $file_path, $extname) {
   my %files
     = (original => _path($path), original_type => $mtype, map { $_ => _path($var_paths->{$_}) } keys %$var_paths,);
 
+  # TODO FIX SHIT WITH GIF
   my $id = _path($dir);
   await $self->db->insert_p(
     'uploads',

@@ -1,0 +1,22 @@
+@if (cat(); as cat) {
+<div class="title-container">
+  <p>{{ cat.title }}</p>
+</div>
+
+<div class="content">
+  <div class="sorts"></div>
+
+  <app-post-list-grid-titles
+    [posts]="cat.grid_posts"
+  ></app-post-list-grid-titles>
+
+  @if (cat.list_posts.length) {
+  <app-post-list-med
+    [imageFirst]="true"
+    [divider]="false"
+    [posts]="cat.list_posts"
+  ></app-post-list-med>
+  }
+</div>
+
+}

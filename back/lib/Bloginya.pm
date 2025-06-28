@@ -72,6 +72,7 @@ sub _setup_routes($self) {
   # Unauthorized routes
   $api_U->get('/categories')->to('Category#get');
   $api_U->get('/categories/list')->to('Category#list');
+  $api_U->get('/categories/load')->to('Category#load_category');
   $api_U->get('/oauth/from_google')->to('OAuth#from_google');
   $api_U->get('/oauth/to_google')->to('OAuth#to_google');
   $api_U->get('/posts')->to('Post#get');
