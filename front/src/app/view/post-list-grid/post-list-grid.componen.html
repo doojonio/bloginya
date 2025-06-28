@@ -3,13 +3,13 @@
 }
 <mat-grid-list gutterSize="2" cols="3" rowHeight="130">
   @for (item of ( onSecondPage ? secondPage() : firstPage() ) ; track item; let
-  first = $first) {
+  idx = $index; let count = $count ) { @let dim = calculateDimension(idx, count);
   <a routerLink="/{{ item.name ? item.name : 'p/' + item.id }}">
     <mat-grid-tile
       class="image"
       [style]="{ 'background-image': 'url(' + item.picture_pre + ')' }"
-      [colspan]="first ? 2 : 1"
-      [rowspan]="first ? 2 : 1"
+      [colspan]="dim[0]"
+      [rowspan]="dim[1]"
     ></mat-grid-tile>
   </a>
   }

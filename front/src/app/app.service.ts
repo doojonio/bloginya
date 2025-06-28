@@ -2,7 +2,14 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Toolbar } from 'ngx-editor';
-import { BehaviorSubject, map, Observable, of, shareReplay } from 'rxjs';
+import {
+  BehaviorSubject,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  Subject,
+} from 'rxjs';
 import { Category, PostStatuses } from './posts.service';
 
 @Injectable({
@@ -28,6 +35,15 @@ export class AppService {
 
   isHandset() {
     return this.isHandset$;
+  }
+
+  private readonly scrollToTopSub = new Subject<void>();
+  scrolToTop() {
+    this.scrollToTopSub.next();
+  }
+
+  getScrollToTop() {
+    return this.scrollToTopSub.asObservable();
   }
 
   getAppName() {

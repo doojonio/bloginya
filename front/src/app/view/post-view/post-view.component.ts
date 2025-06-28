@@ -7,11 +7,9 @@ import {
 import {
   Component,
   computed,
-  effect,
   inject,
   input,
   model,
-  OnDestroy,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -20,15 +18,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import {
-  BehaviorSubject,
-  filter,
-  pairwise,
-  switchMap,
-  take,
-  tap,
-  timer,
-} from 'rxjs';
+import { filter, switchMap, take, tap, timer } from 'rxjs';
+import { AppService } from '../../app.service';
 import { VisibilityDirective } from '../../directives/visibility.directive';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { UserService } from '../../user.service';
@@ -56,9 +47,10 @@ import { DocumentDomComponent } from './document-dom/document-dom.component';
   templateUrl: './post-view.component.html',
   styleUrl: './post-view.component.scss',
 })
-export class PostViewComponent implements OnDestroy {
-  postsService = inject(PostsService);
-  usersService = inject(UserService);
+export class PostViewComponent {
+  private readonly postsService = inject(PostsService);
+  private readonly usersService = inject(UserService);
+  private readonly appService = inject(AppService);
 
   currentUser$ = this.usersService.getCurrentUser();
 
@@ -70,14 +62,15 @@ export class PostViewComponent implements OnDestroy {
       switchMap((id) => this.postsService.readPost(id))
     )
     .subscribe((postById) => {
-      this.post.update((post) => {
-        if (post) return post;
-
-        return postById;
-      });
+      this.post.set(postById);
     });
 
   post = model.required<ReadPostResponse>();
+
+  onNewPostSubs = toObservable(this.post).subscribe((_) => {
+    this.appService.scrolToTop();
+  });
+
   likeAnimClass = signal('');
 
   title_image_style = computed(() => {
@@ -92,16 +85,7 @@ export class PostViewComponent implements OnDestroy {
       : {};
   });
 
-  // TODO: fix this stupid bullshit
-  newPostEffect = effect(() => {
-    if (this.post()) {
-      this.loadSimilliarPosts$.next(false);
-    }
-  });
-  loadSimilliarPosts$ = new BehaviorSubject<boolean>(false);
-  similliarPosts$ = this.loadSimilliarPosts$.pipe(
-    pairwise(),
-    filter(([prev, cur]) => !prev && cur),
+  similliarPosts$ = toObservable(this.post).pipe(
     switchMap(() => this.postsService.getSimilliarPosts(this.post().id))
   );
 
@@ -146,16 +130,5 @@ export class PostViewComponent implements OnDestroy {
         return p;
       });
     });
-  }
-
-  onMoveFromIntersecting($event: boolean) {
-    if (!$event) {
-      return;
-    }
-    this.loadSimilliarPosts$.next(true);
-  }
-
-  ngOnDestroy(): void {
-    this.loadSimilliarPosts$.next(false);
   }
 }

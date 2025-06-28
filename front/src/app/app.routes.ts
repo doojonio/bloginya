@@ -7,7 +7,7 @@ import { PostViewComponent } from './view/post-view/post-view.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'edit/:postId', component: PostEditorComponent },
+  { path: 'e/:postId', component: PostEditorComponent },
   { path: 'p/:postId', component: PostViewComponent },
   { path: ':shortname', component: AnyViewComponent },
   { path: '**', component: PageNotFoundComponent },
