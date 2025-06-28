@@ -19,7 +19,7 @@
       </button>
       <input
         type="file"
-        accept="image/"
+        accept="image/*"
         #wpInput
         (change)="onWpSelected($event)"
         style="display: none"
@@ -40,7 +40,7 @@
         </button>
         <input
           type="file"
-          accept="image/"
+          accept="image/*"
           multiple
           #atInput
           (change)="onAttachmentsSelected($event)"

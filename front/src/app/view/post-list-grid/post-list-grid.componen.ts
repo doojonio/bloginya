@@ -14,7 +14,7 @@ import { PopularPost } from '../../posts.service';
 export class PostListGridComponent {
   title = input<string>();
   posts = input.required<PopularPost[]>();
-  posts_per_page = input(18);
+  posts_per_page = input(13);
 
   firstPage = computed(() => {
     const posts = this.posts();
@@ -40,5 +40,19 @@ export class PostListGridComponent {
 
   togglePage() {
     this.onSecondPage = !this.onSecondPage;
+  }
+
+  calculateDimension(idx: number, count: number) {
+    if (count < 9) {
+      return [1, 1];
+    }
+
+    if (idx == 0 || idx == 8) {
+      return [2, 2];
+    }
+    if (idx == 5 || idx == 6) {
+      return [1, 2];
+    }
+    return [1, 1];
   }
 }
