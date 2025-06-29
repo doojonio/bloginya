@@ -8,33 +8,42 @@ export class SeoService {
   private readonly metaService = inject(Meta);
   private readonly titleService = inject(Title);
 
-  private readonly DEFAULT_PRE = '/assets/images/wp_footer.webp';
+  private readonly SITE = 'https://hpotato.io/';
+  private readonly DEFAULT_PRE = this.SITE + 'assets/images/wp_footer.webp';
   private readonly SITE_NAME = 'Polyine';
   private readonly DESCRIPTION = 'I Learn Languages!';
 
   applyDefault() {
+    // Title
     this.titleService.setTitle(this.SITE_NAME);
-
-    this.metaService.updateTag({
-      name: 'description',
-      content: this.DESCRIPTION,
-    });
-    // Open Graph Tags
     this.metaService.updateTag({
       property: 'og:title',
       content: this.SITE_NAME,
+    });
+
+    // Description
+    this.metaService.updateTag({
+      name: 'description',
+      content: this.DESCRIPTION,
     });
     this.metaService.updateTag({
       property: 'og:description',
       content: this.DESCRIPTION,
     });
+
+    // Image
     this.metaService.updateTag({
       property: 'og:image',
       content: this.DEFAULT_PRE,
     });
-    // TODO
-    // this.metaService.updateTag({ property: 'og:url', content: 'TODO' });
+
+    // Url
+    this.metaService.updateTag({ property: 'og:url', content: this.SITE });
+
+    // Type
     this.metaService.updateTag({ property: 'og:type', content: 'website' }); // or 'article', 'product', etc.
+
+    // Sitename
     this.metaService.updateTag({
       property: 'og:site_name',
       content: this.SITE_NAME,
@@ -45,18 +54,18 @@ export class SeoService {
     //   name: 'twitter:card',
     //   content: this.DEFAULT_PRE,
     // }); // or 'summary', 'app', 'player'
-    this.metaService.updateTag({
-      name: 'twitter:title',
-      content: this.SITE_NAME,
-    });
-    this.metaService.updateTag({
-      name: 'twitter:description',
-      content: this.DESCRIPTION,
-    });
-    this.metaService.updateTag({
-      name: 'twitter:image',
-      content: this.DEFAULT_PRE,
-    });
+    // this.metaService.updateTag({
+    //   name: 'twitter:title',
+    //   content: this.SITE_NAME,
+    // });
+    // this.metaService.updateTag({
+    //   name: 'twitter:description',
+    //   content: this.DESCRIPTION,
+    // });
+    // this.metaService.updateTag({
+    //   name: 'twitter:image',
+    //   content: this.DEFAULT_PRE,
+    // });
     // this.metaService.updateTag({ name: 'twitter:url', content: pageUrl });
     // TODO
     // this.metaService.updateTag({
