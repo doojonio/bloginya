@@ -82,6 +82,7 @@ export class CategoryComponent {
 export interface Category {
   id: string;
   title: string;
+  name: string | null;
   sort: SortBy;
   posts_num: number;
   page: number;

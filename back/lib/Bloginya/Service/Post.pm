@@ -29,13 +29,14 @@ async sub read_p($self, $post_id) {
     \'posts p',
     [-left => \'post_tags pt',   'p.id'          => 'pt.post_id'],
     [-left => \'categories c',   'p.category_id' => 'c.id'],
+    [-left => \'shortnames psn', 'p.id'          => 'psn.post_id'],
     [-left => \'shortnames csn', 'c.id'          => 'csn.category_id'],
     [-left => \'uploads uwp',    'uwp.id'        => 'p.picture_wp'],
     [-left => \'uploads upre',   'upre.id'       => 'p.picture_pre'],
   );
 
   my @select = (
-    qw(p.id p.title p.document p.description p.enable_likes p.enable_comments),
+    qw(p.id p.title p.document p.description p.enable_likes p.enable_comments psn.name),
     [\'coalesce(p.published_at, now())', 'date'],
     [\"p.meta->>'pics'",                 'pics'],
     [\"p.meta->>'ttr'",                  'ttr'],

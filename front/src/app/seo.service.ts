@@ -8,10 +8,10 @@ export class SeoService {
   private readonly metaService = inject(Meta);
   private readonly titleService = inject(Title);
 
-  private readonly SITE = 'https://hpotato.io';
+  private readonly SITE = 'https://hpotato.io/';
   private readonly SITE_NAME = 'Polyine';
   private readonly DOMAIN = 'hpotato.io';
-  private readonly DEFAULT_PRE = this.SITE + '/assets/images/wp_footer.webp';
+  private readonly DEFAULT_PRE = this.SITE + 'assets/images/wp_footer.webp';
   private readonly DESCRIPTION = 'I Learn Languages!';
 
   private apply(vals: Vals) {
@@ -44,11 +44,11 @@ export class SeoService {
       content: 'summary_large_image',
     });
     this.metaService.updateTag({
-      name: 'twitter:domain',
+      property: 'twitter:domain',
       content: vals.domain,
     });
     this.metaService.updateTag({
-      name: 'twitter:url',
+      property: 'twitter:url',
       content: vals.url,
     });
     this.metaService.updateTag({
@@ -81,9 +81,9 @@ export class SeoService {
     this.apply({
       tabTitle: this.SITE_NAME + ' | ' + cat.title,
       title: cat.title,
-      description: cat.title,
+      description: '',
       type: 'website',
-      url: this.SITE + '/' + (cat.name ? cat.name : 'c/' + cat.id),
+      url: this.SITE + (cat.name ? cat.name : 'c/' + cat.id),
       image: this.DEFAULT_PRE,
       domain: this.DOMAIN,
     });
@@ -93,9 +93,9 @@ export class SeoService {
     this.apply({
       tabTitle: this.SITE_NAME + ' | ' + post.title,
       title: post.title,
-      description: post.title,
+      description: post.description,
       type: 'article',
-      url: this.SITE + '/' + (post.name ? post.name : 'c/' + post.id),
+      url: this.SITE + (post.name ? post.name : 'p/' + post.id),
       image: this.SITE + (post.picture_pre || this.DEFAULT_PRE),
       domain: this.DOMAIN,
     });
