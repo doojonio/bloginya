@@ -1,0 +1,28 @@
+<mat-grid-list gutterSize="0.5rem" cols="3" rowHeight="10rem">
+  @for (item of ( posts() ) ; track item.id; let idx = $index; let count = $count )
+  {
+  <a routerLink="/{{ item.name ? item.name : 'p/' + item.id }}">
+    <!-- <mat-grid-tile
+      class="image"
+      [style]="
+        item.picture_pre
+          ? { 'background-image': 'url(' + item.picture_pre + ')' }
+          : { background: 'rgb(117, 85, 112)' }
+      "
+    ></mat-grid-tile> -->
+    <mat-grid-tile>
+      <div class="item">
+        <div
+          class="image"
+          [style.background]="
+            item.picture_pre
+              ? 'url(' + item.picture_pre + ') center / cover no-repeat'
+              : 'rgb(117, 85, 112)'
+          "
+        ></div>
+        <p class="title">{{ item.title }}</p>
+      </div>
+    </mat-grid-tile>
+  </a>
+  }
+</mat-grid-list>

@@ -82,7 +82,9 @@ export class PostViewComponent {
             `url(${url}) no-repeat center / cover`,
           ].join(', '),
         }
-      : {};
+      : {
+          'background-color': '#896483',
+        };
   });
 
   similliarPosts$ = toObservable(this.post).pipe(
@@ -92,6 +94,12 @@ export class PostViewComponent {
   showComments = false;
   toggleShowComments() {
     this.showComments = !this.showComments;
+  }
+
+  getCategoryLink(post: ReadPostResponse) {
+    return '/' + ( post.category_name
+      ? post.category_name
+      : 'c/' + post.category_id );
   }
 
   tagClicked(tag: string) {

@@ -16,6 +16,8 @@ requires 'Iterator::Simple';
 
 requires 'Image::Magick';
 
+requires 'Log::Log4perl';
+
 on 'develop' => sub {
   requires 'DDP';
 }

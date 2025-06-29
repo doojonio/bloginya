@@ -2,7 +2,11 @@
 <ng-template #image>
   <a
     class="post-pic"
-    [style]="{ 'background-image': 'url('+ post.picture_pre + ')', }"
+    [style]="
+      post.picture_pre
+        ? { 'background-image': 'url(' + post.picture_pre + ')' }
+        : { background: 'rgb(117, 85, 112)' }
+    "
     routerLink="{{ linkForPost(post) }}"
   ></a>
 </ng-template>

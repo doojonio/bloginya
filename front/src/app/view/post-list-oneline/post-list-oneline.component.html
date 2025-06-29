@@ -4,10 +4,12 @@
 <div class="posts noscrollbar">
   @for (item of posts(); track item) {
   <div class="post">
-    <img
-      src="{{ item.picture_pre }}"
+    <a
+      class="post-pre"
       routerLink="/{{ item.name ? item.name : 'p/' + item.id }}"
-    />
+      [style]="getPostPreStyle(item)"
+    >
+    </a>
     <div class="post-descr">
       <p
         class="post-title"
@@ -18,9 +20,14 @@
           {{ item.title }}
         </a>
       </p>
-      <p class="post-subtitle">
-        {{ item.category_name | uppercase }}
-      </p>
+      <a
+        [routerLink]="
+          '/' + item.category_name ? item.category_name : 'c/' + item.category_id
+        "
+        class="post-subtitle"
+      >
+        {{ item.category_title | uppercase }}
+      </a>
     </div>
   </div>
   }

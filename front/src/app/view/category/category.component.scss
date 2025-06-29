@@ -1,0 +1,26 @@
+@use "@angular/material" as mat;
+.title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10rem;
+
+  font: var(--mat-sys-title-medium);
+  background: #896483;
+  color: var(--mat-sys-primary);
+
+  margin-bottom: 1rem;
+}
+.content {
+  padding: 0 1rem;
+}
+
+.sorts {
+  display: flex;
+  justify-content: right;
+  margin-bottom: 1rem;
+}
+
+.pagin {
+  margin-top: 2rem;
+}

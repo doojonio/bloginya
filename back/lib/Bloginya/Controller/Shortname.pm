@@ -9,7 +9,7 @@ async sub get_by_name ($self) {
 }
 
 async sub get_item_by_name($self) {
-  my $name = $self->i(name => 'sname');
+  my ($name, $page) = $self->i(name => 'sname', page => 'num|undef');
 
   my $info = await $self->service('shortname')->find_p($name);
   return $self->msg('Not Found', 404) unless $info;
@@ -22,7 +22,8 @@ async sub get_item_by_name($self) {
       $data{content} = await $self->service('post')->read_p($post_id);
     }
     elsif (my $c_id = $info->{category_id}) {
-      ...;
+      $data{type}    = 'category';
+      $data{content} = await $self->service('category')->load_p($c_id, $page);
     }
     else {
       die "Invalid shortname $name";

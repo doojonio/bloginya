@@ -28,13 +28,25 @@ export class PostListOnelineComponent implements AfterViewInit {
       })
     );
   }
+
+  getPostPreStyle(post: PostOneLinePost) {
+    return post.picture_pre
+      ? {
+          background: `url(${post.picture_pre}) center / cover no-repeat`,
+        }
+      : {
+          background: 'rgb(117, 85, 112)',
+        };
+  }
 }
 
 export interface PostOneLinePost {
   id: string;
   name: string | null;
   picture_pre: string;
+  category_title: string;
   category_name: string;
+  category_id: string;
   created_at: Date;
   title: string;
   tags: string[];

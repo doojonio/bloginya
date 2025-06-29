@@ -1,7 +1,13 @@
 @if (item$ |async; as item) { @if(item.content == null) {
 <app-page-not-found></app-page-not-found>
 } @else if (item.type == "post") {
-<app-post-view [post]="item.content"></app-post-view>
+<app-post-view [post]="toPost(item)"></app-post-view>
+} @else if (item.type == "category") {
+<app-category
+  [cat]="toCategory(item)"
+  [page]="page()"
+  [sort]="sort()"
+></app-category>
 } } @else {
 <mat-spinner></mat-spinner>
 }

@@ -1,7 +1,6 @@
 package Bloginya;
 use Mojo::Base 'Mojolicious', -signatures, -async_await;
 
-use Mojo::Log    ();
 use Carp         ();
 use Scalar::Util qw(blessed);
 
@@ -20,6 +19,7 @@ sub startup ($self) {
 
   # Default helpers
   $self->plugin('DefaultHelpers');
+  $self->plugin('Bloginya::Plugin::Log4perl');
   $self->plugin('Bloginya::Plugin::WebHelpers');
   $self->plugin('Bloginya::Plugin::DB');
   $self->plugin(
@@ -42,8 +42,6 @@ sub startup ($self) {
 
   $self->_setup_routes;
   $self->_setup_commands;
-
-  $self->helper(log => sub { Mojo::Log->new });
 
   $self->helper(test => sub ($self) { !!$self->config->{test} });
 }
@@ -72,6 +70,7 @@ sub _setup_routes($self) {
   # Unauthorized routes
   $api_U->get('/categories')->to('Category#get');
   $api_U->get('/categories/list')->to('Category#list');
+  $api_U->get('/categories/load')->to('Category#load_category');
   $api_U->get('/oauth/from_google')->to('OAuth#from_google');
   $api_U->get('/oauth/to_google')->to('OAuth#to_google');
   $api_U->get('/posts')->to('Post#get');

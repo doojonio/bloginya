@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ReadPostResponse } from './posts.service';
+import { Category } from './view/category/category.component';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,7 @@ export class ShortnamesService {
 
 export interface ItemShortnameResponse {
   type: string;
-  content: ReadPostResponse;
+  content: ReadPostResponse | Category;
 }
 
 export interface ShortnameResponse {

@@ -1,14 +1,18 @@
 package Bloginya::Service::Drive;
 use Mojo::Base -base, -signatures, -async_await;
 
-use File::Path    qw( make_path );
+use File::Path    qw(make_path);
 use Image::Magick ();
+use List::Util    qw(max);
 use MIME::Types   ();
 use Time::Piece   ();
 use UUID          qw(uuid4);
 
-use constant SIZES =>
-  ({name => 'thumbnail', size => 150}, {name => 'medium', size => 900}, {name => 'large', size => 1600},);
+use constant SIZES => (
+  {name => 'thumbnail', size => 150, square => 1},
+  {name => 'medium',    size => 900},
+  {name => 'large',     size => 1600},
+);
 
 has 'app';
 has 'db';
@@ -43,6 +47,7 @@ async sub put($self, $file_path, $extname) {
   my %files
     = (original => _path($path), original_type => $mtype, map { $_ => _path($var_paths->{$_}) } keys %$var_paths,);
 
+  # TODO FIX SHIT WITH GIF
   my $id = _path($dir);
   await $self->db->insert_p(
     'uploads',
@@ -65,21 +70,33 @@ sub _generate_diff_sizes($self, $file_path, $dir) {
   $im->Read($file_path);
 
   my ($orig_width, $orig_height) = $im->Get('width', 'height');
-  my $orig_size    = $orig_width * $orig_height;
   my $reduce_width = $orig_width > $orig_height;
 
   my %paths;
   for my $size (SIZES) {
     my $px_size = $size->{size};
-    next if $px_size * 2 > $orig_size;
+
+    # Skip creating a variant if the original is already smaller than the target size.
+    next if max($orig_width, $orig_height) < $px_size;
+
     my $variant = $im->Clone();
     my $max     = $px_size;
 
-    if ($reduce_width) {
-      $variant->Resize($max . 'x');
+    if ($size->{square}) {
+
+      # For square variants, resize to fill a square area and then center-crop.
+      $variant->Resize("${max}x${max}^");
+      $variant->Set(gravity => 'Center');
+      $variant->Extent(geometry => "${max}x${max}");
     }
     else {
-      $variant->Resize('x' . $max);
+      # For other sizes, just do a proportional resize.
+      if ($reduce_width) {
+        $variant->Resize($max . 'x');
+      }
+      else {
+        $variant->Resize('x' . $max);
+      }
     }
 
     $variant->Set(magick => 'webp');
