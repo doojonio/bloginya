@@ -22,7 +22,8 @@
       </p>
       <a
         [routerLink]="
-          '/' + item.category_name ? item.category_name : 'c/' + item.category_id
+          '/' +
+          (item.category_name ? item.category_name : 'c/' + item.category_id)
         "
         class="post-subtitle"
       >
