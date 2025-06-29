@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
-import { combineLatest, filter, switchMap, tap } from 'rxjs';
+import { combineLatest, filter, switchMap } from 'rxjs';
 import { CategoryService } from '../../category.service';
 import { PostMed } from '../../posts.service';
 import { PostListGridTitlesComponent } from '../post-list-grid-titles/post-list-grid-titles.component';
@@ -43,7 +43,6 @@ export class CategoryComponent {
     toObservable(this.sort),
   ])
     .pipe(
-      tap(console.log),
       filter(([id, page, sort]) =>
         this.cat() ? this.cat()?.page != page || this.cat()?.sort != sort : true
       ),
