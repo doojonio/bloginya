@@ -1,5 +1,12 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
@@ -10,6 +17,7 @@ import { Observable, of, tap } from 'rxjs';
 import { AppService } from '../app.service';
 import { VisibilityDirective } from '../directives/visibility.directive';
 import { Category, PostsService } from '../posts.service';
+import { SeoService } from '../seo.service';
 import { PostListCategoryComponent } from '../view/post-list-category/post-list-category.component';
 import { PostListGridComponent } from '../view/post-list-grid/post-list-grid.componen';
 import { PostListOnelineComponent } from '../view/post-list-oneline/post-list-oneline.component';
@@ -33,10 +41,15 @@ import { PostListOnelineComponent } from '../view/post-list-oneline/post-list-on
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements OnDestroy {
+export class HomeComponent implements OnDestroy, OnInit {
   appService = inject(AppService);
   isHandset$: Observable<boolean> = this.appService.isHandset();
   postsService = inject(PostsService);
+  seoService = inject(SeoService);
+
+  ngOnInit(): void {
+    this.seoService.applyDefault();
+  }
 
   newPosts$ = this.postsService.getNewPosts();
   langs$ = this.postsService.getHomeCats().pipe(

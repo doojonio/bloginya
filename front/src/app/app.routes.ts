@@ -7,10 +7,18 @@ import { CategoryComponent } from './view/category/category.component';
 import { PostViewComponent } from './view/post-view/post-view.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'e/:postId', component: PostEditorComponent },
+  { path: '', component: HomeComponent, title: 'Polyine' },
+  {
+    path: 'e/:postId',
+    component: PostEditorComponent,
+    title: 'Polyine | Editor',
+  },
   { path: 'p/:postId', component: PostViewComponent },
   { path: 'c/:catId', component: CategoryComponent },
   { path: ':shortname', component: AnyViewComponent },
-  { path: '**', component: PageNotFoundComponent },
+  {
+    path: '**',
+    component: PageNotFoundComponent,
+    title: 'Polyine | Not Found',
+  },
 ];

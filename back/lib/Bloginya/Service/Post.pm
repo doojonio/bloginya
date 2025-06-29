@@ -31,10 +31,11 @@ async sub read_p($self, $post_id) {
     [-left => \'categories c',   'p.category_id' => 'c.id'],
     [-left => \'shortnames csn', 'c.id'          => 'csn.category_id'],
     [-left => \'uploads uwp',    'uwp.id'        => 'p.picture_wp'],
+    [-left => \'uploads upre',   'upre.id'       => 'p.picture_pre'],
   );
 
   my @select = (
-    qw(p.id p.title p.document p.enable_likes p.enable_comments),
+    qw(p.id p.title p.document p.description p.enable_likes p.enable_comments),
     [\'coalesce(p.published_at, now())', 'date'],
     [\"p.meta->>'pics'",                 'pics'],
     [\"p.meta->>'ttr'",                  'ttr'],
@@ -52,6 +53,7 @@ async sub read_p($self, $post_id) {
     [\'( select count(com.id) from comments com where com.post_id = p.id )'        => 'comments'],
     [\'( select count(lik.user_id) from post_likes lik where lik.post_id = p.id )' => 'likes'],
     [large_variant('uwp')                                                          => 'picture_wp'],
+    [medium_variant('upre')                                                        => 'picture_pre'],
   );
 
   if (my $user = $self->current_user) {
