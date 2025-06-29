@@ -188,6 +188,7 @@ export interface ReadPostResponse {
   id: string;
   title: string;
   document: any;
+  description: string;
   enable_likes: boolean;
   enable_comments: boolean;
   date: string;
@@ -197,6 +198,7 @@ export interface ReadPostResponse {
   category_id: string | null;
   category_title: string | null;
   picture_wp: string | null;
+  picture_pre: string | null;
   tags: string[];
   comments?: number;
   liked?: boolean;

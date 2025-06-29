@@ -7,6 +7,7 @@ import {
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   model,
@@ -22,6 +23,7 @@ import { filter, switchMap, take, tap, timer } from 'rxjs';
 import { AppService } from '../../app.service';
 import { VisibilityDirective } from '../../directives/visibility.directive';
 import { PostsService, ReadPostResponse } from '../../posts.service';
+import { SeoService } from '../../seo.service';
 import { UserService } from '../../user.service';
 import { PostListMedComponent } from '../post-list-med/post-list-med.component';
 import { CommentsModule } from './comments/comments.module';
@@ -51,6 +53,7 @@ export class PostViewComponent {
   private readonly postsService = inject(PostsService);
   private readonly usersService = inject(UserService);
   private readonly appService = inject(AppService);
+  private readonly seoService = inject(SeoService);
 
   currentUser$ = this.usersService.getCurrentUser();
 
@@ -87,6 +90,14 @@ export class PostViewComponent {
         };
   });
 
+  titleEffect = effect(() => {
+    const post = this.post();
+
+    if (post) {
+      this.seoService.applyForPost(post);
+    }
+  });
+
   similliarPosts$ = toObservable(this.post).pipe(
     switchMap(() => this.postsService.getSimilliarPosts(this.post().id))
   );
@@ -97,9 +108,9 @@ export class PostViewComponent {
   }
 
   getCategoryLink(post: ReadPostResponse) {
-    return '/' + ( post.category_name
-      ? post.category_name
-      : 'c/' + post.category_id );
+    return (
+      '/' + (post.category_name ? post.category_name : 'c/' + post.category_id)
+    );
   }
 
   tagClicked(tag: string) {
