@@ -8,176 +8,119 @@ export class SeoService {
   private readonly metaService = inject(Meta);
   private readonly titleService = inject(Title);
 
-  private readonly SITE = 'https://hpotato.io/';
-  private readonly DEFAULT_PRE = this.SITE + 'assets/images/wp_footer.webp';
+  private readonly SITE = 'https://hpotato.io';
   private readonly SITE_NAME = 'Polyine';
+  private readonly DOMAIN = 'hpotato.io';
+  private readonly DEFAULT_PRE = this.SITE + '/assets/images/wp_footer.webp';
   private readonly DESCRIPTION = 'I Learn Languages!';
 
-  applyDefault() {
-    // Title
-    this.titleService.setTitle(this.SITE_NAME);
-    this.metaService.updateTag({
-      property: 'og:title',
-      content: this.SITE_NAME,
-    });
-
-    // Description
+  private apply(vals: Vals) {
+    // HTML
+    this.titleService.setTitle(vals.tabTitle);
     this.metaService.updateTag({
       name: 'description',
-      content: this.DESCRIPTION,
+      content: vals.description,
+    });
+
+    // Facebook
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: vals.title,
     });
     this.metaService.updateTag({
       property: 'og:description',
-      content: this.DESCRIPTION,
-    });
-
-    // Image
-    this.metaService.updateTag({
-      property: 'og:image',
-      content: this.DEFAULT_PRE,
-    });
-
-    // Url
-    this.metaService.updateTag({ property: 'og:url', content: this.SITE });
-
-    // Type
-    this.metaService.updateTag({ property: 'og:type', content: 'website' }); // or 'article', 'product', etc.
-
-    // Sitename
-    this.metaService.updateTag({
-      property: 'og:site_name',
-      content: this.SITE_NAME,
-    });
-
-    // Twitter Card Tags
-    // this.metaService.updateTag({
-    //   name: 'twitter:card',
-    //   content: this.DEFAULT_PRE,
-    // }); // or 'summary', 'app', 'player'
-    // this.metaService.updateTag({
-    //   name: 'twitter:title',
-    //   content: this.SITE_NAME,
-    // });
-    // this.metaService.updateTag({
-    //   name: 'twitter:description',
-    //   content: this.DESCRIPTION,
-    // });
-    // this.metaService.updateTag({
-    //   name: 'twitter:image',
-    //   content: this.DEFAULT_PRE,
-    // });
-    // this.metaService.updateTag({ name: 'twitter:url', content: pageUrl });
-    // TODO
-    // this.metaService.updateTag({
-    //   name: 'twitter:creator',
-    //   content: '@polyine',
-    // }); // Optional
-  }
-
-  applyForCategory(cat: Category) {
-    this.titleService.setTitle(this.SITE_NAME + ' | ' + cat.title);
-
-    this.metaService.updateTag({
-      name: 'description',
-      content: this.DESCRIPTION,
-    });
-    // Open Graph Tags
-    this.metaService.updateTag({
-      property: 'og:title',
-      content: cat.title,
-    });
-    this.metaService.updateTag({
-      property: 'og:description',
-      content: this.DESCRIPTION,
+      content: vals.description,
     });
     this.metaService.updateTag({
       property: 'og:image',
-      content: this.DEFAULT_PRE,
+      content: vals.image,
     });
-    // TODO
-    // this.metaService.updateTag({ property: 'og:url', content: 'TODO' });
-    this.metaService.updateTag({ property: 'og:type', content: 'article' }); // or 'article', 'product', etc.
-    this.metaService.updateTag({
-      property: 'og:site_name',
-      content: this.SITE_NAME,
-    });
+    this.metaService.updateTag({ property: 'og:url', content: vals.url });
+    this.metaService.updateTag({ property: 'og:type', content: vals.type });
 
-    // Twitter Card Tags
-    // this.metaService.updateTag({
-    //   name: 'twitter:card',
-    //   content: this.DEFAULT_PRE,
-    // }); // or 'summary', 'app', 'player'
+    // Twitter
+    this.metaService.updateTag({
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    });
+    this.metaService.updateTag({
+      name: 'twitter:domain',
+      content: vals.domain,
+    });
+    this.metaService.updateTag({
+      name: 'twitter:url',
+      content: vals.url,
+    });
     this.metaService.updateTag({
       name: 'twitter:title',
-      content: cat.title,
+      content: vals.title,
     });
     this.metaService.updateTag({
       name: 'twitter:description',
-      content: this.DESCRIPTION,
+      content: vals.description,
     });
     this.metaService.updateTag({
       name: 'twitter:image',
-      content: this.DEFAULT_PRE,
+      content: vals.image,
+    });
+  }
+
+  applyDefault() {
+    this.apply({
+      tabTitle: this.SITE_NAME,
+      title: this.SITE_NAME,
+      description: this.DESCRIPTION,
+      type: 'website',
+      url: this.SITE,
+      image: this.DEFAULT_PRE,
+      domain: this.DOMAIN,
+    });
+  }
+
+  applyForCategory(cat: Category) {
+    this.apply({
+      tabTitle: this.SITE_NAME + ' | ' + cat.title,
+      title: cat.title,
+      description: cat.title,
+      type: 'website',
+      url: this.SITE + '/' + (cat.name ? cat.name : 'c/' + cat.id),
+      image: this.DEFAULT_PRE,
+      domain: this.DOMAIN,
     });
   }
 
   applyForPost(post: Post) {
-    this.titleService.setTitle(this.SITE_NAME + ' | ' + post.title);
-
-    this.metaService.updateTag({
-      name: 'description',
-      content: post.description,
+    this.apply({
+      tabTitle: this.SITE_NAME + ' | ' + post.title,
+      title: post.title,
+      description: post.title,
+      type: 'article',
+      url: this.SITE + '/' + (post.name ? post.name : 'c/' + post.id),
+      image: this.SITE + (post.picture_pre || this.DEFAULT_PRE),
+      domain: this.DOMAIN,
     });
-    // Open Graph Tags
-    this.metaService.updateTag({ property: 'og:title', content: post.title });
-    this.metaService.updateTag({
-      property: 'og:description',
-      content: post.description,
-    });
-    this.metaService.updateTag({
-      property: 'og:image',
-      content: post.picture_pre || this.DEFAULT_PRE,
-    });
-    // TODO
-    // this.metaService.updateTag({ property: 'og:url', content: 'TODO' });
-    this.metaService.updateTag({ property: 'og:type', content: 'article' }); // or 'article', 'product', etc.
-    this.metaService.updateTag({
-      property: 'og:site_name',
-      content: 'Polyine',
-    });
-
-    // Twitter Card Tags
-    // this.metaService.updateTag({
-    //   name: 'twitter:card',
-    //   content: this.DEFAULT_PRE,
-    // }); // or 'summary', 'app', 'player'
-    this.metaService.updateTag({
-      name: 'twitter:title',
-      content: post.title,
-    });
-    this.metaService.updateTag({
-      name: 'twitter:description',
-      content: post.description,
-    });
-    this.metaService.updateTag({
-      name: 'twitter:image',
-      content: post.picture_pre || this.DEFAULT_PRE,
-    });
-    // this.metaService.updateTag({ name: 'twitter:url', content: pageUrl });
-    // TODO
-    // this.metaService.updateTag({
-    //   name: 'twitter:creator',
-    //   content: '@polyine',
-    // }); // Optional
   }
 }
 
+interface Vals {
+  tabTitle: string;
+  title: string;
+  description: string;
+  type: string;
+  url: string;
+  image: string;
+  domain: string;
+}
 export interface Category {
   title: string;
+  name: string | null;
+  id: string;
 }
 
 export interface Post {
   title: string;
   description: string;
   picture_pre: string | null;
+  name: string | null;
+  id: string;
 }
