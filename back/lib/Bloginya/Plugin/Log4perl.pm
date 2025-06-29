@@ -24,6 +24,22 @@ sub register {
     }
   );
 
+
+  # Redirect core Perl warnings (warn()) to Log4perl.
+  # This is a global change that captures warnings from any package.
+  $SIG{__WARN__} = sub {
+
+    # Use caller(1) to find the package that triggered the warning.
+    # This allows Log4perl to use the correct category (e.g., Bloginya.Plugin.CoolIO).
+    my $pkg    = (caller(1))[0] // 'main';
+    my $logger = Log::Log4perl->get_logger($pkg);
+
+    my $message = shift;
+    chomp $message;    # warn() adds a newline that we don't need
+    $logger->warn($message);
+  };
+
+
   # Replace the default Mojolicious logger to route its messages through Log4perl.
   $app->log(Bloginya::Plugin::Log4perl::LogProxy->new);
 }
