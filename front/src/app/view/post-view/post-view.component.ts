@@ -83,7 +83,7 @@ export class PostViewComponent {
           ].join(', '),
         }
       : {
-          'background-color': 'rgb(117, 85, 112)',
+          'background-color': '#896483',
         };
   });
 
