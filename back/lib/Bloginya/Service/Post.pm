@@ -405,7 +405,7 @@ async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
   return $res->hashes;
 }
 
-async sub list_popular_posts_p($self, $limit = 18, $offset = 0) {
+async sub list_popular_posts_p($self, $limit = 26, $offset = 0) {
   my $res = await $self->db->select_p(
     [
       \'posts p',
@@ -430,8 +430,7 @@ async sub list_popular_posts_p($self, $limit = 18, $offset = 0) {
       ]
     ],
     {'status' => POST_STATUS_PUB},
-    {order_by => {-desc => 'popularity'}},
-    {limit    => $limit, offset => $offset}
+    {order_by => {-desc => 'popularity'}, limit => $limit, offset => $offset},
   );
 
   return $res->hashes;

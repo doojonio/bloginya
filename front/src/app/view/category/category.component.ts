@@ -23,14 +23,15 @@ export class CategoryComponent {
   catId = input<string>();
 
   private readonly router = inject(Router);
-
   private readonly catService = inject(CategoryService);
 
-  catIdSub = combineLatest([
-    toObservable(this.catId).pipe(filter(Boolean)),
-    toObservable(this.page),
-  ])
-    .pipe(switchMap(([id, page]) => this.catService.loadCategory(id, page)))
+  catIdSub = combineLatest([toObservable(this.catId), toObservable(this.page)])
+    .pipe(
+      filter((id, page) => (this.cat() ? this.cat()?.page != page : true)),
+      switchMap(([id, page]) =>
+        this.catService.loadCategory(id || this.cat()!.id, page)
+      )
+    )
     .subscribe((cat) => {
       this.cat.set(cat);
     });
@@ -38,7 +39,6 @@ export class CategoryComponent {
   cat = model<Category>();
 
   onPageChange(event: PageEvent) {
-    console.log(event);
     this.router.navigate([], {
       queryParams: { page: event.pageIndex || undefined },
     });
@@ -49,6 +49,7 @@ export interface Category {
   id: string;
   title: string;
   posts_num: number;
+  page: number;
   grid_posts: CategoryPost[];
   list_posts: PostMed[];
 }

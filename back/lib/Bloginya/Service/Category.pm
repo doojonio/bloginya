@@ -102,7 +102,7 @@ async sub load_p($self, $id, $page = 0) {
 
   die 'not found' unless %cat;
 
-  @cat{qw(grid_posts list_posts)} = (\@grid_posts, \@list_posts);
+  @cat{qw(grid_posts list_posts page)} = (\@grid_posts, \@list_posts, $page);
 
   \%cat;
 }
