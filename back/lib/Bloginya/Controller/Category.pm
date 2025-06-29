@@ -31,13 +31,13 @@ async sub list($self) {
 }
 
 async sub load_category($self) {
-  my ($id, $page) = $self->i(id => 'cool_id', page => 'num|undef');
+  my ($id, $page, $sort) = $self->i(id => 'cool_id', page => 'num|undef', 'sort' => 'cat_sort|undef');
   $page //= 0;
 
   my $cat;
 
   try {
-    $cat = await $self->service('category')->load_p($id, $page);
+    $cat = await $self->service('category')->load_p($id, $page, $sort);
   }
   catch ($e) {
     if ($e =~ /not found/) {

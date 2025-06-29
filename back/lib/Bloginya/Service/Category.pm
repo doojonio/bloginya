@@ -40,10 +40,38 @@ async sub list_site_priority_categories_p($self) {
   return $res->hashes;
 }
 
-async sub load_p($self, $id, $page = 0) {
+sub _map_cat_sort($self, $sort) {
+  my $desc = 0;
+  if (substr($sort, 0, 1) eq '!') {
+    $desc = 1;
+  }
+
+  return $desc ? {-desc => substr($sort, 1)} : $sort;
+}
+
+async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
   use constant GRID_COUNT => 18;
   use constant LIST_COUNT => 5;
   use constant PER_PAGE   => GRID_COUNT + LIST_COUNT;
+
+  my @add_select;
+
+  if ($sort =~ /popularity/) {
+    push @add_select, [
+      \q~
+        (
+        select
+          coalesce((select count(*) from comments com where com.post_id = p.id), 0) * 4
+          +
+          coalesce((select count(*) from post_likes lik where lik.post_id = p.id), 0) * 2
+          +
+          coalesce((select (short_views * 0.5 + medium_views + long_views * 2) from post_stats ps where ps.post_id = p.id), 0)
+        )
+      ~ => 'popularity'
+    ];
+
+  }
+
 
   my $res = await $self->db->select_p(
     [
@@ -70,9 +98,10 @@ async sub load_p($self, $id, $page = 0) {
         from post_tags pt join tags t on t.id = pt.tag_id
         where pt.post_id = p.id
       ) as tags',
+      @add_select,
     ],
     {'c.id'   => $id, 'p.status' => POST_STATUS_PUB},
-    {order_by => {-desc => 'published_at'}, limit => PER_PAGE, offset => PER_PAGE * $page}
+    {order_by => $self->_map_cat_sort($sort), limit => PER_PAGE, offset => PER_PAGE * $page}
   );
 
   my %cat;
@@ -102,7 +131,7 @@ async sub load_p($self, $id, $page = 0) {
 
   die 'not found' unless %cat;
 
-  @cat{qw(grid_posts list_posts page)} = (\@grid_posts, \@list_posts, $page);
+  @cat{qw(grid_posts list_posts page sort)} = (\@grid_posts, \@list_posts, $page, $sort);
 
   \%cat;
 }

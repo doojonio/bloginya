@@ -97,7 +97,9 @@ export class PostViewComponent {
   }
 
   getCategoryLink(post: ReadPostResponse) {
-    return post.category_name ? post.category_name : '/c/' + post.category_id;
+    return '/' + ( post.category_name
+      ? post.category_name
+      : 'c/' + post.category_id );
   }
 
   tagClicked(tag: string) {

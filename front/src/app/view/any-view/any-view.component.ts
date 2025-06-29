@@ -10,7 +10,11 @@ import {
   ItemShortnameResponse,
   ShortnamesService,
 } from '../../shortnames.service';
-import { Category, CategoryComponent } from '../category/category.component';
+import {
+  Category,
+  CategoryComponent,
+  SortBy,
+} from '../category/category.component';
 import { PostViewComponent } from '../post-view/post-view.component';
 
 @Component({
@@ -31,6 +35,7 @@ export class AnyViewComponent {
 
   // input for category only
   page = input<number>();
+  sort = input<SortBy>(SortBy.LATEST);
 
   shortname$ = this.route.paramMap.pipe(
     map((params) => {

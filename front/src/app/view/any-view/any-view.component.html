@@ -3,7 +3,11 @@
 } @else if (item.type == "post") {
 <app-post-view [post]="toPost(item)"></app-post-view>
 } @else if (item.type == "category") {
-<app-category [cat]="toCategory(item)" [page]="page()"></app-category>
+<app-category
+  [cat]="toCategory(item)"
+  [page]="page()"
+  [sort]="sort()"
+></app-category>
 } } @else {
 <mat-spinner></mat-spinner>
 }

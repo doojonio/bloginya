@@ -4,7 +4,25 @@
 </div>
 
 <div class="content">
-  <div class="sorts"></div>
+  <div class="sorts">
+    <button matIconButton [matMenuTriggerFor]="sortMenu">
+      <mat-icon>sort</mat-icon>
+    </button>
+    <mat-menu #sortMenu>
+      <button mat-menu-item (click)="changeSort(SortBy.POPULAR)">
+        <mat-icon>1k_plus</mat-icon>
+        Popular
+      </button>
+      <button mat-menu-item (click)="changeSort(SortBy.NEWEST)">
+        <mat-icon>today</mat-icon>
+        Newest
+      </button>
+      <button mat-menu-item (click)="changeSort(SortBy.LATEST)">
+        <mat-icon>calendar_today</mat-icon>
+        Latest
+      </button>
+    </mat-menu>
+  </div>
 
   <app-post-list-grid-titles
     [posts]="cat.grid_posts"
