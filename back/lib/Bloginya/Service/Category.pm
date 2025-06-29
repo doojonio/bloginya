@@ -76,13 +76,15 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
   my $res = await $self->db->select_p(
     [
       \'categories c',
+      [-left => \'shortnames csn', 'c.id'          => 'csn.category_id'],
       [-left => \'posts p',        'p.category_id' => 'c.id'],
       [-left => \'shortnames psn', 'p.id'          => 'psn.post_id'],
       [-left => \'uploads upre',   'p.picture_pre' => 'upre.id'],
     ],
     [
-      ['c.title', 'category_title'],
-      ['c.id',    'category_id'],
+      ['c.title',  'category_title'],
+      ['c.id',     'category_id'],
+      ['csn.name', 'category_name'],
       \[
         '(select count(*) from posts where category_id = c.id and status = (?)) as category_posts_num',
         POST_STATUS_PUB
@@ -107,7 +109,7 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
   my %cat;
   my (@grid_posts, @list_posts);
   for my $row ($res->hashes->@*) {
-    @cat{qw(title posts_num id)} = @{$row}{qw(category_title category_posts_num category_id)}
+    @cat{qw(title posts_num id name)} = @{$row}{qw(category_title category_posts_num category_id category_name)}
       unless defined $cat{category_id};
 
     if (@grid_posts < GRID_COUNT) {

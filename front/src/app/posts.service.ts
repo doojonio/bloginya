@@ -186,6 +186,7 @@ export interface AddCategoryResponse {
 
 export interface ReadPostResponse {
   id: string;
+  name: string | null;
   title: string;
   document: any;
   description: string;
