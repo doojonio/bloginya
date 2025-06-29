@@ -28,6 +28,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./back
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           push: true
           tags: cr.selcloud.ru/registry-12/bloginya_back:latest
 
