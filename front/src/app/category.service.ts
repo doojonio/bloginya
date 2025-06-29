@@ -7,7 +7,9 @@ import { Category } from './view/category/category.component';
 })
 export class CategoryService {
   constructor(private readonly http: HttpClient) {}
-  loadCategory(id: string) {
-    return this.http.get<Category>('/api/categories/load', { params: { id } });
+  loadCategory(id: string, page?: number) {
+    return this.http.get<Category>('/api/categories/load', {
+      params: { id, page: page || 0 },
+    });
   }
 }

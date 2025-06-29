@@ -1,3 +1,4 @@
+@use "@angular/material" as mat;
 .title-container {
   display: flex;
   justify-content: center;
@@ -12,4 +13,9 @@
 }
 .content {
   padding: 0 1rem;
+}
+
+
+.pagin {
+  margin-top: 2rem;
 }

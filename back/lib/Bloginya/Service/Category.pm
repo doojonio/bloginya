@@ -53,9 +53,18 @@ async sub load_p($self, $id, $page = 0) {
       [-left => \'uploads upre',   'p.picture_pre' => 'upre.id'],
     ],
     [
-      ['c.title', 'category_title'], ['c.id', 'category_id'],
-      \['(select count(*) / (?) from posts where category_id = c.id) as category_pages', PER_PAGE],
-      [medium_variant('upre'), 'picture_pre'], 'p.title', 'psn.name', 'p.id', 'p.description', \'(
+      ['c.title', 'category_title'],
+      ['c.id',    'category_id'],
+      \[
+        '(select count(*) from posts where category_id = c.id and status = (?)) as category_posts_num',
+        POST_STATUS_PUB
+      ],
+      [medium_variant('upre'), 'picture_pre'],
+      'p.title',
+      'psn.name',
+      'p.id',
+      'p.description',
+      \'(
         select
           coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
         from post_tags pt join tags t on t.id = pt.tag_id
@@ -69,7 +78,8 @@ async sub load_p($self, $id, $page = 0) {
   my %cat;
   my (@grid_posts, @list_posts);
   for my $row ($res->hashes->@*) {
-    @cat{qw(title pages id)} = @{$row}{qw(category_title category_pages category_id)} unless defined $cat{category_id};
+    @cat{qw(title posts_num id)} = @{$row}{qw(category_title category_posts_num category_id)}
+      unless defined $cat{category_id};
 
     if (@grid_posts < GRID_COUNT) {
 

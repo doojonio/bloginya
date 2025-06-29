@@ -16,6 +16,17 @@
     [divider]="false"
     [posts]="cat.list_posts"
   ></app-post-list-med>
+  } @if (cat.posts_num > 23) {
+  <div class="pagin">
+    <mat-paginator
+      (page)="onPageChange($event)"
+      pageSize="23"
+      [pageIndex]="page()"
+      [length]="cat.posts_num"
+      [showFirstLastButtons]="true"
+      [hidePageSize]="true"
+    ></mat-paginator>
+  </div>
   }
 </div>
 
