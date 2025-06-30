@@ -9,17 +9,17 @@
       <mat-icon>sort</mat-icon>
     </button>
     <mat-menu #sortMenu>
-      <button mat-menu-item (click)="changeSort(SortBy.POPULAR)">
+      <button i18n mat-menu-item (click)="changeSort(SortBy.POPULAR)">
         <mat-icon>1k_plus</mat-icon>
         Popular
       </button>
-      <button mat-menu-item (click)="changeSort(SortBy.NEWEST)">
+      <button i18n mat-menu-item (click)="changeSort(SortBy.NEWEST)">
         <mat-icon>today</mat-icon>
         Newest
       </button>
-      <button mat-menu-item (click)="changeSort(SortBy.LATEST)">
+      <button i18n mat-menu-item (click)="changeSort(SortBy.OLDEST)">
         <mat-icon>calendar_today</mat-icon>
-        Latest
+        Oldest
       </button>
     </mat-menu>
   </div>

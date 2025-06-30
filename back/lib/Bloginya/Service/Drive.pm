@@ -67,7 +67,11 @@ async sub put($self, $file_path, $extname) {
 
 sub _generate_diff_sizes($self, $file_path, $dir) {
   my $im = $self->im;
-  $im->Read($file_path);
+
+  # By appending "[0]", we instruct Image::Magick to read only the first frame.
+  # This is crucial for handling animated GIFs without loading all frames into
+  # memory, which prevents Out-Of-Memory (OOM) errors.
+  $im->Read($file_path . '[0]');
 
   my ($orig_width, $orig_height) = $im->Get('width', 'height');
   my $reduce_width = $orig_width > $orig_height;

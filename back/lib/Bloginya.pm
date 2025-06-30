@@ -37,8 +37,8 @@ sub startup ($self) {
   $self->exception_format('json');    # Enable JSON format for exceptions
 
 
-  # for files 50mb
-  # $self->max_request_size(5e+7);
+  # for files 100mb
+  $self->max_request_size(100_000_000);
 
   $self->_setup_routes;
   $self->_setup_commands;

@@ -9,7 +9,7 @@ export class SeoService {
   private readonly titleService = inject(Title);
 
   private readonly SITE = 'https://hpotato.io/';
-  private readonly SITE_NAME = 'Polyine';
+  private readonly SITE_NAME = 'POLYINE';
   private readonly DOMAIN = 'hpotato.io';
   private readonly DEFAULT_PRE = this.SITE + 'assets/images/wp_footer.webp';
   private readonly DESCRIPTION = 'I Learn Languages!';
@@ -81,7 +81,7 @@ export class SeoService {
     this.apply({
       tabTitle: this.SITE_NAME + ' | ' + cat.title,
       title: cat.title,
-      description: '',
+      description: `Browse posts in the ${cat.title} category.`,
       type: 'website',
       url: this.SITE + (cat.name ? cat.name : 'c/' + cat.id),
       image: this.DEFAULT_PRE,

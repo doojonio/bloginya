@@ -29,7 +29,7 @@ export class CategoryComponent {
   page = input<number>();
   catId = input<string>();
 
-  sort = input(SortBy.LATEST);
+  sort = input(SortBy.OLDEST);
 
   private readonly router = inject(Router);
   private readonly catService = inject(CategoryService);
@@ -98,7 +98,7 @@ export interface CategoryPost {
 }
 
 export enum SortBy {
-  LATEST = 'published_at',
+  OLDEST = 'published_at',
   NEWEST = '!published_at',
   POPULAR = '!popularity',
 }

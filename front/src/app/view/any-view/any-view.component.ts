@@ -35,7 +35,7 @@ export class AnyViewComponent {
 
   // input for category only
   page = input<number>();
-  sort = input<SortBy>(SortBy.LATEST);
+  sort = input<SortBy>(SortBy.OLDEST);
 
   shortname$ = this.route.paramMap.pipe(
     map((params) => {

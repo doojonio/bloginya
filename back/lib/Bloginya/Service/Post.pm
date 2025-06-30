@@ -231,7 +231,8 @@ async sub update_draft_p ($self, $post_id, $fields) {
 }
 
 async sub apply_changes_p ($self, $post_id, $meta) {
-  die "no rights" unless (await $self->se_policy->can_update_post_p($post_id));
+  my $old = (await $self->db->select_p('posts', ['user_id', 'status'], {id => $post_id}))->hashes->first;
+  die "no rights" unless $self->se_policy->can_update_post($old);
 
   my %post_values = map { $_ => $meta->{$_} } grep {
     my $a = $_;
@@ -241,8 +242,8 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   die "missing category" if $post_values{status} eq POST_STATUS_PUB && !$post_values{category_id};
 
   $post_values{modified_at}  = \'now()';
-  $post_values{deleted_at}   = \'now()' if $post_values{status} eq POST_STATUS_DEL;
-  $post_values{published_at} = \'now()' if $post_values{status} eq POST_STATUS_PUB;
+  $post_values{deleted_at}   = \'now()' if $old->{status} ne POST_STATUS_DEL && $post_values{status} eq POST_STATUS_DEL;
+  $post_values{published_at} = \'now()' if $old->{status} ne POST_STATUS_PUB && $post_values{status} eq POST_STATUS_PUB;
 
   my sub _fdraft ($n) {
     \["(select $n from post_drafts where post_id = (?))", $post_id];
