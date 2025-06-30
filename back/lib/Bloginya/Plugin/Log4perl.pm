@@ -53,6 +53,7 @@ package Bloginya::Plugin::Log4perl::LogProxy {
   # The logger for Mojolicious core messages.
   has handle => sub { Log::Log4perl->get_logger('mojolicious') };
 
+  sub trace { shift->handle->trace(@_) }
   sub debug { shift->handle->debug(@_) }
   sub info  { shift->handle->info(@_) }
   sub warn  { shift->handle->warn(@_) }
@@ -65,6 +66,7 @@ package Bloginya::Plugin::Log4perl::LogProxy {
     # Level setting should be done in the log4perl.conf file.
     # This method returns the effective level from Log4perl for inspection.
     my $logger = $self->handle;
+    return 'trace' if $logger->is_trace;
     return 'debug' if $logger->is_debug;
     return 'info'  if $logger->is_info;
     return 'warn'  if $logger->is_warn;
