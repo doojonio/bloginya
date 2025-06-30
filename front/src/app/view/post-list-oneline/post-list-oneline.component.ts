@@ -1,9 +1,10 @@
 import { UpperCasePipe } from '@angular/common';
 import {
-  AfterViewInit,
   Component,
+  effect,
   ElementRef,
   input,
+  signal,
   viewChildren,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -14,20 +15,25 @@ import { RouterModule } from '@angular/router';
   templateUrl: './post-list-oneline.component.html',
   styleUrl: './post-list-oneline.component.scss',
 })
-export class PostListOnelineComponent implements AfterViewInit {
-  maxTitleHeight = 0;
+export class PostListOnelineComponent {
   title = input<string>();
   posts = input.required<PostOneLinePost[]>();
   titles = viewChildren<ElementRef>('postTitle'); // Signal<ReadonlyArray<ElementRef>>
 
-  ngAfterViewInit() {
-    // this.maxTitleHeight = Math.max(this.maxTitleHeight, element.scrollHeight);
-    this.maxTitleHeight = Math.max(
-      ...this.titles().map((e) => {
-        return e.nativeElement.scrollHeight;
-      })
-    );
-  }
+  minHeight = signal('0px');
+
+  titlesEffect = effect(() => {
+    const titles = this.titles();
+    if (titles.length && this.minHeight() == '0px') {
+      this.minHeight.set(
+        Math.max(
+          ...titles.map((e) => {
+            return e.nativeElement.scrollHeight;
+          })
+        ) + 'px'
+      );
+    }
+  });
 
   getPostPreStyle(post: PostOneLinePost) {
     return post.picture_pre

@@ -1,4 +1,5 @@
 @if (title(); as title) {
+
 <p class="title">{{ title }}</p>
 }
 <div class="posts noscrollbar">
@@ -11,11 +12,7 @@
     >
     </a>
     <div class="post-descr">
-      <p
-        class="post-title"
-        #postTitle
-        [style.minHeight]="maxTitleHeight >= 65 ? '64px' : ''"
-      >
+      <p #postTitle class="post-title" [style.minHeight]="minHeight()">
         <a routerLink="/{{ item.name ? item.name : 'p/' + item.id }}">
           {{ item.title }}
         </a>
