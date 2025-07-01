@@ -124,7 +124,8 @@
   }
 }
 
-mat-divider {
+mat-divider,
+mat-progress-bar {
   margin: 2rem 0;
 
   @include m.for-size(handset) {
