@@ -1,6 +1,10 @@
-<mat-grid-list gutterSize="0.5rem" cols="3" rowHeight="10rem">
-  @for (item of ( posts() ) ; track item.id; let idx = $index; let count = $count )
-  {
+<mat-grid-list
+  [gutterSize]="(isHandset$ | async) ? '0.5rem' : '2rem'"
+  cols="3"
+  rowHeight="10rem"
+>
+  @for (item of ( posts() ) ; track item.id; let idx = $index; let count =
+  $count ) {
   <a routerLink="/{{ item.name ? item.name : 'p/' + item.id }}">
     <!-- <mat-grid-tile
       class="image"

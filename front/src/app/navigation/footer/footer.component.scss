@@ -1,6 +1,10 @@
-:host {
-  display: flex;
-  flex-direction: column;
+@use "../../../mixins" as mixs;
+
+@include mixs.for-size("desktop") {
+  .container {
+    max-width: var(--post-max-width);
+    margin: auto;
+  }
 }
 
 .image {

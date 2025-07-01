@@ -1,4 +1,5 @@
 @use "@angular/material" as mat;
+@use '../../../mixins' as mixs;
 
 .title-image {
   height: 18rem;
@@ -23,6 +24,13 @@
   margin: 2rem 0;
   text-wrap: wrap;
   text-align: center;
+}
+
+@include mixs.for-size('desktop') {
+  .container {
+    margin: auto;
+    max-width: var(--post-max-width);
+  }
 }
 
 .content-container {
