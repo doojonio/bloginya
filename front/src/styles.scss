@@ -58,4 +58,15 @@ body {
   }
 }
 
-// Customize the entire app. Change :root to your selector if you want to scope the styles.
+app-category {
+  .mat-mdc-paginator-range-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+
+    .mat-mdc-paginator-range-label {
+      text-align: center;
+      flex: 1 1 100%;
+      margin: 0;
+    }
+  }
+}

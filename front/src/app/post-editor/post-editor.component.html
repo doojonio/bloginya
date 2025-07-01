@@ -49,7 +49,11 @@
       </div>
     </div>
   </form>
+  @if (attachmentLoading || wpLoading) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  } @else {
   <mat-divider></mat-divider>
+  }
   <form class="meta-editor" [formGroup]="meta">
     <div class="opts">
       <div class="opt-row">

@@ -15,13 +15,12 @@ sub register {
   $app->helper(
     'pg' => sub ($c) {
       state $pg = Mojo::Pg->new($c->config->{db}{pg_dsn});
-      $pg->on(
-        'connection',
-        sub {
-          $c->log->trace('New pg connection');
-        }
-      );
-      return $pg;
+    }
+  );
+  $app->pg->on(
+    'connection',
+    sub {
+      $app->log->trace('New pg connection');
     }
   );
   $app->helper('mig' => sub ($c) { $c->pg->migrations->from_file($c->app->home->child(qw(db pgmig.sql))) });

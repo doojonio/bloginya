@@ -80,6 +80,7 @@ import {
     MatInputModule,
     MatSelectModule,
     MatSlideToggleModule,
+    MatProgressBarModule,
   ],
   templateUrl: './post-editor.component.html',
   styleUrl: './post-editor.component.scss',
@@ -299,6 +300,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     this.editor?.destroy();
   }
 
+  wpLoading = false;
   onWpSelected(event: Event) {
     const postId = this.postId();
 
@@ -315,9 +317,14 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       return;
     }
     const file = files[0];
+
+    this.wpLoading = true;
     this.drive
       .putFile(postId, files[0])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        finalize(() => (this.wpLoading = false)),
+        takeUntil(this.destroy$)
+      )
       .subscribe((resp) =>
         this.draft.get('picture_wp')!.setValue(resp.large || resp.original)
       );
