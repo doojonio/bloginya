@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { Router } from '@angular/router';
-import { combineLatest, filter, switchMap } from 'rxjs';
+import { combineLatest, filter, switchMap, tap } from 'rxjs';
 import { CategoryService } from '../../category.service';
 import { PostMed } from '../../posts.service';
 import { SeoService } from '../../seo.service';
@@ -26,9 +26,9 @@ import { PostListMedComponent } from '../post-list-med/post-list-med.component';
   styleUrl: './category.component.scss',
 })
 export class CategoryComponent {
-  page = input<number>();
+  page = input<number>(0);
   catId = input<string>();
-  sort = input(SortBy.OLDEST);
+  sort = input(SortBy.NEWEST);
 
   private readonly router = inject(Router);
   private readonly catService = inject(CategoryService);

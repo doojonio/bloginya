@@ -15,6 +15,7 @@ export const routes: Routes = [
   },
   { path: 'p/:postId', component: PostViewComponent },
   { path: 'c/:catId', component: CategoryComponent },
+  { path: 'not-found', component: PageNotFoundComponent },
   { path: ':shortname', component: AnyViewComponent },
   {
     path: '**',

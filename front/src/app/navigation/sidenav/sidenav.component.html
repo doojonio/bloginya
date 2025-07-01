@@ -3,5 +3,21 @@
   <a mat-list-item (click)="addDraft()">New</a>
   <a mat-list-item routerLink="/drafts">Drafts</a>
   }
+
+  <h4 class="title" i18n>5 LANGUAGES</h4>
+  <mat-nav-list>
+    <a mat-list-item routerLink="/korean">Korean</a>
+    <a mat-list-item routerLink="/chinese">Chinese</a>
+    <a mat-list-item routerLink="/english">English</a>
+    <a mat-list-item routerLink="/japanese">Japanese</a>
+    <a mat-list-item routerLink="/russian">Russian</a>
+  </mat-nav-list>
+
+  <h4 class="title" i18n>About</h4>
+  <mat-nav-list>
+    <a mat-list-item routerLink="/me">ME</a>
+    <a mat-list-item routerLink="/blog">Blog</a>
+  </mat-nav-list>
+
   <!-- <a mat-list-item routerLink="/collection/{{ item.id }}">{{ item.title }}</a> -->
 </mat-nav-list>

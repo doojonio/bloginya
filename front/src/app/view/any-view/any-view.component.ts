@@ -2,8 +2,8 @@ import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ActivatedRoute } from '@angular/router';
-import { catchError, map, of, switchMap, throwError } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { PageNotFoundComponent } from '../../page-not-found/page-not-found.component';
 import { ReadPostResponse } from '../../posts.service';
 import {
@@ -31,11 +31,12 @@ import { PostViewComponent } from '../post-view/post-view.component';
 })
 export class AnyViewComponent {
   route = inject(ActivatedRoute);
+  router = inject(Router);
   shortnamesService = inject(ShortnamesService);
 
   // input for category only
   page = input<number>();
-  sort = input<SortBy>(SortBy.OLDEST);
+  sort = input<SortBy>(SortBy.NEWEST);
 
   shortname$ = this.route.paramMap.pipe(
     map((params) => {
@@ -43,20 +44,24 @@ export class AnyViewComponent {
       if (name && name.match(/\w{3,}/)) {
         return name;
       } else {
-        throwError(() => 'invalid name');
-        return '';
+        this.router.navigate(['/not-found']);
+        throw 'invalid name';
       }
     })
   );
+
   item$ = this.shortname$.pipe(
-    switchMap((name) => this.shortnamesService.getItemByShortname(name)),
-    catchError((err: HttpErrorResponse) => {
-      if (err.status == 404) {
-        return of({ type: 'not found', content: null });
-      } else {
-        return throwError(() => err);
-      }
-    })
+    switchMap((name) =>
+      this.shortnamesService.getItemByShortname(name).pipe(
+        catchError((err: HttpErrorResponse) => {
+          if (err.status == 404) {
+            return of({ type: 'not found', content: null });
+          } else {
+            throw 'Unknown Error';
+          }
+        })
+      )
+    )
   );
 
   toCategory(item: ItemShortnameResponse) {

@@ -5,7 +5,7 @@
 } @else if (item.type == "category") {
 <app-category
   [cat]="toCategory(item)"
-  [page]="page()"
+  [page]="page() || 0"
   [sort]="sort()"
 ></app-category>
 } } @else {
