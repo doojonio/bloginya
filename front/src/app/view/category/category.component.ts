@@ -3,7 +3,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
 import { CategoryService } from '../../category.service';
@@ -28,7 +28,6 @@ import { PostListMedComponent } from '../post-list-med/post-list-med.component';
 export class CategoryComponent {
   page = input<number>();
   catId = input<string>();
-
   sort = input(SortBy.OLDEST);
 
   private readonly router = inject(Router);
@@ -65,9 +64,9 @@ export class CategoryComponent {
     }
   });
 
-  onPageChange(event: PageEvent) {
+  onPageChange(page: number) {
     this.router.navigate([], {
-      queryParams: { page: event.pageIndex || undefined },
+      queryParams: { page: page || undefined },
     });
   }
 

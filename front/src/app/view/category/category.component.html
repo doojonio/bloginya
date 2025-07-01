@@ -37,7 +37,7 @@
   } @if (cat.posts_num > 23) {
   <div class="pagin">
     <mat-paginator
-      (page)="onPageChange($event)"
+      (page)="onPageChange($event.pageIndex)"
       [pageSize]="23"
       [pageIndex]="page()"
       [length]="cat.posts_num"
