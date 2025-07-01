@@ -49,7 +49,7 @@
     width: 100%;
   }
   @include m.for-size(desktop) {
-    width: 57rem;
+    max-width: var(--post-max-width);
   }
 }
 

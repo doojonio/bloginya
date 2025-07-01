@@ -13,6 +13,8 @@
   <mat-sidenav-content #content>
     <!-- Add Content Here -->
     <ng-content></ng-content>
+    @if (isHandset()) {
     <app-footer></app-footer>
+    }
   </mat-sidenav-content>
 </mat-sidenav-container>
