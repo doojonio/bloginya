@@ -4,10 +4,12 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { PostEditorComponent } from './post-editor/post-editor.component';
 import { AnyViewComponent } from './view/any-view/any-view.component';
 import { CategoryComponent } from './view/category/category.component';
+import { DraftsComponent } from './view/drafts/drafts.component';
 import { PostViewComponent } from './view/post-view/post-view.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'POLYINE' },
+  { path: 'drafts', component: DraftsComponent, title: 'POLYINE | Drafts' },
   {
     path: 'e/:postId',
     component: PostEditorComponent,

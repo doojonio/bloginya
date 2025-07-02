@@ -15,7 +15,11 @@ import {
   providedIn: 'root',
 })
 export class PostsService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
+
+  getDrafts() {
+    return this.http.get<DraftsResponse>('/api/posts/drafts');
+  }
 
   private updateHome$ = new BehaviorSubject<boolean>(true);
   home$ = this.updateHome$.pipe(
@@ -291,4 +295,18 @@ export interface PostMed {
   picture_pre: string | null;
   description: string | null;
   tags: string[];
+}
+
+export interface DraftsResponse {
+  drafts: Draft[];
+  continue_edit: Draft[];
+}
+
+export interface Draft {
+  id: string;
+  name: null;
+  picture_pre: string | null;
+  title: string;
+  created_date: string;
+  draft_id: string | null;
 }
