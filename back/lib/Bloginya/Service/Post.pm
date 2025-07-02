@@ -416,7 +416,7 @@ async sub list_new_posts_p($self, $limit = 8) {
       'p.title', 'p.created_at', 'sn.name'
     ],
     {'status' => POST_STATUS_PUB},
-    {order_by => [{-desc => 'p.published_at'}], limit => $limit}
+    {order_by => \'p.published_at desc nulls last', limit => $limit}
   );
 
   return $res->hashes;
