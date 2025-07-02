@@ -21,6 +21,36 @@ has 'se_prose_mirror';
 has 'se_drive';
 has 'se_language';
 
+async sub get_drafts_p ($self) {
+  die 'not authorized' unless my $u = $self->current_user;
+
+  my $db  = $self->db;
+  my $res = await $db->select_p(
+    [\'posts p', [-left => \'post_drafts d', 'd.post_id' => 'p.id']],
+    [
+      'p.id',
+      [\'coalesce(p.picture_pre, d.picture_pre) ', 'picture_pre'],
+      [\'coalesce(d.title, p.title)',              'title'],
+      'p.created_at', ['d.post_id' => 'draft_id'], 'p.status',
+    ],
+    {'p.user_id' => $u->{id}, -or => {'d.post_id' => {'!=', undef}, 'p.status' => POST_STATUS_DRAFT}},
+    {order_by    => {-desc => 'created_at'}}
+  );
+
+  my (@continue_edit, @drafts);
+
+  for my $post ($res->hashes->@*) {
+    if ($post->{status} eq POST_STATUS_DRAFT) {
+      push @drafts, $post;
+    }
+    else {
+      push @continue_edit, $post;
+    }
+  }
+
+  +{continue_edit => \@continue_edit, drafts => \@drafts};
+}
+
 
 async sub read_p($self, $post_id) {
   die 'no rights to read post' unless await $self->se_policy->can_read_post_p($post_id);
@@ -219,6 +249,16 @@ async sub update_draft_p ($self, $post_id, $fields) {
     my $a = $_;
     any { $_ eq $a } qw(title document picture_wp picture_pre)
   } keys %$fields;
+
+
+  my $it_img_ids = $self->se_prose_mirror->it_img_ids;
+  my $iterator   = igrep { is_image($_) } $self->se_prose_mirror->iterate($$fields{document});
+  while (my $el = <$iterator>) {
+    $it_img_ids->($el);
+  }
+  my $img_ids = $it_img_ids->();
+  my ($picture_pre) = @$img_ids;
+  $fields{picture_pre} = $picture_pre;
 
   # $fields{title} =~ s/(\s)\s+/\1/;
   $fields{document} = {-json => $fields{document}} if exists $fields{document};

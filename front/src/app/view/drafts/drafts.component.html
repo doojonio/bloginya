@@ -1,0 +1,17 @@
+<div>
+  @if ((continueEdit$ | async); as posts) {
+  <h1>Continue Editing</h1>
+  <app-post-list-grid-titles
+    [posts]="posts"
+    [forEdit]="true"
+  ></app-post-list-grid-titles>
+
+  }
+  @if ((drafts$ | async); as posts) {
+  <h1>Drafts</h1>
+  <app-post-list-grid-titles
+    [posts]="posts"
+    [forEdit]="true"
+  ></app-post-list-grid-titles>
+  }
+</div>

@@ -22,3 +22,11 @@ export class DriveService {
     return this.http.post<PutFileResponse>('/api/drive', formData);
   }
 }
+
+export function pic(driveId: string) {
+  const parts = driveId.split('/');
+  if (parts.length < 5) {
+    throw 'drive id';
+  }
+  return parts.slice(0, 5).join('/');
+}

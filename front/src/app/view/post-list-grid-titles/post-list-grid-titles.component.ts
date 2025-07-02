@@ -19,14 +19,22 @@ import { AppService } from '../../app.service';
   styleUrl: './post-list-grid-titles.component.scss',
 })
 export class PostListGridTitlesComponent {
+  getLink(item: Post) {
+    if (this.forEdit()) {
+      return 'e/' + item.id;
+    }
+
+    return item.name ? item.name : 'p/' + item.id;
+  }
   posts = input.required<Post[]>();
+  forEdit = input(false);
 
   appService = inject(AppService);
   isHandset$ = this.appService.isHandset();
 }
 export interface Post {
-  picture_pre: string;
+  picture_pre: string | null;
   title: string;
   id: string;
-  name: string;
+  name: string | null;
 }
