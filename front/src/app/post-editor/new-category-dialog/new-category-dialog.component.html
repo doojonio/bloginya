@@ -1,7 +1,6 @@
 <div [formGroup]="form">
   <h2 i18n mat-dialog-title>New Category</h2>
   <mat-dialog-content>
-    <p i18n>What's the category title?</p>
     <mat-form-field>
       <mat-label>Title</mat-label>
       <input matInput formControlName="title" />
@@ -20,6 +19,38 @@
     <mat-form-field>
       <mat-label>Description</mat-label>
       <textarea matInput formControlName="description"></textarea>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label i18n>Shortname</mat-label>
+      <input matInput formControlName="shortname" placeholder="Shortname" />
+      @if (this.form.getError('minlength', 'shortname')) {
+      <mat-error i18n>Too short</mat-error>
+      } @else if (this.form.getError('maxlength', 'shortname')) {
+      <mat-error i18n>Too long</mat-error>
+      } @else if (this.form.getError('pattern', 'shortname')) {
+      <mat-error i18n>Invalid characters</mat-error>
+      } @else if (this.form.getError('taken', 'shortname')) {
+      <mat-error i18n>This shortname is already taken</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Tags</mat-label>
+      <mat-chip-grid #chipGrid formControlName="tags">
+        @for (tag of tags(); track tag) {
+        <mat-chip-row (removed)="removeTag(tag)">
+          {{ tag }}
+          <button matChipRemove>
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+        }
+        <input
+          placeholder="New tag..."
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="addTag($event)"
+        />
+      </mat-chip-grid>
     </mat-form-field>
   </mat-dialog-content>
   <mat-dialog-actions>

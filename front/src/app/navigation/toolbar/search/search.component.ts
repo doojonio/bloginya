@@ -27,8 +27,6 @@ export interface User {
   styleUrl: './search.component.scss',
 })
 export class SearchComponent {
-  version = input<'desktop' | 'handset'>('desktop');
-
   myControl = new FormControl<string | User>('');
   options: User[] = [{ name: 'Mary' }, { name: 'Shelley' }, { name: 'Igor' }];
   filteredOptions!: Observable<User[]>;

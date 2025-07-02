@@ -14,9 +14,11 @@ async sub list_home ($self) {
   my $se_post = $self->service('post');
   my $se_cat  = $self->service('category');
 
+  my $category_tag = $self->i(category_tag => 'str[2,16]');
+
   my $new_posts = await $se_post->list_new_posts_p();
 
-  my $cats = await $se_cat->list_site_priority_categories_p;
+  my $cats = await $se_cat->list_site_categories_by_tag_p($category_tag);
   my %top_cat;
   if (@$cats) {
     %top_cat = $cats->[0]->%*;

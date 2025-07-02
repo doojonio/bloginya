@@ -9,6 +9,8 @@ use Bloginya::Model::Post   qw(POST_STATUS_PUB);
 has 'db';
 has 'redis';
 has 'current_user';
+has 'se_tags';
+has 'se_shortname';
 
 async sub create_p ($self, $vals) {
   my %fields = map { $_ => $vals->{$_} } grep {
@@ -18,7 +20,19 @@ async sub create_p ($self, $vals) {
 
   $fields{user_id} = $self->current_user->{id};
 
+  my $tx = $self->db->begin;
   my $id = (await $self->db->insert_p('categories', \%fields, {returning => ['id']}))->hashes->first->{id};
+
+  if (my $tags = $vals->{tags}) {
+    await $self->se_tags->apply_tags_cat_p($id, $tags) if @$tags;
+  }
+
+  if (my $sn = $vals->{shortname}) {
+    await $self->se_shortname->set_shortname_for_category($id, $sn);
+  }
+
+  $tx->commit;
+
   return $id;
 }
 
@@ -30,10 +44,17 @@ async sub list_all_categories_p($self) {
   return (await $self->db->select_p('categories', [qw(id title)]))->hashes;
 }
 
-async sub list_site_priority_categories_p($self) {
+async sub list_site_categories_by_tag_p($self, $tag) {
   my $res = await $self->db->select_p(
-    [\'categories c', [-left => \'shortnames sn', 'c.id' => 'sn.category_id']], ['c.id', 'c.title', 'sn.name'],
-    {parent_id => undef}, {order_by => [\'priority asc nulls last', {-asc => 'created_at'}]}
+    [\'categories c', [-left => \'shortnames sn', 'c.id' => 'sn.category_id']],
+    ['c.id', 'c.title', 'sn.name'],
+    {
+      parent_id => undef,
+      'c.id'    => {
+        -in => \['(select category_id from category_tags ct join tags t on t.id = ct.tag_id where t.name = (?))', $tag]
+      }
+    },
+    {order_by => [\'priority asc nulls last', {-desc => 'created_at'}]}
 
   );
 

@@ -442,8 +442,8 @@ async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
       )' => 'tags'
       ],
     ],
-    {'p.category_id' => $category_id,              'status' => POST_STATUS_PUB},
-    {order_by        => {-desc => 'p.created_at'}, limit    => $limit}
+    {'p.category_id' => $category_id,                    'status' => POST_STATUS_PUB},
+    {order_by        => \'p.created_at desc nulls last', limit    => $limit}
   );
 
   return $res->hashes;

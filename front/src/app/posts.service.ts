@@ -23,7 +23,11 @@ export class PostsService {
 
   private updateHome$ = new BehaviorSubject<boolean>(true);
   home$ = this.updateHome$.pipe(
-    switchMap((_) => this.http.get<HomeResponse>('/api/posts/home')),
+    switchMap((_) =>
+      this.http.get<HomeResponse>('/api/posts/home', {
+        params: { category_tag: 'langs' },
+      })
+    ),
     shareReplay(1)
   );
 
@@ -181,6 +185,8 @@ export interface AddCategoryPayload {
   description: string | null;
   parent_id?: string | null;
   priority?: number | null;
+  shortname: string | null;
+  tags: string[];
 }
 
 export interface AddCategoryResponse {
