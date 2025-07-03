@@ -20,6 +20,7 @@ has 'se_policy';
 has 'se_prose_mirror';
 has 'se_drive';
 has 'se_language';
+has 'log';
 
 async sub get_drafts_p ($self) {
   die 'not authorized' unless my $u = $self->current_user;
@@ -53,11 +54,13 @@ async sub get_drafts_p ($self) {
 
 
 async sub read_p($self, $post_id) {
+  $self->log->debug("Attempting to read post $post_id");
   die 'no rights to read post' unless await $self->se_policy->can_read_post_p($post_id);
+  $self->log->trace("Policy check passed for reading post $post_id");
 
+  # Define table joins for the query
   my @tables = (
     \'posts p',
-    [-left => \'post_tags pt',   'p.id'          => 'pt.post_id'],
     [-left => \'categories c',   'p.category_id' => 'c.id'],
     [-left => \'shortnames psn', 'p.id'          => 'psn.post_id'],
     [-left => \'shortnames csn', 'c.id'          => 'csn.category_id'],
@@ -65,52 +68,66 @@ async sub read_p($self, $post_id) {
     [-left => \'uploads upre',   'upre.id'       => 'p.picture_pre'],
   );
 
+  # Define columns to select
   my @select = (
+
+    # --- Core Post Fields ---
     qw(p.id p.title p.document p.description p.enable_likes p.enable_comments psn.name),
-    [\'coalesce(p.published_at, now())', 'date'],
-    [\"p.meta->>'pics'",                 'pics'],
-    [\"p.meta->>'ttr'",                  'ttr'],
-    'p.category_id',
-    ['c.title'  => 'category_title'],
-    ['csn.name' => 'category_name'],
+    [\'coalesce(p.published_at, p.created_at)', 'date'],    # Use created_at as fallback for date
+    [\"p.meta->>'ttr'", 'ttr'], [\"p.meta->>'pics'", 'pics'],
+
+    # --- Category Fields ---
+    'p.category_id', ['c.title' => 'category_title'], ['csn.name' => 'category_name'],
+
+    # --- Picture/Upload Fields ---
+    [large_variant('uwp') => 'picture_wp'], [medium_variant('upre') => 'picture_pre'],
+
+    # --- Aggregated Data (Subqueries) ---
     [
       \'(
-        select
-          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        select coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
         from post_tags pt join tags t on t.id = pt.tag_id
         where pt.post_id = p.id
       )' => 'tags'
     ],
-    [\'( select count(com.id) from comments com where com.post_id = p.id )'        => 'comments'],
-    [\'( select count(lik.user_id) from post_likes lik where lik.post_id = p.id )' => 'likes'],
-    [large_variant('uwp')                                                          => 'picture_wp'],
-    [medium_variant('upre')                                                        => 'picture_pre'],
+    [\'(select count(*) from comments where post_id = p.id)'   => 'comments'],
+    [\'(select count(*) from post_likes where post_id = p.id)' => 'likes'],
   );
 
-  if (my $user = $self->current_user) {
+  my $user = $self->current_user;
+  if ($user) {
+    $self->log->trace("User " . $user->{id} . " is reading post, adding user-specific fields.");
 
-    # current_like
+    # Check if the current user has liked this post
     push @select,
-      \[
-      '( select exists(select 1 from post_likes where post_id = (?) and user_id = (?)) ) as liked ',
-      $post_id, $user->{id}
-      ];
+      \['(select exists(select 1 from post_likes where post_id = ? and user_id = ?)) as liked', $post_id, $user->{id}];
 
-    # stats
+    # Get view stats (only for logged-in users, presumably authors/admins)
     push @select,
       [\'(select sum(ps.medium_views + ps.long_views) from post_stats ps where ps.post_id = p.id)' => 'views'];
+  }
+  else {
+    $self->log->trace("Visitor is reading post, no user-specific fields added.");
   }
 
   my $p = (await $self->db->select_p(\@tables, \@select, {'p.id' => $post_id},))->expand->hashes->first;
 
-  if (!$self->current_user) {
-    $p->{'liked'} = 0;
+  unless ($p) {
+    $self->log->warn("Post with id $post_id not found after policy check.");
+
+    # The policy check should prevent this, but it's good practice to handle it.
+    die "post not found";
   }
+
+  # For visitors, the 'liked' field is not selected, so it will be undef.
+  # We explicitly set it to a false value for API consistency.
+  $p->{liked} = 0 unless defined $p->{liked};
 
   $self->_handle_society($p);
 
   # TODO: remove extra info for visitors
 
+  $self->log->info("Successfully read post $post_id: '$p->{title}'");
   return $p;
 }
 
@@ -295,13 +312,8 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   await $self->db->update_p('posts', \%post_values, {id => $post_id});
   await $self->db->delete_p('post_drafts', {post_id => $post_id});
 
-  if (my $tags = $meta->{tags}) {
-    await $self->se_tags->apply_tags_p($post_id, $tags) if @$tags;
-  }
-
-  if (my $sn = $meta->{shortname}) {
-    await $self->se_shortname->set_shortname_for_post($post_id, $sn);
-  }
+  await $self->se_tags->apply_tags_p($post_id, $meta->{tags});
+  await $self->se_shortname->set_shortname_for_post($post_id, $meta->{shortname});
 
   await $self->_update_meta_from_content_p($post_id);
 

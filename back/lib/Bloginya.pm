@@ -26,7 +26,7 @@ sub startup ($self) {
     'Bloginya::Plugin::Service',
     {
       'di_tokens' => [
-        qw(app config current_user),
+        qw(app config current_user log),
         [db    => 'db_lazy',    'Bloginya::ServiceRole::LazyDB'],
         [redis => 'redis_lazy', 'Bloginya::ServiceRole::LazyRedis']
       ]
