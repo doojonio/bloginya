@@ -6,7 +6,7 @@ use experimental 'try';
 async sub update($self) {
   my ($id, $cat) = $self->i(id => 'cool_id', json => 'CategorySavePayload');
 
-  my $id = await $self->service('category')->update_p($id, $cat);
+  await $self->service('category')->update_p($id, $cat);
 
   return $self->render(json => {id => $id, title => $cat->{title}});
 }
