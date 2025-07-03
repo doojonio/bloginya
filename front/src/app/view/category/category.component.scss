@@ -19,6 +19,13 @@
   color: var(--mat-sys-primary);
 
   margin-bottom: 1rem;
+
+  position: relative;
+  button {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
 }
 .content {
   padding: 0 1rem;

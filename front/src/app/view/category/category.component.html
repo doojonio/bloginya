@@ -2,6 +2,13 @@
   @if (cat(); as cat) {
   <div class="title-container">
     <p>{{ cat.title }}</p>
+
+    @if (user$ | async) {
+    <button matIconButton (click)="editCategory()">
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    }
   </div>
 
   <div class="content">

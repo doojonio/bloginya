@@ -3,6 +3,13 @@ use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
 use experimental 'try';
 
+async sub update($self) {
+  my ($id, $cat) = $self->i(id => 'cool_id', json => 'CategorySavePayload');
+
+  my $id = await $self->service('category')->update_p($id, $cat);
+
+  return $self->render(json => {id => $id, title => $cat->{title}});
+}
 async sub save($self) {
   my $cat = $self->i(json => 'CategorySavePayload');
 
@@ -22,6 +29,12 @@ async sub get_by_title($self) {
   else {
     $self->render(json => $cat);
   }
+}
+
+async sub get_for_edit ($self) {
+  my $id  = $self->i('id' => 'cool_id');
+  my $cat = await $self->service('category')->get_for_edit_p($id);
+  return $self->render(json => $cat);
 }
 
 
