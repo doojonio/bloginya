@@ -11,13 +11,16 @@ has 'redis';
 has 'current_user';
 has 'se_tags';
 has 'se_shortname';
+has 'log';
 
 async sub create_p ($self, $vals) {
+  $self->log->debug("Creating new category: '$vals->{title}'");
   my %fields = map { $_ => $vals->{$_} } grep {
     my $a = $_;
     any { $_ eq $a } qw (title parent_id description priority)
   } keys %$vals;
 
+  $self->log->trace("Category fields to insert: " . join(', ', keys %fields));
   $fields{user_id} = $self->current_user->{id};
 
   my $tx = $self->db->begin;
@@ -28,10 +31,12 @@ async sub create_p ($self, $vals) {
 
   $tx->commit;
 
+  $self->log->info("Successfully created category '$vals->{title}' with id $id");
   return $id;
 }
 
 async sub update_p ($self, $id, $vals) {
+  $self->log->debug("Updating category $id with title '$vals->{title}'");
   my %fields = map { $_ => $vals->{$_} } grep {
     my $a = $_;
     any { $_ eq $a } qw (title parent_id description priority)
@@ -44,10 +49,12 @@ async sub update_p ($self, $id, $vals) {
 
   $tx->commit;
 
+  $self->log->info("Successfully updated category $id");
   return $id;
 }
 
 async sub get_for_edit_p ($self, $id) {
+  $self->log->debug("Getting category $id for editing");
   my $cat = (await $self->db->select_p(
     [\'categories c', [-left => \'shortnames csn', 'csn.category_id' => 'c.id']],
     [
@@ -61,18 +68,27 @@ async sub get_for_edit_p ($self, $id) {
     {id => $id},
   ))->hashes->first;
 
+  $self->log->trace($cat ? "Found category '$cat->{title}' for editing" : "Category $id not found for editing");
   return $cat;
 }
 
 async sub get_by_title_p($self, $title) {
-  (await $self->db->select_p('categories', [qw(title id priority description)], {title => $title}))->hashes->first;
+  $self->log->debug("Getting category by title: '$title'");
+  my $cat
+    = (await $self->db->select_p('categories', [qw(title id priority description)], {title => $title}))->hashes->first;
+  $self->log->trace($cat ? "Found category with id $cat->{id}" : "Category with title '$title' not found");
+  return $cat;
 }
 
 async sub list_all_categories_p($self) {
-  return (await $self->db->select_p('categories', [qw(id title)]))->hashes;
+  $self->log->debug("Listing all categories");
+  my $cats = (await $self->db->select_p('categories', [qw(id title)]))->hashes;
+  $self->log->info("Found " . scalar(@$cats) . " categories in total");
+  return $cats;
 }
 
 async sub list_site_categories_by_tag_p($self, $tag) {
+  $self->log->debug("Listing site categories by tag: '$tag'");
   my $res = await $self->db->select_p(
     [\'categories c', [-left => \'shortnames sn', 'c.id' => 'sn.category_id']],
     ['c.id', 'c.title', 'sn.name'],
@@ -86,6 +102,7 @@ async sub list_site_categories_by_tag_p($self, $tag) {
 
   );
 
+  $self->log->info("Found " . $res->rows . " categories for tag '$tag'");
   return $res->hashes;
 }
 
@@ -95,13 +112,16 @@ sub _map_cat_sort($self, $sort) {
     $desc = 1;
   }
 
-  return $desc ? {-desc => substr($sort, 1)} : $sort;
+  my $mapped = $desc ? {-desc => substr($sort, 1)} : $sort;
+  $self->log->trace(qq/Mapped sort parameter "$sort" to / . (ref $mapped ? "hashref" : "'$mapped'"));
+  return $mapped;
 }
 
 async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
   use constant GRID_COUNT => 18;
   use constant LIST_COUNT => 5;
   use constant PER_PAGE   => GRID_COUNT + LIST_COUNT;
+  $self->log->debug("Loading category page for id $id (page: $page, sort: $sort)");
 
   my @add_select;
 
@@ -121,7 +141,10 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
     {id => $id}
   ))->hashes->first;
 
-  die 'not found' unless $cat;
+  unless ($cat) {
+    $self->log->warn("Attempted to load non-existent category with id $id");
+    die 'not found';
+  }
 
   if ($sort =~ /popularity/) {
     push @add_select, [
@@ -138,6 +161,7 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
     ];
   }
 
+  $self->log->trace("Fetching posts for category '$cat->{title}' (id: $id)");
 
   my $res = await $self->db->select_p(
     [
@@ -157,6 +181,7 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
     {order_by => $self->_map_cat_sort($sort), limit => PER_PAGE, offset => PER_PAGE * ($page // 0)}
   );
 
+  $self->log->trace("Found " . $res->rows . " posts for this page");
   my (@grid_posts, @list_posts);
   for my $row ($res->hashes->@*) {
     if (@grid_posts < GRID_COUNT) {
@@ -180,6 +205,7 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
 
   @{$cat}{qw(grid_posts list_posts page sort)} = (\@grid_posts, \@list_posts, $page, $sort);
 
+  $self->log->info("Successfully loaded page $page for category '$cat->{title}'");
   $cat;
 }
 
