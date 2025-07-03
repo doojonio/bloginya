@@ -1,3 +1,5 @@
+-- 2 up
+-- 2 down
 -- 1 up
 create extension if not exists "uuid-ossp";
 
@@ -146,6 +148,17 @@ create index post_tags_post_id_idx on post_tags (post_id);
 create index post_tags_tag_id_idx on post_tags (tag_id);
 
 create table
+    category_tags (
+        category_id cool_id not null references categories (id),
+        tag_id int not null references tags (id),
+        primary key (category_id, tag_id)
+    );
+
+create index category_tags_category_id_idx on category_tags (category_id);
+
+create index category_tags_tag_id_idx on category_tags (tag_id);
+
+create table
     shortnames (
         name text primary key,
         post_id cool_id references posts (id),
@@ -215,6 +228,8 @@ drop table comment_likes;
 drop table comments;
 
 drop table shortnames;
+
+drop table category_tags;
 
 drop table post_tags;
 

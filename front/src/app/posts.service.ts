@@ -23,7 +23,11 @@ export class PostsService {
 
   private updateHome$ = new BehaviorSubject<boolean>(true);
   home$ = this.updateHome$.pipe(
-    switchMap((_) => this.http.get<HomeResponse>('/api/posts/home')),
+    switchMap((_) =>
+      this.http.get<HomeResponse>('/api/posts/home', {
+        params: { category_tag: 'langs' },
+      })
+    ),
     shareReplay(1)
   );
 
@@ -99,12 +103,6 @@ export class PostsService {
       );
   }
 
-  getCategoryByTitle(title: string) {
-    return this.http.get<Category>('/api/categories/by_title', {
-      params: { title },
-    });
-  }
-
   getSimilliarPosts(id: string) {
     return this.http.get<PostMed[]>('/api/posts/similliar', {
       params: { id },
@@ -140,22 +138,6 @@ export class PostsService {
     return this.http.get<ReadPostResponse>('/api/posts', { params: { id } });
   }
 
-  getCategories() {
-    return this.http.get<Category[]>('/api/categories/list');
-  }
-
-  addCategory(cat: AddCategoryPayload, notifyError = true) {
-    return this.http
-      .post<AddCategoryResponse>('/api/categories', cat)
-      .pipe(
-        catchError((err: HttpErrorResponse) =>
-          throwError(() =>
-            notifyError ? this.notifyError(err) : this.mapError(err)
-          )
-        )
-      );
-  }
-
   unlike(id: string) {
     return this.http.delete<OkResponse>('/api/posts/like', { params: { id } });
   }
@@ -174,18 +156,6 @@ export enum PostServiceErrors {
 
 export interface OkResponse {
   message: 'OK';
-}
-
-export interface AddCategoryPayload {
-  title: string;
-  description: string | null;
-  parent_id?: string | null;
-  priority?: number | null;
-}
-
-export interface AddCategoryResponse {
-  id: string;
-  title: string;
 }
 
 export interface ReadPostResponse {

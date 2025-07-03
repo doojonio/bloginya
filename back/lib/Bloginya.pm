@@ -26,7 +26,7 @@ sub startup ($self) {
     'Bloginya::Plugin::Service',
     {
       'di_tokens' => [
-        qw(app config current_user),
+        qw(app config current_user log),
         [db    => 'db_lazy',    'Bloginya::ServiceRole::LazyDB'],
         [redis => 'redis_lazy', 'Bloginya::ServiceRole::LazyRedis']
       ]
@@ -105,6 +105,8 @@ sub _setup_routes($self) {
   $api_A->get('/posts/for_edit')->to('Post#get_for_edit');
   $api_A->get('/shortnames')->to('Shortname#get_by_name');
   $api_A->post('/categories')->to('Category#save');
+  $api_A->put('/categories')->to('Category#update');
+  $api_A->get('/categories/for_edit')->to('Category#get_for_edit');
   $api_A->post('/comments/like')->to('Comment#like');
   $api_A->post('/drive')->to('File#put_file');
   $api_A->post('/posts/like')->to('Post#like');

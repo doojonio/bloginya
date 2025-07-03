@@ -1,5 +1,13 @@
+import {
+  Component,
+  Inject,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
+
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, inject, OnDestroy, signal } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -9,16 +17,20 @@ import {
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, map, of, Subject, takeUntil } from 'rxjs';
-import { CategoryService } from '../../category.service';
-import { ShortnamesService } from '../../shortnames.service';
+import { CategoryService } from '../category.service';
+import { ShortnamesService } from '../shortnames.service';
 
 @Component({
-  selector: 'app-new-category-dialog',
+  selector: 'app-category-editor',
   imports: [
     MatDialogModule,
     MatButtonModule,
@@ -28,15 +40,31 @@ import { ShortnamesService } from '../../shortnames.service';
     MatIconModule,
     MatChipsModule,
   ],
-  templateUrl: './new-category-dialog.component.html',
-  styleUrl: './new-category-dialog.component.scss',
+  templateUrl: './category-editor.component.html',
+  styleUrl: './category-editor.component.scss',
 })
-export class NewCategoryDialogComponent implements OnDestroy {
-  readonly dialogRef = inject(MatDialogRef<NewCategoryDialogComponent>);
-  // readonly data = inject<AddCategoryResponse>(MAT_DIALOG_DATA);
+export class CategoryEditorComponent implements OnInit, OnDestroy {
+  readonly dialogRef = inject(MatDialogRef<CategoryEditorComponent>);
 
-  private readonly categoryService = inject(CategoryService);
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { id: string }) {}
+
+  private readonly categoriesSerivce = inject(CategoryService);
   private readonly shortnamesService = inject(ShortnamesService);
+
+  ngOnInit(): void {
+    this.categoriesSerivce
+      .getForEdit(this.data?.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((cat) => {
+        this.tags.set(cat.tags);
+        this.form.setValue({
+          title: cat.title,
+          description: cat.description,
+          tags: cat.tags,
+          shortname: cat.shortname,
+        });
+      });
+  }
 
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   tags = signal<string[]>([]);
@@ -96,20 +124,23 @@ export class NewCategoryDialogComponent implements OnDestroy {
     }
     return this.shortnamesService
       .getShortname(value)
-      .pipe(map((sn) => (sn ? { taken: true } : null)));
+      .pipe(
+        map((sn) =>
+          sn && sn.category_id != this.data.id ? { taken: true } : null
+        )
+      );
   }
 
   private destroy$ = new Subject<void>();
 
-  addCategory() {
+  apply() {
     if (this.form.invalid) {
       return;
     }
 
     const value = this.form.value;
-    console.log(value.tags);
-    this.categoryService
-      .addCategory({
+    this.categoriesSerivce
+      .updateCategory(this.data.id, {
         title: value.title || '',
         description: value.description || null,
         tags: value.tags || [],
@@ -117,7 +148,7 @@ export class NewCategoryDialogComponent implements OnDestroy {
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((resp) => {
-        this.dialogRef.close(resp);
+        this.dialogRef.close({ id: resp.id, ...value });
       });
   }
 
@@ -126,9 +157,9 @@ export class NewCategoryDialogComponent implements OnDestroy {
     if (value == null || value.length < 3) {
       return of(null);
     }
-    return this.categoryService.getCategoryByTitle(value).pipe(
+    return this.categoriesSerivce.getCategoryByTitle(value).pipe(
       catchError((_) => of(null)),
-      map((cat) => (cat ? { taken: true } : null))
+      map((cat) => (cat && cat.id != this.data.id ? { taken: true } : null))
     );
   }
 

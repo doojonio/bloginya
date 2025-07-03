@@ -53,6 +53,7 @@ import {
   tap,
 } from 'rxjs/operators';
 import { AppService } from '../app.service';
+import { CategoryService } from '../category.service';
 import { DriveService } from '../drive.service';
 import { PostsService, PostStatuses } from '../posts.service';
 import { ShortnamesService } from '../shortnames.service';
@@ -86,13 +87,14 @@ import {
   styleUrl: './post-editor.component.scss',
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
-  private appService = inject(AppService);
-  private userService = inject(UserService);
-  private snackBar = inject(MatSnackBar);
-  private drive = inject(DriveService);
-  private posts = inject(PostsService);
-  private shortnamesService = inject(ShortnamesService);
-  private router = inject(Router);
+  private readonly appService = inject(AppService);
+  private readonly userService = inject(UserService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly drive = inject(DriveService);
+  private readonly postsService = inject(PostsService);
+  private readonly categoriesService = inject(CategoryService);
+  private readonly shortnamesService = inject(ShortnamesService);
+  private readonly router = inject(Router);
 
   readonly dialog = inject(MatDialog);
 
@@ -112,12 +114,12 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   postId = input.required<string>();
   savedPost$ = computed(() =>
-    this.posts.getForEdit(this.postId()).pipe(share())
+    this.postsService.getForEdit(this.postId()).pipe(share())
   );
 
   updateCategories$ = new BehaviorSubject(1);
   categories$ = this.updateCategories$.pipe(
-    switchMap((_) => this.posts.getCategories())
+    switchMap((_) => this.categoriesService.getCategories())
   );
 
   tags = signal<string[]>([]);
@@ -252,7 +254,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   saveDraft(form: any, notify = true) {
-    return this.posts
+    return this.postsService
       .updateDraft(this.postId(), {
         title: form.title,
         document: form.document,
@@ -341,7 +343,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         finalize(() => (this.isApplyDisabled = false)),
         switchMap((res) => {
           const meta = this.meta.value;
-          return this.posts.applyChanges(this.postId(), {
+          return this.postsService.applyChanges(this.postId(), {
             tags: meta.tags || [],
             status: meta.status || PostStatuses.Draft,
             category_id: meta.category_id || null,

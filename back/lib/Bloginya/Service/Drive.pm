@@ -17,13 +17,17 @@ use constant SIZES => (
 has 'app';
 has 'db';
 has 'current_user';
+has 'log';
 
 has 'im' => sub { Image::Magick->new };
 has 'mt' => sub { MIME::Types->new };
 
 async sub put($self, $file_path, $extname) {
+  $self->log->debug(qq/Putting file "$file_path" with extension "$extname"/);
   my $mtype = $self->mt->mimeTypeOf($extname);
+  $self->log->trace(qq/Detected MIME type: / . ($mtype // 'none'));
   if (!$mtype || $mtype !~ /^image/) {
+    $self->log->warn(qq/File rejected: not an image (type: / . ($mtype // 'unknown') . ')');
     die 'not image';
   }
 
@@ -32,11 +36,14 @@ async sub put($self, $file_path, $extname) {
 
   my $file = Mojo::File->new($file_path);
 
-  my $dir = $self->app->home->child('public', 'drive', $year, $month, $day, uuid4);
+  my $uuid = uuid4;
+  my $dir  = $self->app->home->child('public', 'drive', $year, $month, $day, $uuid);
+  $self->log->trace(qq/Creating directory for upload: "$dir"/);
   $dir->make_path;
 
   my $path = $dir->child("original.$extname");
   $file = $file->copy_to($path);
+  $self->log->trace(qq/Copied original to "$path"/);
 
   my $var_paths = $self->_generate_diff_sizes($path, $dir);
 
@@ -62,11 +69,13 @@ async sub put($self, $file_path, $extname) {
     },
   );
 
+  $self->log->info(qq/Successfully stored file with id "$id"/);
   return $id, \%files;
 }
 
 sub _generate_diff_sizes($self, $file_path, $dir) {
   my $im = $self->im;
+  $self->log->debug(qq/Generating variants for "$file_path"/);
 
   # By appending "[0]", we instruct Image::Magick to read only the first frame.
   # This is crucial for handling animated GIFs without loading all frames into
@@ -74,6 +83,7 @@ sub _generate_diff_sizes($self, $file_path, $dir) {
   $im->Read($file_path . '[0]');
 
   my ($orig_width, $orig_height) = $im->Get('width', 'height');
+  $self->log->trace(qq/Original image dimensions: ${orig_width}x${orig_height}/);
   my $reduce_width = $orig_width > $orig_height;
 
   my %paths;
@@ -81,7 +91,10 @@ sub _generate_diff_sizes($self, $file_path, $dir) {
     my $px_size = $size->{size};
 
     # Skip creating a variant if the original is already smaller than the target size.
-    next if max($orig_width, $orig_height) < $px_size;
+    if (max($orig_width, $orig_height) < $px_size) {
+      $self->log->trace("Skipping '$size->{name}' variant, original is smaller than $px_size px");
+      next;
+    }
 
     my $variant = $im->Clone();
     my $max     = $px_size;
@@ -105,6 +118,7 @@ sub _generate_diff_sizes($self, $file_path, $dir) {
 
     $variant->Set(magick => 'webp');
     my $path = $dir->child($size->{name} . '.webp');
+    $self->log->trace(qq/Writing '$size->{name}' variant to "$path"/);
     $variant->Write($path);
 
     $paths{$size->{name}} = $path;

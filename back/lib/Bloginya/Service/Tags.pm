@@ -7,10 +7,14 @@ use List::Util qw(uniq);
 has 'db';
 has 'redis';
 has 'current_user';
+has 'log';
 
 has 'sql' => sub { SQL::Abstract::Pg->new };
 
 async sub ensure_tags_p ($self, $tags) {
+  return unless @$tags;
+  $self->log->trace('Ensuring tags exist: ' . join(', ', @$tags));
+
   my @b = map {'( (?) )'} @$tags;
   my $q = do {
     local $" = ",";
@@ -24,15 +28,22 @@ async sub ensure_tags_p ($self, $tags) {
 }
 
 sub normalize($self, $tag) {
-  $tag =~ s/\W//gr;
+  my $normalized = $tag =~ s/\W//gr;
+  if ($tag ne $normalized) {
+    $self->log->trace(qq{Normalizing tag "$tag" to "$normalized"});
+  }
+  return $normalized;
 }
 
 async sub apply_tags_p($self, $post_id, $tags) {
-  @$tags = uniq map { $self->normalize($_) } @$tags;
+  $self->log->debug(qq/Applying tags for post $post_id: / . (@$tags ? join ', ', @$tags : 'none'));
+  await $self->db->delete_p('post_tags', {post_id => $post_id});
+  return unless @$tags;
 
+  @$tags = uniq map { $self->normalize($_) } @$tags;
+  $self->log->trace("Normalized and unique tags for post $post_id: " . join(', ', @$tags));
   await $self->ensure_tags_p($tags);
 
-  await $self->db->delete_p('post_tags', {post_id => $post_id});
   my ($s, @binds) = $self->sql->select('tags', 'id', {name => {-in => $tags}});
   await $self->db->query_p(
     qq~insert into post_tags (post_id, tag_id)
@@ -44,6 +55,31 @@ async sub apply_tags_p($self, $post_id, $tags) {
 
       ~, $post_id, @binds
   );
+  $self->log->info("Applied " . scalar(@$tags) . " tags to post $post_id");
+}
+
+async sub apply_tags_cat_p($self, $category_id, $tags) {
+  $self->log->debug(qq/Applying tags for category $category_id: / . (@$tags ? join ', ', @$tags : 'none'));
+  await $self->db->delete_p('category_tags', {category_id => $category_id});
+  return unless @$tags;
+
+  @$tags = uniq map { $self->normalize($_) } @$tags;
+  $self->log->trace("Normalized and unique tags for category $category_id: " . join(', ', @$tags));
+
+  await $self->ensure_tags_p($tags);
+
+  my ($s, @binds) = $self->sql->select('tags', 'id', {name => {-in => $tags}});
+  await $self->db->query_p(
+    qq~insert into category_tags (category_id, tag_id)
+      select c.category_id, t.id
+      from (select (?) as category_id) c
+          left outer join ($s) t on 1 = 1
+
+      on conflict do nothing
+
+      ~, $category_id, @binds
+  );
+  $self->log->info("Applied " . scalar(@$tags) . " tags to category $category_id");
 }
 
 1;
