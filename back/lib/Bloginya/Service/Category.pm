@@ -98,7 +98,7 @@ async sub list_site_categories_by_tag_p($self, $tag) {
         -in => \['(select category_id from category_tags ct join tags t on t.id = ct.tag_id where t.name = (?))', $tag]
       }
     },
-    {order_by => [\'priority asc nulls last', {-desc => 'created_at'}]}
+    {order_by => [\'priority asc nulls last', {-asc => 'created_at'}]}
 
   );
 
