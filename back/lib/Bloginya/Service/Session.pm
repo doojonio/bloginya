@@ -22,12 +22,16 @@ async sub uid_by_sid_p($self, $sid) {
   return $uid if $uid;
 
   # If not in cache, get from database
-  $uid = (await $self->db->query_p(
-    'SELECT users.id FROM users
-        JOIN sessions ON users.id = sessions.user_id
-        WHERE sessions.id = (?)', $sid
-  ))->hash->{id};
-  return unless $uid;
+  my $res = (await $self->db->query_p(
+    'select users.id from users
+        join sessions on users.id = sessions.user_id
+        where sessions.id = (?)', $sid
+  ))->hashes->first;
+
+  return undef unless $res;
+
+  $uid = $res->{id};
+
 
   # Store user in cache for future requests
   await $self->redis->set_p('sid_user:' . $sid, $uid);

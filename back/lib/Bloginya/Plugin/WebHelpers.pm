@@ -28,6 +28,10 @@ sub register {
   $app->helper(
     'set_sid' => sub ($c, $sid) {
       my ($name, $secure, $domain, $max_age) = @{$c->config->{sessions}}{qw(name secure domain max_age)};
+      unless (defined $sid) {
+        $c->cookie($name => '', {expires => 'Thu, Jan 01 1970 00:00:00 UTC', path => '/'});
+        return;
+      }
       $c->cookie(
         $name => $sid,
         {
@@ -65,7 +69,10 @@ sub register {
 
         my $serv = $c->service('session');
         my $uid  = await $serv->uid_by_sid_p($sid);
-        return undef unless $uid;
+        unless ($uid) {
+          $c->set_sid(undef);
+          return undef;
+        }
 
         await $serv->update_ip_ua_p($sid, $c->real_ip, $c->user_agent);
 
