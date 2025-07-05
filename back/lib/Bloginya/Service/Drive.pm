@@ -9,7 +9,7 @@ use Time::Piece              ();
 use UUID                     qw(uuid4);
 use Mojo::IOLoop::Subprocess ();
 
-use constant SIZES => {'thumbnail' => {size => 150, square => 1}, 'medium' => {size => 900}, 'large' => {size => 1600}};
+use constant SIZES => {'thumbnail' => {size => 40, square => 1}, 'medium' => {size => 480}, 'large' => {size => 1200}};
 use constant SUBP  => 'Mojo::IOLoop::Subprocess';
 
 has 'app';

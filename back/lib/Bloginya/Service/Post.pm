@@ -329,8 +329,8 @@ async sub _update_meta_from_content_p($self, $post_id) {
   );
 
   my $row = (await $self->db->select_p(
-    ['posts',    [-left     => \'categories c', 'c.id' => 'posts.category_id']],
-    ['document', ['c.title' => 'ctitle'], map {"posts.$_"} @picture_cols],
+    ['posts',    [-left => \'categories c', 'c.id' => 'posts.category_id']],
+    ['document', 'posts.title', ['c.title' => 'ctitle'], map {"posts.$_"} @picture_cols],
     {'posts.id' => $post_id},
   ))->expand->hashes->first;
   die "not found post $post_id" unless $row;
@@ -354,6 +354,7 @@ async sub _update_meta_from_content_p($self, $post_id) {
   my $text    = $it_text->();
 
   my $descr = substr($text, 0, 200) . (length($text) > 200 ? '...' : '');
+  $text = $row->{title} . ' ' . $text;
 
   my $pics_num = @$img_ids;
   my ($picture_pre) = @$img_ids;

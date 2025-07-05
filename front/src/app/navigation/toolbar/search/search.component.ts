@@ -1,16 +1,27 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, output, ViewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {
+  MatAutocompleteActivatedEvent,
+  MatAutocompleteModule,
+} from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
-
-export interface User {
-  name: string;
-}
+import { Router, RouterModule } from '@angular/router';
+import { of } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  filter,
+  startWith,
+  switchMap,
+} from 'rxjs/operators';
+import { AppService } from '../../../app.service';
+import { picStyle } from '../../../posts.service';
+import { QueryResult, SearchService } from '../../../search.service';
 
 @Component({
   selector: 'app-search',
@@ -22,34 +33,56 @@ export interface User {
     MatAutocompleteModule,
     ReactiveFormsModule,
     AsyncPipe,
+    MatButtonModule,
+    RouterModule,
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
 export class SearchComponent {
-  myControl = new FormControl<string | User>('');
-  options: User[] = [{ name: 'Mary' }, { name: 'Shelley' }, { name: 'Igor' }];
-  filteredOptions!: Observable<User[]>;
+  private readonly appService = inject(AppService);
+  private readonly searchService = inject(SearchService);
+  private readonly router = inject(Router);
 
-  ngOnInit() {
-    this.filteredOptions = this.myControl.valueChanges.pipe(
+  readonly onCloseSearch = output();
+  readonly isHandset$ = this.appService.isHandset();
+  readonly searchControl = new FormControl<string>('');
+
+  readonly results = toSignal(
+    this.searchControl.valueChanges.pipe(
       startWith(''),
-      map((value) => {
-        const name = typeof value === 'string' ? value : value?.name;
-        return name ? this._filter(name as string) : this.options.slice();
-      })
-    );
+      filter(Boolean),
+      filter((val) => val.length > 2),
+      debounceTime(500),
+      switchMap((value) =>
+        this.searchService.search(value).pipe(catchError((_) => of([])))
+      )
+    )
+  );
+
+  itemBack(item: QueryResult) {
+    return picStyle(item.picture_pre, 'thumbnail');
+  }
+  itemUrl(item: QueryResult) {
+    if (item.name) {
+      return ['/', item.name];
+    } else if (item.type == 'post') {
+      return ['/p', item.id];
+    } else if (item.type == 'category') {
+      return ['/c', item.id];
+    }
+    return [];
   }
 
-  displayFn(user: User): string {
-    return user && user.name ? user.name : '';
+  goToItem($event: MatAutocompleteActivatedEvent) {
+    this.closeSearch();
+    this.router.navigateByUrl($event.option!.id);
   }
 
-  private _filter(name: string): User[] {
-    const filterValue = name.toLowerCase();
-
-    return this.options.filter((option) =>
-      option.name.toLowerCase().includes(filterValue)
-    );
+  clearInput() {
+    this.searchControl.setValue('');
+  }
+  closeSearch() {
+    this.onCloseSearch.emit();
   }
 }

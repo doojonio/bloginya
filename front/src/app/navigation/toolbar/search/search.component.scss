@@ -1,19 +1,75 @@
 @use "@angular/material" as mat;
 
-.desktop-search {
+@use "../../../../mixins" as mixs;
+
+@include mixs.for-size("handset") {
+  mat-form-field {
+    width: 100%;
+
+    @include mat.form-field-overrides(
+      (
+        filled-container-shape: var(--app-autocomplete-shape),
+      )
+    );
+  }
+}
+
+@include mixs.for-size("desktop") {
+  mat-form-field {
+    width: 100%;
+
+    @include mat.form-field-overrides(
+      (
+        filled-container-color: var(--mat-sys-surface),
+        // filled-active-indicator-height: 0,
+        // filled-focus-active-indicator-height: 0,,
+      )
+    );
+  }
+}
+
+.opt {
   display: flex;
-  align-items: center;
-  border-radius: 50px;
-  padding: 5px 10px;
-  width: 300px;
-  border: 1px solid var(--mat-sys-outline-variant);
-  background-color: var(--mat-sys-surface);
+  flex-flow: row nowrap;
 }
 
-.desktop-search input {
-  all: unset;
+.s-image-wrapper {
+  padding: 0.5rem;
+}
+.s-image {
+  flex-shrink: 0;
+  height: 40px;
+  width: 40px;
+  border-radius: 100%;
+}
+
+.s-info {
+  flex-grow: 1;
+
+  display: flex;
+  flex-flow: column nowrap;
+
+  padding: 0.5rem;
+
+  & > * {
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.s-title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-body-large);
+}
+
+.s-type {
+  color: var(--mat-sys-outline);
   font: var(--mat-sys-body-medium);
-  flex: 1;
-  width: 100%;
+
+  margin-left: 0.5rem;
 }
 
+.s-description {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
