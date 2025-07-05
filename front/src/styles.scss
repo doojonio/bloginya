@@ -2,6 +2,7 @@
 
 @use "@angular/material" as mat;
 @use "_theme-colors.scss" as ptheme;
+@use "./mixins" as mixs;
 
 :root {
   --post-max-width: 57rem;
@@ -23,12 +24,14 @@
 
   --app-autocomplete-shape: 28px;
 
-  @include mat.autocomplete-overrides(
-    (
-      background-color: var(--mat-sys-surface-variant),
-      container-shape: var(--app-autocomplete-shape),
-    )
-  );
+  @include mixs.for-size("handset") {
+    @include mat.autocomplete-overrides(
+      (
+        background-color: var(--mat-sys-surface-variant),
+        container-shape: var(--app-autocomplete-shape),
+      )
+    );
+  }
 }
 
 html {

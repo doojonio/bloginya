@@ -1,8 +1,11 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, output } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, output, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {
+  MatAutocompleteActivatedEvent,
+  MatAutocompleteModule,
+} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -71,14 +74,9 @@ export class SearchComponent {
     return [];
   }
 
-  goToFirstItem() {
-    const res = this.results();
-    if (!res?.length) {
-      return;
-    }
-
-    this.router.navigate(this.itemUrl(res[0]));
+  goToItem($event: MatAutocompleteActivatedEvent) {
     this.closeSearch();
+    this.router.navigateByUrl($event.option!.id);
   }
 
   clearInput() {

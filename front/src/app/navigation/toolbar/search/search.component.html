@@ -1,23 +1,31 @@
-@if (isHandset$ | async) {
-
 <mat-form-field>
+  @if (isHandset$ | async) {
   <button matIconPrefix matIconButton (click)="closeSearch()">
     <mat-icon>arrow_back</mat-icon>
   </button>
+  }
   <input
+    #searchField
     matInput
     [formControl]="searchControl"
     i18n-placeholder
     placeholder="Search..."
     [matAutocomplete]="auto"
-    (keyup.enter)="goToFirstItem()"
+    autofocus
   />
+
+  @if (isHandset$ | async) {
   <button matIconSuffix (click)="clearInput()" matIconButton>
     <mat-icon>close</mat-icon>
   </button>
-  <mat-autocomplete #auto="matAutocomplete">
+  } @else {
+
+  <mat-icon matSuffix>search</mat-icon>
+  }
+
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="goToItem($event)" [autoActiveFirstOption]="true">
     @for (res of results(); track res.id) {
-    <mat-option>
+    <mat-option [id]="itemUrl(res).join('/')">
       <a (click)="closeSearch()" [routerLink]="itemUrl(res)" class="opt">
         <div class="s-image-wrapper">
           <div class="s-image" [style.background]="itemBack(res)"></div>
@@ -34,17 +42,3 @@
     }
   </mat-autocomplete>
 </mat-form-field>
-} @else { TODO
-
-<!-- <div class="container">
-  <div class="desktop-search">
-    <input
-      type="text"
-      placeholder="Search"
-      matInput
-      [formControl]="searchControl"
-    />
-    <mat-icon matSuffix>search</mat-icon>
-  </div>
-</div> -->
-}

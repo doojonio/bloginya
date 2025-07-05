@@ -22,6 +22,11 @@ div.container {
       color: var(--mat-sys-primary),
     )
   );
+
+  app-search {
+    flex-basis: 33%;
+    max-width: 40rem;
+  }
 }
 
 a {
