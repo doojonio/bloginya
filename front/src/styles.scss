@@ -20,6 +20,15 @@
 
   --post-blockquote-color: var(--mat-sys-primary);
   --post-blockquote-border-width: 3px;
+
+  --app-autocomplete-shape: 28px;
+
+  @include mat.autocomplete-overrides(
+    (
+      background-color: var(--mat-sys-surface-variant),
+      container-shape: var(--app-autocomplete-shape),
+    )
+  );
 }
 
 html {

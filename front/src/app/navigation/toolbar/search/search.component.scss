@@ -8,14 +8,7 @@
 
     @include mat.form-field-overrides(
       (
-        filled-container-shape: 28px,
-        container-height: 56px,
-      )
-    );
-
-    @include mat.autocomplete-overrides(
-      (
-        background-color: var(--mat-sys-surface-variant),
+        filled-container-shape: var(--app-autocomplete-shape),
       )
     );
   }
