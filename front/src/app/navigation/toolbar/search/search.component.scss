@@ -65,6 +65,13 @@
   font: var(--mat-sys-body-large);
 }
 
+.s-type {
+  color: var(--mat-sys-outline);
+  font: var(--mat-sys-body-medium);
+
+  margin-left: 0.5rem;
+}
+
 .s-description {
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-body-medium);

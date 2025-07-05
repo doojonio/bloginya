@@ -7,24 +7,29 @@
   <input
     matInput
     [formControl]="searchControl"
+    i18n-placeholder
     placeholder="Search..."
     [matAutocomplete]="auto"
+    (keyup.enter)="goToFirstItem()"
   />
   <button matIconSuffix (click)="clearInput()" matIconButton>
     <mat-icon>close</mat-icon>
   </button>
   <mat-autocomplete #auto="matAutocomplete">
-    @for (res of ( results$ | async ); track res.id) {
-    <mat-option (click)="closeSearch()" [routerLink]="itemUrl(res)">
-      <div class="opt">
+    @for (res of results(); track res.id) {
+    <mat-option>
+      <a (click)="closeSearch()" [routerLink]="itemUrl(res)" class="opt">
         <div class="s-image-wrapper">
           <div class="s-image" [style.background]="itemBack(res)"></div>
         </div>
         <div class="s-info">
-          <p class="s-title">{{ res.title }}</p>
+          <p class="s-title-wrapper">
+            <span class="s-title">{{ res.title }}</span>
+            <span class="s-type" i18n>{{ res.type }}</span>
+          </p>
           <p class="s-descr">{{ res.description }}</p>
         </div>
-      </div>
+      </a>
     </mat-option>
     }
   </mat-autocomplete>

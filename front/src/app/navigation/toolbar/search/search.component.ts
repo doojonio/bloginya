@@ -1,12 +1,13 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { of } from 'rxjs';
 import {
   catchError,
@@ -38,18 +39,21 @@ import { QueryResult, SearchService } from '../../../search.service';
 export class SearchComponent {
   private readonly appService = inject(AppService);
   private readonly searchService = inject(SearchService);
+  private readonly router = inject(Router);
 
   readonly onCloseSearch = output();
   readonly isHandset$ = this.appService.isHandset();
   readonly searchControl = new FormControl<string>('');
 
-  readonly results$ = this.searchControl.valueChanges.pipe(
-    startWith(''),
-    filter(Boolean),
-    filter((val) => val.length > 2),
-    debounceTime(500),
-    switchMap((value) =>
-      this.searchService.search(value).pipe(catchError((_) => of([])))
+  readonly results = toSignal(
+    this.searchControl.valueChanges.pipe(
+      startWith(''),
+      filter(Boolean),
+      filter((val) => val.length > 2),
+      debounceTime(500),
+      switchMap((value) =>
+        this.searchService.search(value).pipe(catchError((_) => of([])))
+      )
     )
   );
 
@@ -65,6 +69,16 @@ export class SearchComponent {
       return ['/c', item.id];
     }
     return [];
+  }
+
+  goToFirstItem() {
+    const res = this.results();
+    if (!res?.length) {
+      return;
+    }
+
+    this.router.navigate(this.itemUrl(res[0]));
+    this.closeSearch();
   }
 
   clearInput() {
