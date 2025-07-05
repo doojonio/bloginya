@@ -6,13 +6,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { RouterModule } from '@angular/router';
+import { of } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  filter,
+  startWith,
+  switchMap,
+} from 'rxjs/operators';
 import { AppService } from '../../../app.service';
-
-export interface User {
-  name: string;
-}
+import { picStyle } from '../../../posts.service';
+import { QueryResult, SearchService } from '../../../search.service';
 
 @Component({
   selector: 'app-search',
@@ -25,44 +30,47 @@ export interface User {
     ReactiveFormsModule,
     AsyncPipe,
     MatButtonModule,
+    RouterModule,
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
 export class SearchComponent {
+  private readonly appService = inject(AppService);
+  private readonly searchService = inject(SearchService);
+
+  readonly onCloseSearch = output();
+  readonly isHandset$ = this.appService.isHandset();
+  readonly searchControl = new FormControl<string>('');
+
+  readonly results$ = this.searchControl.valueChanges.pipe(
+    startWith(''),
+    filter(Boolean),
+    filter((val) => val.length > 2),
+    debounceTime(500),
+    switchMap((value) =>
+      this.searchService.search(value).pipe(catchError((_) => of([])))
+    )
+  );
+
+  itemBack(item: QueryResult) {
+    return picStyle(item.picture_pre, 'thumbnail');
+  }
+  itemUrl(item: QueryResult) {
+    if (item.name) {
+      return ['/', item.name];
+    } else if (item.type == 'post') {
+      return ['/p', item.id];
+    } else if (item.type == 'category') {
+      return ['/c', item.id];
+    }
+    return [];
+  }
+
   clearInput() {
     this.searchControl.setValue('');
   }
-  onCloseSearch = output();
   closeSearch() {
     this.onCloseSearch.emit();
-  }
-  appService = inject(AppService);
-  isHandset$ = this.appService.isHandset();
-
-  searchControl = new FormControl<string | User>('');
-  options: User[] = [{ name: 'Mary' }, { name: 'Shelley' }, { name: 'Igor' }];
-  filteredOptions!: Observable<User[]>;
-
-  ngOnInit() {
-    this.filteredOptions = this.searchControl.valueChanges.pipe(
-      startWith(''),
-      map((value) => {
-        const name = typeof value === 'string' ? value : value?.name;
-        return name ? this._filter(name as string) : this.options.slice();
-      })
-    );
-  }
-
-  displayFn(user: User): string {
-    return user && user.name ? user.name : '';
-  }
-
-  private _filter(name: string): User[] {
-    const filterValue = name.toLowerCase();
-
-    return this.options.filter((option) =>
-      option.name.toLowerCase().includes(filterValue)
-    );
   }
 }

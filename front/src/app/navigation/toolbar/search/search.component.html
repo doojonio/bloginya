@@ -14,26 +14,32 @@
     <mat-icon>close</mat-icon>
   </button>
   <mat-autocomplete #auto="matAutocomplete">
-    <mat-option [value]="1">Opt.1</mat-option>
+    @for (res of ( results$ | async ); track res.id) {
+    <mat-option (click)="closeSearch()" [routerLink]="itemUrl(res)">
+      <div class="opt">
+        <div class="s-image-wrapper">
+          <div class="s-image" [style.background]="itemBack(res)"></div>
+        </div>
+        <div class="s-info">
+          <p class="s-title">{{ res.title }}</p>
+          <p class="s-descr">{{ res.description }}</p>
+        </div>
+      </div>
+    </mat-option>
+    }
   </mat-autocomplete>
 </mat-form-field>
-} @else {
+} @else { TODO
 
-<div class="container">
+<!-- <div class="container">
   <div class="desktop-search">
     <input
       type="text"
       placeholder="Search"
       matInput
       [formControl]="searchControl"
-      [matAutocomplete]="auto"
     />
     <mat-icon matSuffix>search</mat-icon>
-    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-      @for (option of filteredOptions | async; track option) {
-      <mat-option [value]="option">{{ option.name }}</mat-option>
-      }
-    </mat-autocomplete>
   </div>
-</div>
+</div> -->
 }
