@@ -107,7 +107,6 @@ export class NewCategoryDialogComponent implements OnDestroy {
     }
 
     const value = this.form.value;
-    console.log(value.tags);
     this.categoryService
       .addCategory({
         title: value.title || '',
