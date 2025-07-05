@@ -8,6 +8,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { picStyle } from '../../posts.service';
 
 @Component({
   selector: 'app-post-list-oneline',
@@ -36,13 +37,7 @@ export class PostListOnelineComponent {
   });
 
   getPostPreStyle(post: PostOneLinePost) {
-    return post.picture_pre
-      ? {
-          background: `url(${post.picture_pre}) center / cover no-repeat`,
-        }
-      : {
-          background: 'rgb(117, 85, 112)',
-        };
+    return { background: picStyle(post.picture_pre, 'medium') };
   }
 }
 

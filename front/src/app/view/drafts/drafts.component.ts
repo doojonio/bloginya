@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { map, shareReplay } from 'rxjs';
-import { pic } from '../../drive.service';
+import { medium } from '../../drive.service';
 import { Draft, PostsService } from '../../posts.service';
 import { PostListGridTitlesComponent } from '../post-list-grid-titles/post-list-grid-titles.component';
 
@@ -25,7 +25,7 @@ export class DraftsComponent {
   mapDriveUrl(posts: Draft[]) {
     for (const post of posts) {
       if (post.picture_pre) {
-        post.picture_pre = pic(post.picture_pre) + '/medium.webp';
+        post.picture_pre = medium(post.picture_pre);
       }
     }
 

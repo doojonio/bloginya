@@ -5,7 +5,6 @@ use experimental 'try';
 
 use Bloginya::Model::Post        qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
 use Bloginya::Model::ProseMirror qw(is_image is_text);
-use Bloginya::Model::Upload      qw(large_variant medium_variant upload_id thumbnail_variant);
 use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Iterator::Simple             qw(:all);
 use List::Util                   qw(none any);

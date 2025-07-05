@@ -22,6 +22,7 @@ import { RouterModule } from '@angular/router';
 import { filter, switchMap, take, tap, timer } from 'rxjs';
 import { AppService } from '../../app.service';
 import { VisibilityDirective } from '../../directives/visibility.directive';
+import { variant } from '../../drive.service';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { SeoService } from '../../seo.service';
 import { UserService } from '../../user.service';
@@ -77,7 +78,7 @@ export class PostViewComponent {
   likeAnimClass = signal('');
 
   title_image_style = computed(() => {
-    const url = this.post().picture_wp;
+    const url = variant(this.post().picture_wp, 'large');
     return url
       ? {
           background: [

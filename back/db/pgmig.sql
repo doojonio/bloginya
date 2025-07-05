@@ -51,11 +51,7 @@ create table
     uploads (
         id text primary key,
         user_id uuid not null references users (id),
-        original_type text not null,
-        original text not null,
-        thumbnail text,
-        medium text,
-        large text,
+        mtype text not null,
         created_at timestamp not null default now()
     );
 

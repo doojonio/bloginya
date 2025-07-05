@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { picStyle } from '../../posts.service';
 
 @Component({
   selector: 'app-post-med',
@@ -14,6 +15,10 @@ export class PostMedComponent {
 
   linkForPost(post: PostMed) {
     return post.name ? '/' + post.name : '/p/' + post.id;
+  }
+
+  getPostPreStyle(post: PostMed) {
+    return picStyle(post.picture_pre, 'medium');
   }
 }
 

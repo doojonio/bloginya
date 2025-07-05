@@ -54,7 +54,7 @@ import {
 } from 'rxjs/operators';
 import { AppService } from '../app.service';
 import { CategoryService } from '../category.service';
-import { DriveService } from '../drive.service';
+import { DriveService, large, medium } from '../drive.service';
 import { PostsService, PostStatuses } from '../posts.service';
 import { ShortnamesService } from '../shortnames.service';
 import { UserService } from '../user.service';
@@ -228,7 +228,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         this.draft.setValue({
           title: post.title || '',
           document: post.document,
-          picture_wp: post.picture_wp,
+          picture_wp: large(post.picture_wp),
         });
 
         this.tags.set(post.tags);
@@ -328,7 +328,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe((resp) =>
-        this.draft.get('picture_wp')!.setValue(resp.large || resp.original)
+        this.draft.get('picture_wp')!.setValue(medium(resp.id))
       );
   }
 
@@ -445,7 +445,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         return throwError(() => err);
       }),
       map((res) => {
-        return { id: pholdId, path: res.medium || res.original };
+        return { id: pholdId, path: large(res.id) };
       })
     );
 

@@ -2,11 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 export interface PutFileResponse {
-  original_type: string;
-  original: string;
-  large?: string;
-  medium?: string;
-  thumbnail?: string;
+  id: string;
 }
 
 @Injectable({
@@ -29,4 +25,24 @@ export function pic(driveId: string) {
     throw 'drive id';
   }
   return parts.slice(0, 5).join('/');
+}
+
+export function variant(driveId: string | null, variant: string) {
+  if (driveId == null || driveId == '') {
+    return null;
+  }
+  return driveId + '?d=' + variant;
+}
+
+export function thumbnail(driveId: string | null) {
+  return variant(driveId, 'thumbnail');
+}
+export function medium(driveId: string | null) {
+  return variant(driveId, 'medium');
+}
+export function large(driveId: string | null) {
+  return variant(driveId, 'large');
+}
+export function original(driveId: string | null) {
+  return variant(driveId, 'original');
 }

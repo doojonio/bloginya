@@ -5,7 +5,7 @@ use experimental 'try';
 
 use Bloginya::Model::Post        qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
 use Bloginya::Model::ProseMirror qw(is_image is_text);
-use Bloginya::Model::Upload      qw(large_variant medium_variant upload_id thumbnail_variant);
+use Bloginya::Model::Upload      qw(upload_id);
 use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Iterator::Simple             qw(:all);
 use List::Util                   qw(none any);
@@ -80,7 +80,7 @@ async sub read_p($self, $post_id) {
     'p.category_id', ['c.title' => 'category_title'], ['csn.name' => 'category_name'],
 
     # --- Picture/Upload Fields ---
-    [large_variant('uwp') => 'picture_wp'], [medium_variant('upre') => 'picture_pre'],
+    ['uwp.id' => 'picture_wp'], ['upre.id' => 'picture_pre'],
 
     # --- Aggregated Data (Subqueries) ---
     [
@@ -157,7 +157,7 @@ async sub search_similliar_posts_p($self, $post_id, $limit = 12) {
       p.id,
       p.title,
       p.description,
-      coalesce(upre.thumbnail, upre.original) as picture_pre,
+      upre.id as picture_pre,
       (
         select
           coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
@@ -238,7 +238,7 @@ async sub get_for_edit_p($self, $post_id) {
     [-left => \'uploads uwp', 'uwp.id' => 'pd.picture_wp'], [-left => \'uploads upre', 'upre.id' => 'pd.picture_pre'];
 
   push @select, ['pd.title' => 'title'], ['pd.document' => 'document',],
-    [large_variant('uwp') => 'picture_wp', [medium_variant('upre') => 'picture_pre']];
+    ['uwp.id' => 'picture_wp', ['upre.id' => 'picture_pre']];
 
   # shortname
   push @tables, [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
@@ -420,12 +420,10 @@ async sub list_new_posts_p($self, $limit = 8) {
       [-left => \'shortnames csn', 'c.id'    => 'csn.category_id'],
     ],
     [
-      'p.id',
-      ['c.title'              => 'category_title'],
-      ['c.id'                 => 'category_id'],
-      ['csn.name'             => 'category_name'],
-      [medium_variant('upre') => 'picture_pre'],
-      'p.title', 'p.created_at', 'sn.name'
+      'p.id',                       ['c.title' => 'category_title'],
+      ['c.id' => 'category_id'],    ['csn.name' => 'category_name'],
+      ['upre.id' => 'picture_pre'], 'p.title',
+      'p.created_at',               'sn.name'
     ],
     {'status' => POST_STATUS_PUB},
     {order_by => \'p.published_at desc nulls last', limit => $limit}
@@ -435,9 +433,8 @@ async sub list_new_posts_p($self, $limit = 8) {
 }
 
 async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
-  my @p_fields
-    = ('p.id', 'sn.name', [medium_variant('upre') => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
-  my $res = await $self->db->select_p(
+  my @p_fields = ('p.id', 'sn.name', ['upre.id' => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
+  my $res      = await $self->db->select_p(
     [
       \'posts p',
       [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
@@ -471,7 +468,7 @@ async sub list_popular_posts_p($self, $limit = 26, $offset = 0) {
     [
       'p.id',
       'sn.name',
-      [medium_variant('upre') => 'picture_pre'],
+      ['upre.id' => 'picture_pre'],
       [
         \q~
         (

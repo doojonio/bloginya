@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { PopularPost } from '../../posts.service';
+import { picStyle, PopularPost } from '../../posts.service';
 
 @Component({
   selector: 'app-post-list-grid',
@@ -54,5 +54,9 @@ export class PostListGridComponent {
       return [1, 2];
     }
     return [1, 1];
+  }
+
+  getPostPreStyle(post: PopularPost) {
+    return picStyle(post.picture_pre, 'medium');
   }
 }

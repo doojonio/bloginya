@@ -3,8 +3,7 @@ use Mojo::Base -base, -signatures, -async_await;
 
 use List::Util qw(any);
 
-use Bloginya::Model::Upload qw(medium_variant);
-use Bloginya::Model::Post   qw(POST_STATUS_PUB);
+use Bloginya::Model::Post qw(POST_STATUS_PUB);
 
 has 'db';
 has 'redis';
@@ -170,7 +169,7 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
       [-left => \'uploads upre',   'p.picture_pre' => 'upre.id'],
     ],
     [
-      [medium_variant('upre'), 'picture_pre'], 'p.title', 'psn.name', 'p.id', 'p.description', \'(
+      ['upre.id', 'picture_pre'], 'p.title', 'psn.name', 'p.id', 'p.description', \'(
         select
           coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
         from post_tags pt join tags t on t.id = pt.tag_id
