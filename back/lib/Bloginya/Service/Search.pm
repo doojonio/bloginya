@@ -48,8 +48,24 @@ package Bloginya::Service::Search::_Query {
         [-left => \'post_fts pf',    'p.id'          => 'pf.post_id'],
         [-left => \'languages l',    'pf.lcode'      => 'l.code'],
       ],
-      fields =>
-        ['p.id', 'psn.name', 'p.title', ['c.title' => 'description'], 'p.picture_pre', \"(select 'post') as type"],
+      fields => [
+        'p.id',
+        'psn.name',
+        'p.title',
+        ['c.title' => 'description'],
+        'p.picture_pre',
+        \"(select 'post') as type",
+        \['
+        round(
+          similarity(
+            pf.plain_content,
+            (?)
+          )::numeric,
+          1
+        ) as similarity
+        ', $_[0]->q
+        ]
+      ],
       where => {'p.status' => POST_STATUS_PUB, -and => []},
       opts  => {},
     };
@@ -58,9 +74,22 @@ package Bloginya::Service::Search::_Query {
     +{
       from   => [\'categories c', [-left => \'shortnames csn', 'c.id' => 'csn.category_id']],
       fields => [
-        'c.id', 'csn.name', 'c.title', 'c.description',
+        'c.id',
+        'csn.name',
+        'c.title',
+        'c.description',
         \'(select null) as picture_pre',
-        \"(select 'category') as type"
+        \"(select 'category') as type",
+        \['
+        round(
+          similarity(
+            c.title,
+            (?)
+          )::numeric,
+          1
+        ) as similarity
+        ', $_[0]->q
+        ]
       ],
       where => {-and => []},
       opts  => {},
@@ -91,13 +120,14 @@ package Bloginya::Service::Search::_Query {
     $posts_stmt
     union all
     $cat_stmt
-    LIMIT 10
+    order by similarity
+    limit 10
     }, @posts_binds, @cat_binds;
   }
 
   sub fill_filters ($self) {
     for (qw(
-      title
+      words
       tags
     ))
     {
@@ -106,15 +136,15 @@ package Bloginya::Service::Search::_Query {
     }
   }
 
-  sub _filter_title ($self) {
+  sub _filter_words ($self) {
     my $words = $self->words;
 
     return unless @$words;
 
     local $" = " ";
     push $self->stmt_posts->{where}{-and}->@*, \['pf.fts @@ websearch_to_tsquery( l.fts_cfg, (?))', "@$words"];
-
-    # push $self->stmt_cats->{where}{-and}->@*,  \['pf'];
+    push $self->stmt_cats->{where}{-and}->@*,
+      \["to_tsvector('simple', c.title) @@ websearch_to_tsquery( 'simple', (?))", "@$words"];
   }
 
   sub _filter_tags($self) {
