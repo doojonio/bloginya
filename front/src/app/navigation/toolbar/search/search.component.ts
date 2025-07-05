@@ -1,12 +1,14 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { AppService } from '../../../app.service';
 
 export interface User {
   name: string;
@@ -22,17 +24,28 @@ export interface User {
     MatAutocompleteModule,
     ReactiveFormsModule,
     AsyncPipe,
+    MatButtonModule,
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
 export class SearchComponent {
-  myControl = new FormControl<string | User>('');
+  clearInput() {
+    this.searchControl.setValue('');
+  }
+  onCloseSearch = output();
+  closeSearch() {
+    this.onCloseSearch.emit();
+  }
+  appService = inject(AppService);
+  isHandset$ = this.appService.isHandset();
+
+  searchControl = new FormControl<string | User>('');
   options: User[] = [{ name: 'Mary' }, { name: 'Shelley' }, { name: 'Igor' }];
   filteredOptions!: Observable<User[]>;
 
   ngOnInit() {
-    this.filteredOptions = this.myControl.valueChanges.pipe(
+    this.filteredOptions = this.searchControl.valueChanges.pipe(
       startWith(''),
       map((value) => {
         const name = typeof value === 'string' ? value : value?.name;

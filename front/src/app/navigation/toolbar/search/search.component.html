@@ -1,10 +1,31 @@
+@if (isHandset$ | async) {
+
+<mat-form-field>
+  <button matIconPrefix matIconButton (click)="closeSearch()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <input
+    matInput
+    [formControl]="searchControl"
+    placeholder="Search..."
+    [matAutocomplete]="auto"
+  />
+  <button matIconSuffix (click)="clearInput()" matIconButton>
+    <mat-icon>close</mat-icon>
+  </button>
+  <mat-autocomplete #auto="matAutocomplete">
+    <mat-option [value]="1">Opt.1</mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+} @else {
+
 <div class="container">
   <div class="desktop-search">
     <input
       type="text"
       placeholder="Search"
       matInput
-      [formControl]="myControl"
+      [formControl]="searchControl"
       [matAutocomplete]="auto"
     />
     <mat-icon matSuffix>search</mat-icon>
@@ -15,3 +36,4 @@
     </mat-autocomplete>
   </div>
 </div>
+}

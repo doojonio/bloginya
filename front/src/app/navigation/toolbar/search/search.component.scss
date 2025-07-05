@@ -1,5 +1,26 @@
 @use "@angular/material" as mat;
 
+@use "../../../../mixins" as mixs;
+
+@include mixs.for-size("handset") {
+  mat-form-field {
+    width: 100%;
+
+    @include mat.form-field-overrides(
+      (
+        filled-container-shape: 28px,
+        container-height: 56px,
+      )
+    );
+
+    @include mat.autocomplete-overrides(
+      (
+        background-color: var(--mat-sys-surface-variant),
+      )
+    );
+  }
+}
+
 .desktop-search {
   display: flex;
   align-items: center;
@@ -16,4 +37,3 @@
   flex: 1;
   width: 100%;
 }
-
