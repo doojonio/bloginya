@@ -250,23 +250,15 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         debounceTime(1000),
         switchMap((form) => this.saveDraft(form))
       )
-      .subscribe((changes) => {});
+      .subscribe((_) => {});
   }
 
-  saveDraft(form: any, notify = true) {
-    return this.postsService
-      .updateDraft(this.postId(), {
-        title: form.title,
-        document: form.document,
-        picture_wp: form.picture_wp,
-      })
-      .pipe(
-        tap((_) =>
-          notify
-            ? this.snackBar.open('Draft saved', undefined, { duration: 1000 })
-            : null
-        )
-      );
+  saveDraft(form: any) {
+    return this.postsService.updateDraft(this.postId(), {
+      title: form.title,
+      document: form.document,
+      picture_wp: form.picture_wp,
+    });
   }
 
   removeTag(tag: string) {
@@ -338,7 +330,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     }
 
     this.isApplyDisabled = true;
-    this.saveDraft(this.draft.value, false)
+    this.saveDraft(this.draft.value)
       .pipe(
         finalize(() => (this.isApplyDisabled = false)),
         switchMap((res) => {
