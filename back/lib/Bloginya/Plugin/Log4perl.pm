@@ -41,42 +41,8 @@ sub register {
 
 
   # Replace the default Mojolicious logger to route its messages through Log4perl.
-  $app->log(Bloginya::Plugin::Log4perl::LogProxy->new);
+  $app->log(Log::Log4perl->get_logger('Mojolicious'));
 }
 
-
-# This proxy class redirects Mojolicious's internal logging to Log4perl.
-package Bloginya::Plugin::Log4perl::LogProxy {
-  use Mojo::Base -base;
-  use Log::Log4perl;
-
-  # The logger for Mojolicious core messages.
-  has handle => sub { Log::Log4perl->get_logger('mojolicious') };
-
-  sub trace { shift->handle->trace(@_) }
-  sub debug { shift->handle->debug(@_) }
-  sub info  { shift->handle->info(@_) }
-  sub warn  { shift->handle->warn(@_) }
-  sub error { shift->handle->error(@_) }
-  sub fatal { shift->handle->fatal(@_) }
-
-  sub level {
-    my ($self) = @_;
-
-    # Level setting should be done in the log4perl.conf file.
-    # This method returns the effective level from Log4perl for inspection.
-    my $logger = $self->handle;
-    return 'trace' if $logger->is_trace;
-    return 'debug' if $logger->is_debug;
-    return 'info'  if $logger->is_info;
-    return 'warn'  if $logger->is_warn;
-    return 'error' if $logger->is_error;
-    return 'fatal' if $logger->is_fatal;
-    return 'debug';    # Default fallback
-  }
-
-  1;
-
-}
 
 1;

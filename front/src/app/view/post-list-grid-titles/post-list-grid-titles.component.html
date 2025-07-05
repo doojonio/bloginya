@@ -8,14 +8,7 @@
   <a routerLink="/{{ getLink(item) }}">
     <mat-grid-tile>
       <div class="item">
-        <div
-          class="image"
-          [style.background]="
-            item.picture_pre
-              ? 'url(' + item.picture_pre + ') center / cover no-repeat'
-              : 'rgb(117, 85, 112)'
-          "
-        ></div>
+        <div class="image" [style.background]="getPostPreStyle(item)"></div>
         <p class="title">{{ item.title }}</p>
       </div>
     </mat-grid-tile>

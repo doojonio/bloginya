@@ -35,7 +35,7 @@ sub startup ($self) {
   $self->plugin('Bloginya::Plugin::CoolIO', {namespaces => ['Bloginya::Schema']});
 
   $self->exception_format('json');    # Enable JSON format for exceptions
-
+  $self->types->type('webp' => ['image/webp']);
 
   # for files 100mb
   $self->max_request_size(100_000_000);
@@ -108,13 +108,15 @@ sub _setup_routes($self) {
   $api_A->put('/categories')->to('Category#update');
   $api_A->get('/categories/for_edit')->to('Category#get_for_edit');
   $api_A->post('/comments/like')->to('Comment#like');
-  $api_A->post('/drive')->to('File#put_file');
+  $api_A->post('/drive')->to('Drive#put_file');
   $api_A->post('/posts/like')->to('Post#like');
   $api_A->post('/posts/new')->to('Post#create_draft');
   $api_A->post('/posts/publish')->to('Post#publish');
   $api_A->post('comments')->to('Comment#add_comment');
   $api_A->put('/posts/draft')->to('Post#update_draft');
   $api_A->put('posts')->to('Post#apply_changes');
+
+  $r->get('/drive/*upload_id')->to('Drive#get_file');
 }
 
 

@@ -10,6 +10,7 @@ import {
   switchMap,
   throwError,
 } from 'rxjs';
+import { variant } from './drive.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,9 +32,11 @@ export class PostsService {
     shareReplay(1)
   );
 
+  updateHome() {
+    this.updateHome$.next(true);
+  }
+
   private snackBar = inject(MatSnackBar);
-  // request to home: GET /api/posts/home
-  //
 
   getPopularPosts() {
     return this.home$.pipe(map((res) => res.popular_posts));
@@ -146,6 +149,14 @@ export class PostsService {
       params: { id },
     });
   }
+}
+
+export function picStyle(driveId: string | null, varName: string) {
+  if (driveId == null) {
+    return 'rgb(117, 85, 112)';
+  }
+
+  return 'url(' + variant(driveId, varName) + ') center / cover no-repeat';
 }
 
 export enum PostServiceErrors {

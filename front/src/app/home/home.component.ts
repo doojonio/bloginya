@@ -49,6 +49,7 @@ export class HomeComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.seoService.applyDefault();
+    this.postsService.updateHome();
   }
 
   newPosts$ = this.postsService.getNewPosts();
