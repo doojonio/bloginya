@@ -19,10 +19,6 @@ async sub search_p ($self, $query) {
 
   my ($stmt, @binds) = $query->stmt;
 
-  use DDP;
-  p $stmt;
-  p @binds;
-
   $self->log->trace('search: ' . $stmt);
 
   my $res = await $self->db->query_p($stmt, @binds);
