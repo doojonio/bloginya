@@ -17,7 +17,9 @@
     class="content-block"
     [posts]="(newPosts$ | async) || []"
   ></app-post-list-oneline>
+  @if (isHandset()) {
   <mat-divider></mat-divider>
+  }
   <app-post-list-category
     class="content-block"
     title="5 LANGUAGES"
@@ -26,7 +28,9 @@
     [cats]="(langs$ | async) || []"
     [posts]="(langPosts$() | async) || []"
   ></app-post-list-category>
+  @if (isHandset()) {
   <mat-divider></mat-divider>
+  }
   <app-post-list-grid
     class="content-block"
     title="POPULAR"
@@ -34,7 +38,7 @@
     [posts]="(popularPosts$ | async) || []"
   ></app-post-list-grid>
 
-  @if (isHandset$ |async) {
+  @if (isHandset()) {
   <mat-divider class="divider-footer"></mat-divider>
   }
 </div>
