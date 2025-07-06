@@ -2,7 +2,8 @@
 
 <p class="title">{{ title }}</p>
 }
-<div class="posts noscrollbar">
+
+<div class="posts noscrollbar" #postsContainer>
   @for (item of posts(); track item.id) {
   <div class="post">
     <a
@@ -30,3 +31,13 @@
   </div>
   }
 </div>
+@if (!( isHandset$ | async )) {
+<div class="actions">
+  <button matButton="outlined" class="btn-prev" (click)="scrollPrev()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  <button matButton="outlined" class="btn-next" (click)="scrollNext()">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+</div>
+}
