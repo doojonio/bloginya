@@ -33,7 +33,12 @@
     >
       <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
     </button>
-    <a class="title" routerLink="/">{{ appName$ | async }}</a>
+    <a
+      class="title"
+      [class]="(isShowTitle$ | async) ? 'visible' : 'hidden'"
+      routerLink="/"
+      >{{ appName$ | async }}</a
+    >
   </div>
   <span class="flex-spacer"></span>
   <app-search></app-search>
