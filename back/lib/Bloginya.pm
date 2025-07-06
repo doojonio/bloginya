@@ -61,6 +61,8 @@ sub _setup_routes($self) {
     '/' => sub ($c) {
       $c->current_user_p->then(sub {
         $c->continue;
+      })->catch(sub ($e) {
+        $c->reply->exception($e);
       });
 
       return undef;
@@ -93,6 +95,8 @@ sub _setup_routes($self) {
           return;
         }
         return $c->continue;
+      })->catch(sub ($e) {
+        $c->reply->exception($e);
       });
 
       return undef;
