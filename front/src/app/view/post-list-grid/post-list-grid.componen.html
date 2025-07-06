@@ -1,7 +1,7 @@
 @if (title(); as title) {
 <p class="title">{{ title }}</p>
 }
-<mat-grid-list gutterSize="2" cols="3" rowHeight="130">
+<mat-grid-list [gutterSize]="isHandset() ? '2' : '10'" [cols]="isHandset() ? 3 : 4" [rowHeight]="isHandset() ? 130 : 100">
   @for (item of ( onSecondPage ? secondPage() : firstPage() ) ; track item.id; let
   idx = $index; let count = $count ) { @let dim = calculateDimension(idx,
   count);
@@ -11,7 +11,10 @@
       [style.background]="getPostPreStyle(item)"
       [colspan]="dim[0]"
       [rowspan]="dim[1]"
-    ></mat-grid-tile>
+
+      [style.color]="'red'"
+      [style.bold]="true"
+    >{{ idx }} </mat-grid-tile>
   </a>
   }
 </mat-grid-list>
