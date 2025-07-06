@@ -1,15 +1,27 @@
+@use "../../mixins" as mixs;
 .header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
 
+  @include mixs.for-size("desktop") {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+mat-toolbar {
   padding: 0;
 }
 
 app-toolbar {
   width: 100%;
   height: 100%;
+
+  @include mixs.for-size("desktop") {
+    max-width: var(--post-max-width);
+  }
 }
 
 .sidenav-container {
