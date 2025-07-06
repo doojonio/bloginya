@@ -4,6 +4,13 @@
   min-height: 100%;
 
   @include mixs.for-size("desktop") {
+    width: 100%;
+  }
+}
+
+@include mixs.for-size("desktop") {
+  app-navigation {
+    display: block;
     max-width: var(--post-max-width);
     margin: auto;
   }

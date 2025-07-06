@@ -5,8 +5,9 @@
   <mat-sidenav
     #drawer
     class="sidenav"
-    mode="over"
-  >
+    fixedInViewport
+    [fixedTopGap]="56"
+   >
     <app-sidenav></app-sidenav>
   </mat-sidenav>
   <mat-sidenav-content #content>

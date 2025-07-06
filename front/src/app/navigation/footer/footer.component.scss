@@ -1,12 +1,5 @@
 @use "../../../mixins" as mixs;
 
-@include mixs.for-size("desktop") {
-  .container {
-    max-width: var(--post-max-width);
-    margin: auto;
-  }
-}
-
 .image {
   background: url("/assets/images/m_wp_footer.webp");
 
