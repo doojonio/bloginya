@@ -6,8 +6,8 @@
     #drawer
     class="sidenav"
     fixedInViewport
-    [fixedTopGap]="56"
-   >
+    [fixedTopGap]="isHandset() ? 56 : 64"
+  >
     <app-sidenav></app-sidenav>
   </mat-sidenav>
   <mat-sidenav-content #content>
