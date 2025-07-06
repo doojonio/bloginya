@@ -1,7 +1,7 @@
 <mat-toolbar class="header">
   <app-toolbar [drawer]="drawer"></app-toolbar>
 </mat-toolbar>
-<mat-sidenav-container class="sidenav-container">
+<mat-sidenav-container [style.marginTop.px]="isHandset() ? 56 : 64" class="sidenav-container">
   <mat-sidenav
     #drawer
     class="sidenav"
