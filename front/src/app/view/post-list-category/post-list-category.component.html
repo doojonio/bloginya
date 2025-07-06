@@ -14,7 +14,7 @@
 </div>
 <app-post-list-med
   [imageFirst]="true"
-  [posts]="posts()"
+  [posts]="first5()"
   [divider]="false"
 ></app-post-list-med>
 } @else {
@@ -26,20 +26,20 @@
         <div class="desktop-col">
           <app-post-list-med
             [imageFirst]="true"
-            [posts]="posts()"
+            [posts]="first3()"
             [divider]="false"
           ></app-post-list-med>
         </div>
         <div class="desktop-col">
           <app-post-list-med
             [imageFirst]="true"
-            [posts]="posts()"
+            [posts]="second3()"
             [divider]="false"
           ></app-post-list-med>
         </div>
       </div>
       <div class="desktop-row">
-        @for (post of posts().slice(0, 3); track post.id) {
+        @for (post of third3(); track post.id) {
         <a class="row-post" [routerLink]="linkForPost(post)">
           <div class="row-post-img" [style.background]="imageUrl(post)"></div>
           <div class="row-post-info">

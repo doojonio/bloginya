@@ -1,5 +1,5 @@
 import { UpperCasePipe } from '@angular/common';
-import { Component, inject, input, model } from '@angular/core';
+import { Component, computed, inject, input, model } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
@@ -45,4 +45,9 @@ export class PostListCategoryComponent {
   cats = input.required<Category[]>();
   selectedCat = model<Category>();
   posts = input.required<CatPost[]>();
+
+  first5 = computed(() => this.posts().slice(0, 5));
+  first3 = computed(() => this.posts().slice(0, 3));
+  second3 = computed(() => this.posts().slice(3, 6));
+  third3 = computed(() => this.posts().slice(6, 9));
 }

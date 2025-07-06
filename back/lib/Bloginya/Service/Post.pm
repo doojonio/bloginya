@@ -433,14 +433,10 @@ async sub list_new_posts_p($self, $limit = 8) {
   return $res->hashes;
 }
 
-async sub list_posts_by_category_p($self, $category_id, $limit = 5) {
-  my @p_fields = ('p.id', 'sn.name', ['upre.id' => 'picture_pre'], 'p.category_id', 'p.title', 'p.description',);
+async sub list_posts_by_category_p($self, $category_id, $limit = 9) {
+  my @p_fields = ('p.id', 'sn.name', 'p.picture_pre', 'p.category_id', 'p.title', 'p.description',);
   my $res      = await $self->db->select_p(
-    [
-      \'posts p',
-      [-left => \'shortnames sn', 'p.id'    => 'sn.post_id'],
-      [-left => \'uploads upre',  'upre.id' => 'p.picture_pre'],
-    ],
+    [\'posts p', [-left => \'shortnames sn', 'p.id' => 'sn.post_id'],],
     [
       @p_fields,
       [
