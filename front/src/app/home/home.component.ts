@@ -7,13 +7,14 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { Observable, of, tap } from 'rxjs';
+import { of, tap } from 'rxjs';
 import { AppService } from '../app.service';
 import { VisibilityDirective } from '../directives/visibility.directive';
 import { Category, PostsService } from '../posts.service';
@@ -43,7 +44,7 @@ import { PostListOnelineComponent } from '../view/post-list-oneline/post-list-on
 })
 export class HomeComponent implements OnDestroy, OnInit {
   appService = inject(AppService);
-  isHandset$: Observable<boolean> = this.appService.isHandset();
+  isHandset = toSignal(this.appService.isHandset());
   postsService = inject(PostsService);
   seoService = inject(SeoService);
 

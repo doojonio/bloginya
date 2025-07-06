@@ -13,6 +13,7 @@
   mat-chip-listbox {
     padding: 0;
     width: max-content;
+    margin-bottom: 1rem;
   }
 
   @include mat.chips-overrides(
@@ -24,4 +25,53 @@
       // label-text-color: var(--mat-sys-on-),
     )
   );
+}
+
+.desktop-cols {
+  display: flex;
+  flex-flow: row nowrap;
+  margin-top: 1rem;
+}
+
+.desktop-col {
+  width: 50%;
+}
+
+.desktop-row {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.row-post {
+  all: unset;
+  display: block;
+  cursor: pointer;
+  flex-basis: 33%;
+}
+
+.row-post-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+
+  object-fit: cover;
+  border-radius: 1rem;
+  background-size: cover;
+  background-position: center;
+}
+
+.row-post-title {
+  @include mixs.line-clamp(1);
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-large);
+  cursor: pointer;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.row-post-descr {
+  margin: 0;
+  @include mixs.line-clamp(3);
+  font: var(--mat-sys-body-medium);
 }

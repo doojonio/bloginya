@@ -1,4 +1,5 @@
 @use "@angular/material" as mat;
+@use "../../../mixins" as mixs;
 .title {
   color: var(--mat-sys-primary);
   font: var(--mat-sys-title-medium);
@@ -40,5 +41,9 @@
         outlined-outline-color: var(--mat-sys-outline-variant),
       )
     );
+
+    @include mixs.for-size(desktop) {
+      width: 40ch;
+    }
   }
 }
