@@ -1,6 +1,6 @@
 @use "@angular/material" as mat;
 @use "../../theme-colors" as theme;
-@use '../../mixins' as mixs;
+@use "../../mixins" as mixs;
 
 .content {
   padding: 0 20px;
@@ -8,11 +8,6 @@
 
 .slogan {
   height: 12rem;
-
-  @include mixs.for-size(desktop) {
-    height: 15rem;
-  }
-
 
   display: flex;
   flex-direction: column;
@@ -33,6 +28,10 @@
 
   .text {
     font: var(--mat-sys-label-small);
+  }
+
+  @include mixs.for-size(desktop) {
+    height: 15rem;
   }
 }
 
