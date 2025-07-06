@@ -24,8 +24,17 @@
 } } @else {
 
 <div class="container">
-  <a class="title" routerLink="/">{{ appName$ | async }}</a>
+  <div class="title-container">
+    <button
+      type="button"
+      aria-label="Toggle sidenav"
+      matIconButton
+      (click)="drawer().toggle()"
+    >
+      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+    <a class="title" routerLink="/">{{ appName$ | async }}</a>
+  </div>
   <app-search></app-search>
-  <div></div>
 </div>
 }

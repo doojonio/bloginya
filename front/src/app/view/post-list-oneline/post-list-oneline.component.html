@@ -3,7 +3,7 @@
 <p class="title">{{ title }}</p>
 }
 <div class="posts noscrollbar">
-  @for (item of posts(); track item) {
+  @for (item of posts(); track item.id) {
   <div class="post">
     <a
       class="post-pre"
