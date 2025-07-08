@@ -1,8 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { map, shareReplay } from 'rxjs';
-import { medium } from '../../drive.service';
-import { Draft, PostsService } from '../../posts.service';
+import { map, shareReplay, tap } from 'rxjs';
+import { PostsService } from '../../posts.service';
 import { PostListGridTitlesComponent } from '../post-list-grid-titles/post-list-grid-titles.component';
 
 @Component({
@@ -13,22 +12,20 @@ import { PostListGridTitlesComponent } from '../post-list-grid-titles/post-list-
 })
 export class DraftsComponent {
   postsService = inject(PostsService);
-  draftsResponse$ = this.postsService.getDrafts().pipe(shareReplay(1));
+  draftsResponse$ = this.postsService.getDrafts().pipe(
+    shareReplay(1),
+    tap((drafts) => {
+      this.maxLength = Math.max(
+        drafts.continue_edit.length,
+        drafts.drafts.length
+      );
+    })
+  );
 
   continueEdit$ = this.draftsResponse$.pipe(
-    map((drafts) => this.mapDriveUrl(drafts.continue_edit))
+    map((drafts) => drafts.continue_edit)
   );
-  drafts$ = this.draftsResponse$.pipe(
-    map((drafts) => this.mapDriveUrl(drafts.drafts))
-  );
+  drafts$ = this.draftsResponse$.pipe(map((drafts) => drafts.drafts));
 
-  mapDriveUrl(posts: Draft[]) {
-    for (const post of posts) {
-      if (post.picture_pre) {
-        post.picture_pre = medium(post.picture_pre);
-      }
-    }
-
-    return posts;
-  }
+  maxLength = 0;
 }

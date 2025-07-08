@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { CommentInputComponent } from './comment-input/comment-input.component';
 import { CommentViewComponent } from './comment-view/comment-view.component';
 import { CommentsComponent } from './comments/comments.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { CommentsComponent } from './comments/comments.component';
     DatePipe,
     MatIconModule,
     MatButtonModule,
+    MatMenuModule,
   ],
 })
 export class CommentsModule {}

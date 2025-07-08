@@ -7,8 +7,10 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { take, tap, timer } from 'rxjs';
 import { CommentsService } from '../../../../comments.service';
+import { UserService } from '../../../../user.service';
 import { CommentsComponent } from '../comments/comments.component';
 
 @Component({
@@ -22,7 +24,9 @@ export class CommentViewComponent {
 
   replyToId = input<string>();
 
-  commentsService = inject(CommentsService);
+  private readonly commentsService = inject(CommentsService);
+  private readonly userService = inject(UserService);
+  user = toSignal(this.userService.getCurrentUser());
 
   likeAnimClass = signal('');
   postId = input.required<string>();
@@ -93,10 +97,23 @@ export class CommentViewComponent {
   toggleReplies() {
     this.isShowingReplies = !this.isShowingReplies;
   }
+
+  onDelete = output<void>();
+  blockUser(userId: string) {
+    this.commentsService.blockUser(userId).subscribe((_) => {
+      this.onDelete.emit();
+    });
+  }
+  deleteComment(comId: string) {
+    this.commentsService.deleteComment(comId).subscribe((_) => {
+      this.onDelete.emit();
+    });
+  }
 }
 
 export interface CommentDto {
   id: string;
+  user_id: string;
   created_at: string;
   edited_at: string | null;
   content: string;

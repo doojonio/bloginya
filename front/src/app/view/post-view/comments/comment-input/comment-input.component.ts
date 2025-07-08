@@ -92,6 +92,7 @@ export class CommentInputComponent implements OnInit {
       .subscribe((id) => {
         this.onAddComment.emit({
           id: id,
+          user_id: user.id,
           edited_at: null,
           created_at: new Date().toISOString(),
           content: content,

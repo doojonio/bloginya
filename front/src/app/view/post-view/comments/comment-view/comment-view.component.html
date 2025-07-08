@@ -1,6 +1,6 @@
 @if (comment(); as com) {
 <img [class]="replyToId() ? 'av-small' : 'av'" src="{{ com.picture }}" />
-<div>
+<div class="comment">
   <div class="top">
     <a class="uname">{{ "@" + com.username }}</a>
     <a class="date">{{ com.created_at | date }}</a>
@@ -21,6 +21,20 @@
     {{ com.likes }}
     }
     <button matButton="text" (click)="startReply()" i18n>Reply</button>
+
+    @if(user(); as user) { @if (com.user_id == user.id || user.role == 'owner')
+    {
+    <button matIconButton [mat-menu-trigger-for]="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      @if (user.id == com.user_id || user.role == 'owner') {
+      <button mat-menu-item (click)="deleteComment(com.id)">Delete</button>
+      } @if (user.role == 'owner' && user.id != com.user_id) {
+      <button mat-menu-item (click)="blockUser(com.user_id)">Block</button>
+      }
+    </mat-menu>
+    } }
   </div>
 
   @if (isReplying) {

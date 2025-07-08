@@ -31,6 +31,8 @@ export class NavigationComponent implements OnInit {
   appService = inject(AppService);
   isHandset = toSignal(this.appService.isHandset());
 
+  drawerOpened = false;
+
   private scrollToTopSub = this.appService
     .getScrollToTop()
     .pipe(takeUntilDestroyed())
@@ -45,8 +47,6 @@ export class NavigationComponent implements OnInit {
   @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
 
   closeDrawer() {
-    if (this.isHandset()) {
-      this.drawer.close();
-    }
+    this.drawer.close();
   }
 }

@@ -10,7 +10,7 @@ import {
   switchMap,
   throwError,
 } from 'rxjs';
-import { variant } from './drive.service';
+import { VARIANT, variant } from './drive.service';
 
 @Injectable({
   providedIn: 'root',
@@ -151,7 +151,7 @@ export class PostsService {
   }
 }
 
-export function picStyle(driveId: string | null, varName: string) {
+export function picStyle(driveId: string | null, varName: VARIANT) {
   if (driveId == null) {
     return 'rgb(117, 85, 112)';
   }

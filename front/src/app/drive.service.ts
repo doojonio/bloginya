@@ -27,22 +27,11 @@ export function pic(driveId: string) {
   return parts.slice(0, 5).join('/');
 }
 
-export function variant(driveId: string | null, variant: string) {
+export function variant(driveId: string | null, variant: VARIANT) {
   if (driveId == null || driveId == '') {
     return null;
   }
   return driveId + '?d=' + variant;
 }
 
-export function thumbnail(driveId: string | null) {
-  return variant(driveId, 'thumbnail');
-}
-export function medium(driveId: string | null) {
-  return variant(driveId, 'medium');
-}
-export function large(driveId: string | null) {
-  return variant(driveId, 'large');
-}
-export function original(driveId: string | null) {
-  return variant(driveId, 'original');
-}
+export type VARIANT = 'thumbnail' | 'medium' | 'large' | 'original';

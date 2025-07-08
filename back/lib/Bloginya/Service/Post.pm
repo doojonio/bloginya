@@ -90,8 +90,8 @@ async sub read_p($self, $post_id) {
         where pt.post_id = p.id
       )' => 'tags'
     ],
-    [\'(select count(*) from comments where post_id = p.id)'   => 'comments'],
-    [\'(select count(*) from post_likes where post_id = p.id)' => 'likes'],
+    [\"(select count(*) from comments where post_id = p.id and status = 'ok')" => 'comments'],
+    [\'(select count(*) from post_likes where post_id = p.id)'                 => 'likes'],
   );
 
   my $user = $self->current_user;
@@ -379,8 +379,12 @@ async sub _update_meta_from_content_p($self, $post_id) {
   await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => $img_ids}});
   await $self->db->update_p(
     'posts',
-    {meta => {-json => {ttr => $ttr, pics => $pics_num}}, picture_pre => $picture_pre, description => $descr},
-    {id   => $post_id}
+    {
+      meta        => {-json => {ttr => $ttr, pics => $pics_num}},
+      picture_pre => $picture_pre // $row->{picture_wp},
+      description => $descr
+    },
+    {id => $post_id}
   );
 }
 
