@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { medium } from './drive.service';
+import { variant } from './drive.service';
 
 @Injectable({
   providedIn: 'root',
@@ -97,7 +97,8 @@ export class SeoService {
       description: post.description,
       type: 'article',
       url: this.SITE + (post.name ? post.name : 'p/' + post.id),
-      image: this.SITE + (medium(post.picture_pre) || this.DEFAULT_PRE),
+      image:
+        this.SITE + (variant(post.picture_pre, 'medium') || this.DEFAULT_PRE),
       domain: this.DOMAIN,
     });
   }

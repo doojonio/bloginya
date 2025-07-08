@@ -21,9 +21,26 @@
   }
 
   .title {
-    color: var(--mat-sys-primary);
+    color: #ffecf1;//var(--mat-sys-primary);
     font: var(--mat-sys-headline-small);
     font-weight: bold;
+
+    animation: neon-glow 1.5s ease-in-out infinite alternate;
+
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 150%;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: var(--mat-sys-primary);
+      transform: perspective(10px) rotateX(10deg) scale(1, 0.2);
+      filter: blur(1em);
+      opacity: 0.5;
+    }
   }
 
   .text {
@@ -56,4 +73,19 @@ mat-divider {
 .divider {
   margin: 2rem 0;
   height: 1px;
+}
+
+@keyframes neon-glow {
+  from {
+    text-shadow: 0 0 10px #ffecf1, 0 0 20px var(--mat-sys-tertiary), 0 0 30px var(--mat-sys-tertiary),
+      0 0 40px var(--mat-sys-primary), 0 0 70px var(--mat-sys-primary),
+      0 0 80px var(--mat-sys-primary), 0 0 100px var(--mat-sys-primary),
+      0 0 150px var(--mat-sys-primary);
+  }
+  to {
+    text-shadow: 0 0 5px #ffecf1, 0 0 10px var(--mat-sys-tertiary), 0 0 15px var(--mat-sys-tertiary),
+      0 0 20px var(--mat-sys-primary), 0 0 35px var(--mat-sys-primary),
+      0 0 40px var(--mat-sys-primary), 0 0 50px var(--mat-sys-primary),
+      0 0 75px var(--mat-sys-primary);
+  }
 }
