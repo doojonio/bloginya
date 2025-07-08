@@ -43,5 +43,11 @@ async sub unlike($self) {
   return $self->msg('OK');
 }
 
+async sub delete($self) {
+  my $id = $self->i(id => 'cool_id');
+  await $self->service('comment')->delete_p($id);
+  return $self->msg('OK');
+}
+
 
 1

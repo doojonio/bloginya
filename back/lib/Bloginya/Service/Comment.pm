@@ -33,16 +33,17 @@ async sub list_by_post_p($self, $post_id, $reply_to_id = undef) {
     [\'comments c', [-left => \'users u', 'u.id' => 'c.user_id']],
     [
       'c.id',
+      'c.user_id',
       'c.created_at',
       'c.edited_at',
       'c.content',
       'u.username',
       [\"u.google_userinfo->>'picture'" => 'picture'],
       \'(select count(cl.*) from comment_likes cl where cl.comment_id = c.id) as likes',
-      \'(select count(cr.id) from comments cr where cr.reply_to_id = c.id) as replies',
+      \'(select count(cr.id) from comments cr where cr.reply_to_id = c.id and cr.status = \'ok\') as replies',
       @more_sel,
     ],
-    {post_id  => $post_id, reply_to_id => $reply_to_id},
+    {post_id  => $post_id, reply_to_id => $reply_to_id, 'c.status' => 'ok'},
     {order_by => {($reply_to_id ? '-asc' : '-desc') => 'c.created_at'}},
   );
 
@@ -71,6 +72,19 @@ async sub like_p ($self, $comment_id) {
 async sub unlike_p ($self, $comment_id) {
   die 'no rights' unless my $u = $self->current_user;
   await $self->db->delete_p('comment_likes', {user_id => $u->{id}, comment_id => $comment_id});
+}
+
+async sub delete_p($self, $comment_id) {
+  die 'no rights' unless my $u = $self->current_user;
+
+  my $com = (await $self->db->select_p('comments', ['user_id'], {id => $comment_id}))->hashes->first;
+  die 'no rights' if $com->{user_id} ne $u->{id} || $u->{role} ne 'owner';
+
+  my $tx = $self->db->begin;
+  await $self->db->update_p('comments', {status => 'deleted'},
+    {-or => [id => $comment_id, reply_to_id => $comment_id]});
+
+  $tx->commit;
 }
 
 

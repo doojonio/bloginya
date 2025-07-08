@@ -59,7 +59,11 @@ sub _setup_routes($self) {
   # detect user
   my $api_U = $api->under(
     '/' => sub ($c) {
-      $c->current_user_p->then(sub {
+      $c->current_user_p->then(sub ($u) {
+        if ($u && $u->{status} eq 'blocked') {
+          return $c->msg('BLOCKED', 403);
+        }
+
         $c->continue;
       })->catch(sub ($e) {
         $c->reply->exception($e);
@@ -94,6 +98,10 @@ sub _setup_routes($self) {
           $c->render(json => {message => 'Unauthorized'}, status => 401);
           return;
         }
+        if ($u->{status} eq 'blocked') {
+          return $c->msg('BLOCKED', 403);
+        }
+
         return $c->continue;
       })->catch(sub ($e) {
         $c->reply->exception($e);
@@ -120,6 +128,8 @@ sub _setup_routes($self) {
   $api_A->post('comments')->to('Comment#add_comment');
   $api_A->put('/posts/draft')->to('Post#update_draft');
   $api_A->put('posts')->to('Post#apply_changes');
+  $api_A->delete('/comments')->to('Comment#delete');
+  $api_A->post('/users/block')->to('User#block');
 
   $r->get('/drive/*upload_id')->to('Drive#get_file');
 }

@@ -38,6 +38,19 @@ export class CommentsService {
       params: { id },
     });
   }
+
+  deleteComment(id: string) {
+    return this.http.delete<OkResponse>('/api/comments', {
+      params: { id },
+    });
+  }
+
+  blockUser(userId: string) {
+    // TODO move to users service
+    return this.http.post<OkResponse>('/api/users/block', null, {
+      params: { id: userId },
+    });
+  }
 }
 
 export interface OkResponse {
@@ -46,6 +59,7 @@ export interface OkResponse {
 
 export interface GetCommentResponseItem {
   id: string;
+  user_id: string;
   created_at: string;
   edited_at: string | null;
   content: string;
