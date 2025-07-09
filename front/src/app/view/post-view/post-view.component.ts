@@ -78,7 +78,7 @@ export class PostViewComponent {
   likeAnimClass = signal('');
 
   title_image_style = computed(() => {
-    const url = variant(this.post().picture_wp, 'large');
+    const url = variant(this.post().picture_wp, 'medium');
     return url
       ? {
           background: [

@@ -25,7 +25,7 @@ export class PostListCategoryComponent {
     return post.name ? '/' + post.name : '/p/' + post.id;
   }
   imageUrl(post: CatPost) {
-    return picStyle(post.picture_pre, 'medium');
+    return picStyle(post.picture_pre, 'pre280');
   }
   onChangeTab($event: MatTabChangeEvent) {
     let cats = this.cats();

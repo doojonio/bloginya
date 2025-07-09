@@ -68,6 +68,6 @@ export class PostListGridComponent {
   }
 
   getPostPreStyle(post: PopularPost) {
-    return picStyle(post.picture_pre, 'medium');
+    return picStyle(post.picture_pre, 'pre450');
   }
 }

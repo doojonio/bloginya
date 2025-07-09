@@ -53,7 +53,7 @@ export class PostListOnelineComponent {
   });
 
   getPostPreStyle(post: PostOneLinePost) {
-    return { background: picStyle(post.picture_pre, 'medium') };
+    return { background: picStyle(post.picture_pre, 'pre280') };
   }
 
   /* DEKSTOP

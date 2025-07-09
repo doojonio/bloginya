@@ -9,8 +9,9 @@ use Time::Piece              ();
 use UUID                     qw(uuid4);
 use Mojo::IOLoop::Subprocess ();
 
-use constant SIZES => {'thumbnail' => {size => 40, square => 1}, 'medium' => {size => 480}, 'large' => {size => 1200}};
-use constant SUBP  => 'Mojo::IOLoop::Subprocess';
+use Bloginya::Model::Upload qw(SIZES);
+
+use constant SUBP => 'Mojo::IOLoop::Subprocess';
 
 has 'app';
 has 'db';
@@ -34,7 +35,7 @@ async sub get_or_create_variant_p($self, $upload_id, $dimension) {
   $file = $dir->child($dimension . '.webp');
 
   unless (-e $file) {
-    my $any_ext = $dir->list->first(qr/$dimension/);
+    my $any_ext = $dir->list->first(qr/$dimension\./);
     $file = $any_ext if $any_ext;
   }
 
@@ -52,16 +53,15 @@ sub _create_variant ($self, $orig, $dimension) {
   my $im = $self->im;
   $self->log->debug(qq/Generating variant for "$orig"/);
 
-  # By appending "[0]", we instruct Image::Magick to read only the first frame.
-  # This is crucial for handling animated GIFs without loading all frames into
-  # memory, which prevents Out-Of-Memory (OOM) errors.
-  $im->Read($orig . '[0]');
+  my $size = SIZES->{$dimension};
+
+  my $is_gif = $orig =~ /\.gif$/;
+  $im->Read($orig . ($size->{gifable} ? '' : '[0]'));
 
   my ($orig_width, $orig_height) = $im->Get('width', 'height');
   $self->log->trace(qq/Original image dimensions: ${orig_width}x${orig_height}/);
   my $reduce_width = $orig_width > $orig_height;
 
-  my $size    = SIZES->{$dimension};
   my $px_size = $size->{size};
 
   # my $new_file = $orig->dir->child($dimension);
@@ -76,6 +76,10 @@ sub _create_variant ($self, $orig, $dimension) {
 
   my $variant = $im->Clone();
   my $max     = $px_size;
+
+  if ($is_gif && $size->{gifable}) {
+    $variant = $variant->Coalesce();
+  }
 
   if ($size->{square}) {
 
@@ -94,7 +98,8 @@ sub _create_variant ($self, $orig, $dimension) {
     }
   }
 
-  $variant->Set(magick => 'webp');
+  $variant->Set(magick  => ($is_gif && $size->{gifable} ? 'gif' : 'webp'));
+  $variant->Set(quality => $size->{quality}) if $size->{quality};
   my $path = $orig->dirname->child($dimension . '.webp');
   $self->log->trace(qq/Writing '$dimension' variant to "$path"/);
   $variant->Write($path);

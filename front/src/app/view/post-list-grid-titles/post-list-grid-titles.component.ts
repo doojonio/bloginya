@@ -34,7 +34,7 @@ export class PostListGridTitlesComponent {
   isHandset$ = this.appService.isHandset();
 
   getPostPreStyle(post: Post) {
-    return picStyle(post.picture_pre, 'medium');
+    return picStyle(post.picture_pre, 'pre280');
   }
 }
 export interface Post {
