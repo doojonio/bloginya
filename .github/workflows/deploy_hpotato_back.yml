@@ -31,7 +31,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: true
-          tags: cr.selcloud.ru/registry-12/bloginya_back:latest
+          tags: cr.selcloud.ru/registry-12/bloginya_back:develop
 
   deploy:
     name: Deploy Ansible Playbook
@@ -67,4 +67,4 @@ jobs:
             -e bloginya_google_client_id=${{ secrets.GOOGLE_CLIENT_ID }} \
             -e bloginya_google_project_id=${{ secrets.GOOGLE_PROJECT_ID }} \
             -e bloginya_google_client_secret=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-            p.deploy-app.yml
+            p.deploy-hpotato.yml

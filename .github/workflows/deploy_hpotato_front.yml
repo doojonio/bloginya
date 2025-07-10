@@ -29,4 +29,4 @@ jobs:
         with:
           context: ./front
           push: true
-          tags: cr.selcloud.ru/registry-12/bloginya_front:latest
+          tags: cr.selcloud.ru/registry-12/bloginya_front:develop
