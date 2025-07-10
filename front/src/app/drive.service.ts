@@ -34,4 +34,11 @@ export function variant(driveId: string | null, variant: VARIANT) {
   return driveId + '?d=' + variant;
 }
 
-export type VARIANT = 'thumbnail' | 'medium' | 'large' | 'original';
+export type VARIANT =
+  | 'thumbnail'
+  | 'pre140'
+  | 'pre280'
+  | 'pre450'
+  | 'medium'
+  | 'large'
+  | 'original';

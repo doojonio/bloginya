@@ -18,7 +18,7 @@ export class PostMedComponent {
   }
 
   getPostPreStyle(post: PostMed) {
-    return picStyle(post.picture_pre, 'medium');
+    return picStyle(post.picture_pre, 'pre140');
   }
 }
 

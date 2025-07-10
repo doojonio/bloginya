@@ -227,7 +227,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         this.draft.setValue({
           title: post.title || '',
           document: post.document,
-          picture_wp: variant(post.picture_wp, 'large'),
+          picture_wp: variant(post.picture_wp, 'medium'),
         });
 
         this.tags.set(post.tags);
@@ -436,7 +436,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         return throwError(() => err);
       }),
       map((res) => {
-        return { id: pholdId, path: variant(res.id, 'large') };
+        return { id: pholdId, path: variant(res.id, 'medium') };
       })
     );
 
