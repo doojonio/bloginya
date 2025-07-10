@@ -3,14 +3,14 @@ name: Deploy front using Ansible
 on:
   push:
     branches:
-      - master
+      - develop
     paths:
       - "front/**"
 
 jobs:
   build_push:
     runs-on: ubuntu-latest
-    environment: polyine
+    environment: hpotato
     steps:
       - name: Checkout
         uses: actions/checkout@v4

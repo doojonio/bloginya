@@ -3,14 +3,14 @@ name: Deploy backend using Ansible
 on:
   push:
     branches:
-      - master
+      - develop
     paths:
       - "back/**"
 
 jobs:
   build_push:
     runs-on: ubuntu-latest
-    environment: polyine
+    environment: hpotato
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,7 +38,7 @@ jobs:
     needs:
       - build_push
     runs-on: ubuntu-latest
-    environment: polyine
+    environment: hpotato
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,4 +67,4 @@ jobs:
             -e bloginya_google_client_id=${{ secrets.GOOGLE_CLIENT_ID }} \
             -e bloginya_google_project_id=${{ secrets.GOOGLE_PROJECT_ID }} \
             -e bloginya_google_client_secret=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-            p.deploy-polyine.yml
+            p.deploy-app.yml
