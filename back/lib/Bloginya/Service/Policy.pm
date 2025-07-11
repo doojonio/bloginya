@@ -46,5 +46,12 @@ sub can_create_post($self) {
   return 1;
 }
 
+sub can_change_categories($self) {
+  my $user = $self->current_user;
+  return 0 unless $user;
+  return 1 if $user->{role} eq USER_ROLE_OWNER;
+  return 0;
+}
+
 
 1;

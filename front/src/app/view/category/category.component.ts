@@ -88,7 +88,7 @@ export class CategoryComponent {
       });
       this.router.navigate([
         '/',
-        resp.shortname ? resp.shortname : 'c/' + resp.id,
+        resp.shortname ? resp.shortname : 'c', resp.id,
       ]);
     });
   }

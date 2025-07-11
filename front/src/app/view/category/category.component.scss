@@ -29,6 +29,9 @@
 }
 .content {
   padding: 0 1rem;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
 }
 
 .sorts {
@@ -41,4 +44,8 @@
   margin-top: 2rem;
   display: flex;
   justify-content: center;
+}
+
+app-post-list-grid-titles {
+  margin-bottom: 1rem;
 }

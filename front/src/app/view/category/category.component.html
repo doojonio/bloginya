@@ -3,11 +3,10 @@
   <div class="title-container">
     <p>{{ cat.title }}</p>
 
-    @if (user$ | async) {
+    @if (( user$ | async )?.role == 'owner') {
     <button matIconButton (click)="editCategory()">
       <mat-icon>edit</mat-icon>
     </button>
-
     }
   </div>
 
@@ -42,7 +41,8 @@
       [divider]="false"
       [posts]="cat.list_posts"
     ></app-post-list-med>
-    } @if (cat.posts_num > 23) {
+    }
+    @if (cat.posts_num > 23) {
     <div class="pagin">
       <mat-paginator
         (page)="onPageChange($event.pageIndex)"
