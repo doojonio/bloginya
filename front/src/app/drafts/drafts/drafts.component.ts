@@ -1,12 +1,10 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { map, shareReplay, tap } from 'rxjs';
 import { PostsService } from '../../posts.service';
-import { PostListGridTitlesComponent } from '../post-list-grid-titles/post-list-grid-titles.component';
 
 @Component({
   selector: 'app-drafts',
-  imports: [AsyncPipe, PostListGridTitlesComponent],
+  standalone: false,
   templateUrl: './drafts.component.html',
   styleUrl: './drafts.component.scss',
 })

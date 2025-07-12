@@ -1,10 +1,14 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { DraftsComponent } from './view/drafts/drafts.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'POLYINE' },
-  { path: 'drafts', component: DraftsComponent, title: 'POLYINE | Drafts' },
+  {
+    path: 'drafts',
+    loadChildren: () =>
+      import('./drafts/drafts.module').then((m) => m.DraftsModule),
+    title: 'POLYINE | Drafts',
+  },
   {
     path: 'e',
     loadChildren: () => import('./edit/edit.module').then((m) => m.EditModule),
