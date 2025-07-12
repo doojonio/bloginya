@@ -3,11 +3,11 @@ import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { Category, SortBy } from '../../category/category/category.component';
-import { ReadPostResponse } from '../../posts.service';
+import { ReadPostResponse } from '../../shared/services/posts.service';
 import {
   ItemShortnameResponse,
   ShortnamesService,
-} from '../../shortnames.service';
+} from '../../shared/services/shortnames.service';
 
 @Component({
   standalone: false,

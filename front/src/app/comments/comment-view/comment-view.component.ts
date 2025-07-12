@@ -11,7 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { take, tap, timer } from 'rxjs';
 import { CommentsComponent } from '../comments/comments.component';
 import { CommentsService } from '../comments.service';
-import { UserService } from '../../user.service';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   standalone: false,

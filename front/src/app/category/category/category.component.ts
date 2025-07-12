@@ -5,9 +5,9 @@ import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
 import { CategoryEditorComponent } from '../../category-editor/category-editor.component';
 import { CategoryService } from '../category.service';
-import { PostMed } from '../../posts.service';
-import { SeoService } from '../../seo.service';
-import { UserService } from '../../user.service';
+import { PostMed } from '../../shared/services/posts.service';
+import { SeoService } from '../../shared/services/seo.service';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-category',

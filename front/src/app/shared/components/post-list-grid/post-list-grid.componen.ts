@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { AppService } from '../../../app.service';
-import { picStyle, PopularPost } from '../../../posts.service';
+import { AppService } from '../../services/app.service';
+import { picStyle, PopularPost } from '../../services/posts.service';
 
 @Component({
   selector: 'app-post-list-grid',

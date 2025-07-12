@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { map, shareReplay, tap } from 'rxjs';
-import { PostsService } from '../../posts.service';
+import { PostsService } from '../../shared/services/posts.service';
 
 @Component({
   selector: 'app-drafts',

@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
-import { AppService } from '../../app.service';
+import { AppService } from '../../shared/services/app.service';
 
 @Component({
   selector: 'app-footer',

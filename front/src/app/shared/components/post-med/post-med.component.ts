@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { picStyle } from '../../../posts.service';
+import { picStyle } from '../../services/posts.service';
 
 @Component({
   selector: 'app-post-med',

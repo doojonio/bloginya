@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDrawer } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
-import { AppService } from '../../app.service';
+import { AppService } from '../../shared/services/app.service';
 import { SearchComponent } from './search/search.component';
 
 @Component({

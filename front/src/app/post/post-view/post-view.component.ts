@@ -9,11 +9,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { filter, switchMap, take, tap, timer } from 'rxjs';
-import { AppService } from '../../app.service';
-import { variant } from '../../drive.service';
-import { PostsService, ReadPostResponse } from '../../posts.service';
-import { SeoService } from '../../seo.service';
-import { UserService } from '../../user.service';
+import { AppService } from '../../shared/services/app.service';
+import { variant } from '../../shared/services/drive.service';
+import { PostsService, ReadPostResponse } from '../../shared/services/posts.service';
+import { SeoService } from '../../shared/services/seo.service';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-post-view',

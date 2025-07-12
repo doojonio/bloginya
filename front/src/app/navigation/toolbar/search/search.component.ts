@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, ElementRef, inject, OnInit, output, ViewChild } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -19,9 +19,9 @@ import {
   startWith,
   switchMap,
 } from 'rxjs/operators';
-import { AppService } from '../../../app.service';
-import { picStyle } from '../../../posts.service';
-import { QueryResult, SearchService } from '../../../search.service';
+import { AppService } from '../../../shared/services/app.service';
+import { picStyle } from '../../../shared/services/posts.service';
+import { QueryResult, SearchService } from '../../../shared/services/search.service';
 
 @Component({
   selector: 'app-search',

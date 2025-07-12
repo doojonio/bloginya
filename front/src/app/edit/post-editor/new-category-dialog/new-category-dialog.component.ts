@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, map, of, Subject, takeUntil } from 'rxjs';
 import { CategoryService } from '../../../category/category.service';
-import { ShortnamesService } from '../../../shortnames.service';
+import { ShortnamesService } from '../../../shared/services/shortnames.service';
 
 @Component({
   selector: 'app-new-category-dialog',

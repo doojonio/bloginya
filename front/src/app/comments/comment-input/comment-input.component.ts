@@ -9,7 +9,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, Validators } from '@angular/forms';
 import { finalize, map } from 'rxjs';
-import { UserService } from '../../user.service';
+import { UserService } from '../../shared/services/user.service';
 import { CommentDto } from '../comment-view/comment-view.component';
 import { CommentsService } from '../comments.service';
 

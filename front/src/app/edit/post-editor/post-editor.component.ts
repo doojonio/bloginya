@@ -35,12 +35,12 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs/operators';
-import { AppService } from '../../app.service';
+import { AppService } from '../../shared/services/app.service';
 import { CategoryService } from '../../category/category.service';
-import { DriveService, variant } from '../../drive.service';
-import { PostsService, PostStatuses } from '../../posts.service';
-import { ShortnamesService } from '../../shortnames.service';
-import { UserService } from '../../user.service';
+import { DriveService, variant } from '../../shared/services/drive.service';
+import { PostsService, PostStatuses } from '../../shared/services/posts.service';
+import { ShortnamesService } from '../../shared/services/shortnames.service';
+import { UserService } from '../../shared/services/user.service';
 import { NewCategoryDialogComponent } from './new-category-dialog/new-category-dialog.component';
 import {
   findPlaceholder,
