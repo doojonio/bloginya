@@ -40,10 +40,6 @@ export const routes: Routes = [
   { path: ':shortname', component: AnyViewComponent },
   {
     path: '**',
-    loadComponent: () =>
-      import('./page-not-found/page-not-found.component').then(
-        (c) => c.PageNotFoundComponent
-      ),
-    title: 'POLYINE | Not Found',
+    redirectTo: 'not-found',
   },
 ];
