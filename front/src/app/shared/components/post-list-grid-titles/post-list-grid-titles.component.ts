@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { picStyle } from '../../services/posts.service';
+import { picStyle } from '../../services/picture.service';
 import { AppService } from '../../services/app.service';
 
 @Component({

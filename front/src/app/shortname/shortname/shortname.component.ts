@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { SortBy } from '../../category/category.interface';
 import { Category } from '../../category/category.interface';
-import { ReadPostResponse } from '../../shared/services/posts.service';
+import { ReadPostResponse } from '../../post/post.interface';
 import {
   ItemShortnameResponse,
   ShortnamesService,

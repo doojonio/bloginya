@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
 import { CategoryEditorComponent } from '../../category-editor/category-editor.component';
+import { UserRoles } from '../../shared/interfaces/user-roles.interface';
 import { SeoService } from '../../shared/services/seo.service';
 import { UserService } from '../../shared/services/user.service';
 import { Category, SortBy } from '../category.interface';
@@ -19,6 +20,7 @@ export class CategoryComponent {
   page = input<number>(0);
   catId = input<string>();
   sort = input(SortBy.NEWEST);
+  UserRoles = UserRoles;
 
   private readonly router = inject(Router);
   private readonly catService = inject(CategoryService);

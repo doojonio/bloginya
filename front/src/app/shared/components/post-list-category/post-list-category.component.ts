@@ -4,8 +4,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
+import { Category, PostDescribed } from '../../../home/home.interface';
 import { AppService } from '../../services/app.service';
-import { Category, CatPost, picStyle } from '../../services/posts.service';
+import { picStyle } from '../../services/picture.service';
 import { PostListMedComponent } from '../post-list-med/post-list-med.component';
 
 @Component({
@@ -21,10 +22,10 @@ import { PostListMedComponent } from '../post-list-med/post-list-med.component';
   styleUrl: './post-list-category.component.scss',
 })
 export class PostListCategoryComponent {
-  linkForPost(post: CatPost) {
+  linkForPost(post: PostDescribed) {
     return post.name ? '/' + post.name : '/p/' + post.id;
   }
-  imageUrl(post: CatPost) {
+  imageUrl(post: PostDescribed) {
     return picStyle(post.picture_pre, 'pre280');
   }
   onChangeTab($event: MatTabChangeEvent) {
@@ -44,7 +45,7 @@ export class PostListCategoryComponent {
   title = input<string>();
   cats = input.required<Category[]>();
   selectedCat = model<Category>();
-  posts = input.required<CatPost[]>();
+  posts = input.required<PostDescribed[]>();
 
   first5 = computed(() => this.posts().slice(0, 5));
   first3 = computed(() => this.posts().slice(0, 3));

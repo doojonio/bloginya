@@ -9,9 +9,10 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { take, tap, timer } from 'rxjs';
-import { CommentsComponent } from '../comments/comments.component';
-import { CommentsService } from '../comments.service';
+import { UserRoles } from '../../shared/interfaces/user-roles.interface';
 import { UserService } from '../../shared/services/user.service';
+import { CommentsService } from '../comments.service';
+import { CommentsComponent } from '../comments/comments.component';
 
 @Component({
   standalone: false,
@@ -22,6 +23,8 @@ import { UserService } from '../../shared/services/user.service';
 export class CommentViewComponent {
   private readonly commentsService = inject(CommentsService);
   private readonly userService = inject(UserService);
+
+  UserRoles = UserRoles;
 
   comment = model.required<CommentDto>();
   replyToId = input<string>();

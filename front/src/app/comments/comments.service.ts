@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { OkResponse } from '../shared/interfaces/responses.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -51,10 +52,6 @@ export class CommentsService {
       params: { id: userId },
     });
   }
-}
-
-export interface OkResponse {
-  message: 'OK';
 }
 
 export interface GetCommentResponseItem {

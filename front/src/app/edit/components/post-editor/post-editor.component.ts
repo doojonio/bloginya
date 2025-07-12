@@ -36,14 +36,13 @@ import {
   takeUntil,
 } from 'rxjs/operators';
 import { CategoryService } from '../../../category/category.service';
+import { PostStatuses } from '../../../shared/interfaces/post-statuses.interface';
 import { AppService } from '../../../shared/services/app.service';
-import { DriveService, variant } from '../../../shared/services/drive.service';
-import {
-  PostsService,
-  PostStatuses,
-} from '../../../shared/services/posts.service';
+import { variant } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
 import { UserService } from '../../../shared/services/user.service';
+import { DriveService } from '../../services/drive.service';
+import { EditorService } from '../../services/editor.service';
 import { NewCategoryDialogComponent } from '../new-category-dialog/new-category-dialog.component';
 import {
   findPlaceholder,
@@ -57,39 +56,39 @@ import {
   styleUrl: './post-editor.component.scss',
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
-  private readonly appService = inject(AppService);
-  private readonly userService = inject(UserService);
+  private readonly appS = inject(AppService);
+  private readonly userS = inject(UserService);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly drive = inject(DriveService);
-  private readonly postsService = inject(PostsService);
-  private readonly categoriesService = inject(CategoryService);
-  private readonly shortnamesService = inject(ShortnamesService);
+  private readonly driveS = inject(DriveService);
+  private readonly editS = inject(EditorService);
+  private readonly categoriesS = inject(CategoryService);
+  private readonly shortnamesS = inject(ShortnamesService);
   private readonly router = inject(Router);
 
   readonly dialog = inject(MatDialog);
 
-  isHandset$ = this.appService.isHandset();
+  isHandset$ = this.appS.isHandset();
   private destroy$ = new Subject<void>();
-  currentUser$ = this.userService.getCurrentUser();
-  statuses$ = this.appService.getPostStatuses();
+  currentUser$ = this.userS.getCurrentUser();
+  statuses$ = this.appS.getPostStatuses();
   STATUSES = [
     { name: 'Public', value: PostStatuses.Pub },
     { name: 'Draft', value: PostStatuses.Draft },
     { name: 'Del', value: PostStatuses.Del },
   ];
 
-  toolbar$ = this.appService.getEditorToolbar();
-  colorPresets$ = this.appService.getEditorColorPallete();
+  toolbar$ = this.appS.getEditorToolbar();
+  colorPresets$ = this.appS.getEditorColorPallete();
   attachmentLoading = false;
 
   postId = input.required<string>();
   savedPost$ = computed(() =>
-    this.postsService.getForEdit(this.postId()).pipe(share())
+    this.editS.getForEdit(this.postId()).pipe(share())
   );
 
   updateCategories$ = new BehaviorSubject(1);
   categories$ = this.updateCategories$.pipe(
-    switchMap((_) => this.categoriesService.getCategories())
+    switchMap((_) => this.categoriesS.getCategories())
   );
 
   tags = signal<string[]>([]);
@@ -168,7 +167,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     if (value == null || value.length < 3) {
       return of(null);
     }
-    return this.shortnamesService
+    return this.shortnamesS
       .getShortname(value)
       .pipe(
         map((sn) =>
@@ -225,7 +224,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   saveDraft(form: any) {
-    return this.postsService.updateDraft(this.postId(), {
+    return this.editS.updateDraft(this.postId(), {
       title: form.title,
       document: form.document,
       picture_wp: form.picture_wp,
@@ -284,7 +283,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     const file = files[0];
 
     this.wpLoading = true;
-    this.drive
+    this.driveS
       .putFile(postId, files[0])
       .pipe(
         finalize(() => (this.wpLoading = false)),
@@ -306,7 +305,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         finalize(() => (this.isApplyDisabled = false)),
         switchMap((res) => {
           const meta = this.meta.value;
-          return this.postsService.applyChanges(this.postId(), {
+          return this.editS.applyChanges(this.postId(), {
             tags: meta.tags || [],
             status: meta.status || PostStatuses.Draft,
             category_id: meta.category_id || null,
@@ -400,7 +399,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     });
     view.dispatch(tr);
 
-    const http$ = this.drive.putFile(this.postId(), file).pipe(
+    const http$ = this.driveS.putFile(this.postId(), file).pipe(
       catchError((err) => {
         view.dispatch(
           tr.setMeta(placeholderPlugin, { remove: { id: pholdId } })

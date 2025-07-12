@@ -52,7 +52,7 @@
           {{ p.comments }}
           }
         </div>
-        } @if (currentUser$ | async; as user) { @if (user.role == "owner" ||
+        } @if (currentUser$ | async; as user) { @if (user.role == UserRoles.OWNER ||
         user.id == p.id) {
         <div>
           <button matIconButton routerLink="/e/{{ p.id }}">

@@ -20,7 +20,7 @@ import {
   switchMap,
 } from 'rxjs/operators';
 import { AppService } from '../../../shared/services/app.service';
-import { picStyle } from '../../../shared/services/posts.service';
+import { picStyle } from '../../../shared/services/picture.service';
 import { QueryResult, SearchService } from '../../../shared/services/search.service';
 
 @Component({

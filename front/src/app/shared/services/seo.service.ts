@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { variant } from './drive.service';
+import { variant } from './picture.service';
 
 @Injectable({
   providedIn: 'root',

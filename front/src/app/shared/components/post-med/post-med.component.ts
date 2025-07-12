@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { picStyle } from '../../services/posts.service';
+import { picStyle } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-med',
@@ -29,4 +29,12 @@ export interface PostMed {
   picture_pre: string | null;
   description: string | null;
   tags: string[];
+}export interface PostMed {
+  title: string;
+  id: string;
+  name: string | null;
+  picture_pre: string | null;
+  description: string | null;
+  tags: string[];
 }
+

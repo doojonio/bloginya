@@ -9,11 +9,14 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { filter, switchMap, take, tap, timer } from 'rxjs';
+import { UserRoles } from '../../shared/interfaces/user-roles.interface';
 import { AppService } from '../../shared/services/app.service';
-import { variant } from '../../shared/services/drive.service';
-import { PostsService, ReadPostResponse } from '../../shared/services/posts.service';
+import { variant } from '../../shared/services/picture.service';
 import { SeoService } from '../../shared/services/seo.service';
 import { UserService } from '../../shared/services/user.service';
+import { ReadPostResponse } from '../post.interface';
+import { LikerService } from '../services/liker.service';
+import { ReaderService } from '../services/reader.service';
 
 @Component({
   selector: 'app-post-view',
@@ -22,10 +25,13 @@ import { UserService } from '../../shared/services/user.service';
   styleUrl: './post-view.component.scss',
 })
 export class PostViewComponent {
-  private readonly postsService = inject(PostsService);
+  private readonly readerS = inject(ReaderService);
+  private readonly likerS = inject(LikerService);
   private readonly usersService = inject(UserService);
   private readonly appService = inject(AppService);
   private readonly seoService = inject(SeoService);
+
+  UserRoles = UserRoles;
 
   currentUser$ = this.usersService.getCurrentUser();
 
@@ -34,7 +40,7 @@ export class PostViewComponent {
     .pipe(
       takeUntilDestroyed(),
       filter(Boolean),
-      switchMap((id) => this.postsService.readPost(id))
+      switchMap((id) => this.readerS.readPost(id))
     )
     .subscribe((postById) => {
       this.post.set(postById);
@@ -71,7 +77,7 @@ export class PostViewComponent {
   });
 
   similliarPosts$ = toObservable(this.post).pipe(
-    switchMap(() => this.postsService.getSimilliarPosts(this.post().id))
+    switchMap(() => this.readerS.getSimilliarPosts(this.post().id))
   );
 
   showComments = false;
@@ -89,7 +95,7 @@ export class PostViewComponent {
     throw new Error('Method not implemented.');
   }
   like() {
-    this.postsService
+    this.likerS
       .like(this.post().id)
       .pipe(
         tap((_) => {
@@ -111,7 +117,7 @@ export class PostViewComponent {
       });
   }
   unlike() {
-    this.postsService.unlike(this.post().id).subscribe((r) => {
+    this.likerS.unlike(this.post().id).subscribe((r) => {
       this.post.update((p) => {
         if (p.liked) {
           p.liked = false;

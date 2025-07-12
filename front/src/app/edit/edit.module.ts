@@ -15,9 +15,12 @@ import { RouterModule } from '@angular/router';
 import { NgxEditorModule } from 'ngx-editor';
 import { PostEditorComponent } from './components/post-editor/post-editor.component';
 import { routes } from './edit.routes';
+import { EditorService } from './services/editor.service';
+import { DriveService } from './services/drive.service';
 
 @NgModule({
   declarations: [PostEditorComponent],
+  providers: [EditorService, DriveService],
   imports: [
     RouterModule.forChild(routes),
     CommonModule,

@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, throwError } from 'rxjs';
-import { ServiceErrors } from '../shared/interfaces/service-errors';
+import { NotifierService } from '../shared/services/notifier.service';
 import {
   AddCategoryResponse,
   Category,
@@ -13,7 +13,7 @@ import {
 
 @Injectable()
 export class CategoryService {
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifierS = inject(NotifierService);
 
   constructor(private readonly http: HttpClient) {}
 
@@ -38,7 +38,9 @@ export class CategoryService {
       .pipe(
         catchError((err: HttpErrorResponse) =>
           throwError(() =>
-            notifyError ? this.notifyError(err) : this.mapError(err)
+            notifyError
+              ? this.notifierS.notifyError(err)
+              : this.notifierS.mapError(err)
           )
         )
       );
@@ -50,7 +52,9 @@ export class CategoryService {
       .pipe(
         catchError((err: HttpErrorResponse) =>
           throwError(() =>
-            notifyError ? this.notifyError(err) : this.mapError(err)
+            notifyError
+              ? this.notifierS.notifyError(err)
+              : this.notifierS.mapError(err)
           )
         )
       );
@@ -59,29 +63,5 @@ export class CategoryService {
     return this.http.get<Category>('/api/categories/by_title', {
       params: { title },
     });
-  }
-
-  private notifyError(httpErr: HttpErrorResponse) {
-    const err = this.mapError(httpErr);
-    // TODO: global config or service?
-    const config = { duration: 5000 };
-    if (err == ServiceErrors.UNDEF) {
-      this.snackBar.open('Unknown error', 'Close', config);
-    } else if (err == ServiceErrors.NORIGHT) {
-      this.snackBar.open('Forbidden', 'Close', config);
-    } else if (err == ServiceErrors.NOCAT) {
-      this.snackBar.open('Missing category', 'Close', config);
-    }
-
-    return err;
-  }
-  private mapError(error: HttpErrorResponse) {
-    const message = error.error?.message;
-    if (message == 'NOCAT') {
-      return ServiceErrors.NOCAT;
-    } else if (message == 'NORIGHT') {
-      return ServiceErrors.NORIGHT;
-    }
-    return ServiceErrors.UNDEF;
   }
 }

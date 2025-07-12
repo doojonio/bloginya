@@ -10,7 +10,9 @@ import {
   shareReplay,
   Subject,
 } from 'rxjs';
-import { Category, PostStatuses } from './posts.service';
+import { Category } from '../../home/home.interface';
+import { PostStatuses } from '../interfaces/post-statuses.interface';
+import { UserRoles } from '../interfaces/user-roles.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -157,11 +159,6 @@ export interface SettingsResponse {
   socials: Social;
 }
 
-export enum UserRoles {
-  OWNER = 'owner',
-  CREATOR = 'creator',
-  VISITOR = 'visitor',
-}
 export interface SettingsUser {
   id: string;
   username: string;

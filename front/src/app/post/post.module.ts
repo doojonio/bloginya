@@ -17,6 +17,8 @@ import { VisibilityDirective } from '../shared/directives/visibility.directive';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
 import { PostViewComponent } from './post-view/post-view.component';
 import { routes } from './post.routes';
+import { ReaderService } from './services/reader.service';
+import { LikerService } from './services/liker.service';
 
 @NgModule({
   declarations: [PostViewComponent, DocumentDomComponent],
@@ -37,5 +39,6 @@ import { routes } from './post.routes';
     RouterModule.forChild(routes),
     VisibilityDirective,
   ],
+  providers: [ReaderService, LikerService],
 })
 export class PostModule {}

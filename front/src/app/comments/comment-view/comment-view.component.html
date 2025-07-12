@@ -22,15 +22,15 @@
     }
     <button matButton="text" (click)="startReply()" i18n>Reply</button>
 
-    @if(user(); as user) { @if (com.user_id == user.id || user.role == 'owner')
-    {
+    @if(user(); as user) { @if (com.user_id == user.id || user.role ==
+    UserRoles.OWNER) {
     <button matIconButton [mat-menu-trigger-for]="menu">
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
-      @if (user.id == com.user_id || user.role == 'owner') {
+      @if (user.id == com.user_id || user.role == UserRoles.OWNER) {
       <button mat-menu-item (click)="deleteComment(com.id)">Delete</button>
-      } @if (user.role == 'owner' && user.id != com.user_id) {
+      } @if (user.role == UserRoles.OWNER && user.id != com.user_id) {
       <button mat-menu-item (click)="blockUser(com.user_id)">Block</button>
       }
     </mat-menu>

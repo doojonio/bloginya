@@ -1,4 +1,4 @@
-import { PostMed } from '../shared/services/posts.service';
+import { PostMed } from '../shared/components/post-med/post-med.component';
 
 export interface CategoryPayload {
   title: string;

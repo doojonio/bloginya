@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { ReadPostResponse } from './posts.service';
+import { ReadPostResponse } from '../../post/post.interface';
 import { Category } from '../../category/category.interface';
 
 @Injectable({

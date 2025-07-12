@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { map, shareReplay, tap } from 'rxjs';
-import { PostsService } from '../../shared/services/posts.service';
+import { DraftsService } from '../services/drafts.service';
 
 @Component({
   selector: 'app-drafts',
@@ -9,8 +9,8 @@ import { PostsService } from '../../shared/services/posts.service';
   styleUrl: './drafts.component.scss',
 })
 export class DraftsComponent {
-  postsService = inject(PostsService);
-  draftsResponse$ = this.postsService.getDrafts().pipe(
+  draftsS = inject(DraftsService);
+  draftsResponse$ = this.draftsS.getDrafts().pipe(
     shareReplay(1),
     tap((drafts) => {
       this.maxLength = Math.max(

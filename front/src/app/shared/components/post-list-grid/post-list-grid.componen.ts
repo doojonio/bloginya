@@ -4,8 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { PostPictured } from '../../../home/home.interface';
 import { AppService } from '../../services/app.service';
-import { picStyle, PopularPost } from '../../services/posts.service';
+import { picStyle } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-list-grid',
@@ -15,7 +16,7 @@ import { picStyle, PopularPost } from '../../services/posts.service';
 })
 export class PostListGridComponent {
   title = input<string>();
-  posts = input.required<PopularPost[]>();
+  posts = input.required<PostPictured[]>();
   posts_per_page = computed(() => (this.isHandset() ? 13 : 12));
 
   private readonly appService = inject(AppService);
@@ -67,7 +68,7 @@ export class PostListGridComponent {
     return [1, 1];
   }
 
-  getPostPreStyle(post: PopularPost) {
+  getPostPreStyle(post: PostPictured) {
     return picStyle(post.picture_pre, 'pre450');
   }
 }

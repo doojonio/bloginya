@@ -14,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { AppService } from '../../services/app.service';
-import { picStyle } from '../../services/posts.service';
+import { picStyle } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-list-oneline',
