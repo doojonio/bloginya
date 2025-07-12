@@ -2,9 +2,9 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
+import { CategoryModule } from '../category/category.module';
 import { PageNotFoundComponent } from '../page-not-found/page-not-found.component';
 import { PostModule } from '../post/post.module';
-import { CategoryComponent } from '../view/category/category.component';
 import { routes } from './shortname.routes';
 import { ShortnameComponent } from './shortname/shortname.component';
 
@@ -17,7 +17,7 @@ import { ShortnameComponent } from './shortname/shortname.component';
     MatProgressSpinnerModule,
     PostModule,
     PageNotFoundComponent,
-    CategoryComponent,
+    CategoryModule,
   ],
 })
 export class ShortnameModule {}

@@ -2,12 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
+import { Category, SortBy } from '../../category/category/category.component';
 import { ReadPostResponse } from '../../posts.service';
 import {
   ItemShortnameResponse,
   ShortnamesService,
 } from '../../shortnames.service';
-import { Category, SortBy } from '../../view/category/category.component';
 
 @Component({
   standalone: false,

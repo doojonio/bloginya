@@ -2,8 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, throwError } from 'rxjs';
-import { PostServiceErrors } from './posts.service';
-import { Category, SortBy } from './view/category/category.component';
+import { PostServiceErrors } from '../posts.service';
+import { Category, SortBy } from './category/category.component';
 
 @Injectable({
   providedIn: 'root',

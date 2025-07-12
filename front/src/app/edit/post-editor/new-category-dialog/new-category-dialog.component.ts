@@ -14,7 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, map, of, Subject, takeUntil } from 'rxjs';
-import { CategoryService } from '../../../category.service';
+import { CategoryService } from '../../../category/category.service';
 import { ShortnamesService } from '../../../shortnames.service';
 
 @Component({

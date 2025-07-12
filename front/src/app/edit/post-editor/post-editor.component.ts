@@ -36,7 +36,7 @@ import {
   takeUntil,
 } from 'rxjs/operators';
 import { AppService } from '../../app.service';
-import { CategoryService } from '../../category.service';
+import { CategoryService } from '../../category/category.service';
 import { DriveService, variant } from '../../drive.service';
 import { PostsService, PostStatuses } from '../../posts.service';
 import { ShortnamesService } from '../../shortnames.service';

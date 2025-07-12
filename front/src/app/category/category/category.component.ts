@@ -1,32 +1,17 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, effect, inject, input, model } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
 import { CategoryEditorComponent } from '../../category-editor/category-editor.component';
-import { CategoryService } from '../../category.service';
+import { CategoryService } from '../category.service';
 import { PostMed } from '../../posts.service';
 import { SeoService } from '../../seo.service';
 import { UserService } from '../../user.service';
-import { PostListGridTitlesComponent } from '../post-list-grid-titles/post-list-grid-titles.component';
-import { PostListMedComponent } from '../post-list-med/post-list-med.component';
 
 @Component({
   selector: 'app-category',
-  imports: [
-    PostListMedComponent,
-    PostListGridTitlesComponent,
-    MatPaginatorModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    AsyncPipe,
-  ],
+  standalone: false,
   templateUrl: './category.component.html',
   styleUrl: './category.component.scss',
 })
@@ -88,7 +73,8 @@ export class CategoryComponent {
       });
       this.router.navigate([
         '/',
-        resp.shortname ? resp.shortname : 'c', resp.id,
+        resp.shortname ? resp.shortname : 'c',
+        resp.id,
       ]);
     });
   }

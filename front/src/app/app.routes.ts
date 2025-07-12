@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { CategoryComponent } from './view/category/category.component';
 import { DraftsComponent } from './view/drafts/drafts.component';
 
 export const routes: Routes = [
@@ -15,7 +14,11 @@ export const routes: Routes = [
     path: 'p',
     loadChildren: () => import('./post/post.module').then((c) => c.PostModule),
   },
-  { path: 'c/:catId', component: CategoryComponent },
+  {
+    path: 'c',
+    loadChildren: () =>
+      import('./category/category.module').then((c) => c.CategoryModule),
+  },
   {
     path: 'me',
     loadComponent: () =>
