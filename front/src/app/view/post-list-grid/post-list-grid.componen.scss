@@ -1,5 +1,5 @@
 @use "@angular/material" as mat;
-@use "../../../mixins" as mixs;
+@use "mixins" as mixs;
 .title {
   color: var(--mat-sys-primary);
   font: var(--mat-sys-title-medium);

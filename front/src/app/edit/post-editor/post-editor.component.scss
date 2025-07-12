@@ -1,5 +1,6 @@
 @use "@angular/material" as mat;
-@use "../../mixins" as m;
+// @use "../../../mixins" as m;
+@use "mixins" as m;
 
 :host {
   --ngx-editor-border-radius: --var(--post-border-radius);

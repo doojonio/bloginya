@@ -14,30 +14,14 @@ import {
   AbstractControl,
   FormControl,
   FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {
-  Editor,
-  Validators as EditorValidators,
-  NgxEditorModule,
-} from 'ngx-editor';
+import { Editor, Validators as EditorValidators } from 'ngx-editor';
 
-import { AsyncPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipInputEvent } from '@angular/material/chips';
 import { Router } from '@angular/router';
 import { BehaviorSubject, concat, of, Subject, throwError } from 'rxjs';
 import {
@@ -51,12 +35,12 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs/operators';
-import { AppService } from '../app.service';
-import { CategoryService } from '../category.service';
-import { DriveService, variant } from '../drive.service';
-import { PostsService, PostStatuses } from '../posts.service';
-import { ShortnamesService } from '../shortnames.service';
-import { UserService } from '../user.service';
+import { AppService } from '../../app.service';
+import { CategoryService } from '../../category.service';
+import { DriveService, variant } from '../../drive.service';
+import { PostsService, PostStatuses } from '../../posts.service';
+import { ShortnamesService } from '../../shortnames.service';
+import { UserService } from '../../user.service';
 import { NewCategoryDialogComponent } from './new-category-dialog/new-category-dialog.component';
 import {
   findPlaceholder,
@@ -65,23 +49,7 @@ import {
 
 @Component({
   selector: 'app-post-editor',
-  imports: [
-    MatProgressSpinnerModule,
-    NgxEditorModule,
-    MatButtonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatProgressBarModule,
-    MatDividerModule,
-    AsyncPipe,
-    MatFormFieldModule,
-    MatChipsModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatProgressBarModule,
-  ],
+  standalone: false,
   templateUrl: './post-editor.component.html',
   styleUrl: './post-editor.component.scss',
 })
@@ -219,6 +187,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log("AA")
     this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
 
     this.savedPost$()

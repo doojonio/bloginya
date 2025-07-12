@@ -8,11 +8,9 @@ export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'POLYINE' },
   { path: 'drafts', component: DraftsComponent, title: 'POLYINE | Drafts' },
   {
-    path: 'e/:postId',
-    loadComponent: () =>
-      import('./post-editor/post-editor.component').then(
-        (c) => c.PostEditorComponent
-      ),
+    path: 'e',
+    loadChildren: () =>
+      import('./edit/edit.module').then((m) => m.EditModule),
     title: 'POLYINE | Editor',
   },
   {

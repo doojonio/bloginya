@@ -1,5 +1,5 @@
 @use "@angular/material" as mat;
-@use "../../../mixins" as mixs;
+@use "mixins" as mixs;
 
 @include mixs.for-size("handset") {
   app-search {
