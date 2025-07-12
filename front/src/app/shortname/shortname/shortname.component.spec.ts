@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AnyViewComponent } from './any-view.component';
+import { ShortnameComponent } from './shortname.component';
 
 describe('AnyViewComponent', () => {
-  let component: AnyViewComponent;
-  let fixture: ComponentFixture<AnyViewComponent>;
+  let component: ShortnameComponent;
+  let fixture: ComponentFixture<ShortnameComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AnyViewComponent]
+      imports: [ShortnameComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AnyViewComponent);
+    fixture = TestBed.createComponent(ShortnameComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

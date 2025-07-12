@@ -1,35 +1,38 @@
-import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
-import { PageNotFoundComponent } from '../../page-not-found/page-not-found.component';
 import { ReadPostResponse } from '../../posts.service';
 import {
   ItemShortnameResponse,
   ShortnamesService,
 } from '../../shortnames.service';
-import {
-  Category,
-  CategoryComponent,
-  SortBy,
-} from '../category/category.component';
-import { PostViewComponent } from '../post-view/post-view.component';
+import { Category, SortBy } from '../../view/category/category.component';
 
 @Component({
-  selector: 'app-any-view',
-  imports: [
-    AsyncPipe,
-    MatProgressSpinnerModule,
-    PostViewComponent,
-    PageNotFoundComponent,
-    CategoryComponent,
-  ],
-  templateUrl: './any-view.component.html',
-  styleUrl: './any-view.component.scss',
+  standalone: false,
+  template: `
+    @if (item$ |async; as item) { @if(item.content == null) {
+    <app-page-not-found></app-page-not-found>
+    } @else if (item.type == "post") {
+    <app-post-view [post]="toPost(item)"></app-post-view>
+    } @else if (item.type == "category") {
+    <app-category
+      [cat]="toCategory(item)"
+      [page]="page() || 0"
+      [sort]="sort()"
+    ></app-category>
+    } } @else {
+    <mat-spinner></mat-spinner>
+    }
+  `,
+  styles: `
+    mat-spinner {
+        margin: auto
+    }
+  `,
 })
-export class AnyViewComponent {
+export class ShortnameComponent {
   route = inject(ActivatedRoute);
   router = inject(Router);
   shortnamesService = inject(ShortnamesService);

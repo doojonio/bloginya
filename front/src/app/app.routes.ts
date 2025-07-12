@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { AnyViewComponent } from './view/any-view/any-view.component';
 import { CategoryComponent } from './view/category/category.component';
 import { DraftsComponent } from './view/drafts/drafts.component';
 
@@ -9,16 +8,12 @@ export const routes: Routes = [
   { path: 'drafts', component: DraftsComponent, title: 'POLYINE | Drafts' },
   {
     path: 'e',
-    loadChildren: () =>
-      import('./edit/edit.module').then((m) => m.EditModule),
+    loadChildren: () => import('./edit/edit.module').then((m) => m.EditModule),
     title: 'POLYINE | Editor',
   },
   {
-    path: 'p/:postId',
-    loadComponent: () =>
-      import('./view/post-view/post-view.component').then(
-        (c) => c.PostViewComponent
-      ),
+    path: 'p',
+    loadChildren: () => import('./post/post.module').then((c) => c.PostModule),
   },
   { path: 'c/:catId', component: CategoryComponent },
   {
@@ -35,7 +30,11 @@ export const routes: Routes = [
       ),
     title: 'POLYINE | Not Found',
   },
-  { path: ':shortname', component: AnyViewComponent },
+  {
+    path: ':shortname',
+    loadChildren: () =>
+      import('./shortname/shortname.module').then((m) => m.ShortnameModule),
+  },
   {
     path: '**',
     redirectTo: 'not-found',

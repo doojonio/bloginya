@@ -9,9 +9,9 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { take, tap, timer } from 'rxjs';
-import { CommentsService } from '../../../../comments.service';
-import { UserService } from '../../../../user.service';
 import { CommentsComponent } from '../comments/comments.component';
+import { CommentsService } from '../comments.service';
+import { UserService } from '../../user.service';
 
 @Component({
   standalone: false,
@@ -20,14 +20,12 @@ import { CommentsComponent } from '../comments/comments.component';
   styleUrl: './comment-view.component.scss',
 })
 export class CommentViewComponent {
-  comment = model.required<CommentDto>();
-
-  replyToId = input<string>();
-
   private readonly commentsService = inject(CommentsService);
   private readonly userService = inject(UserService);
-  user = toSignal(this.userService.getCurrentUser());
 
+  comment = model.required<CommentDto>();
+  replyToId = input<string>();
+  user = toSignal(this.userService.getCurrentUser());
   likeAnimClass = signal('');
   postId = input.required<string>();
 

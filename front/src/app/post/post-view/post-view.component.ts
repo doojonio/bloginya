@@ -1,10 +1,4 @@
 import {
-  AsyncPipe,
-  DatePipe,
-  DecimalPipe,
-  I18nPluralPipe,
-} from '@angular/common';
-import {
   Component,
   computed,
   effect,
@@ -14,39 +8,16 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RouterModule } from '@angular/router';
 import { filter, switchMap, take, tap, timer } from 'rxjs';
 import { AppService } from '../../app.service';
-import { VisibilityDirective } from '../../directives/visibility.directive';
 import { variant } from '../../drive.service';
 import { PostsService, ReadPostResponse } from '../../posts.service';
 import { SeoService } from '../../seo.service';
 import { UserService } from '../../user.service';
-import { PostListMedComponent } from '../post-list-med/post-list-med.component';
-import { CommentsModule } from './comments/comments.module';
-import { DocumentDomComponent } from './document-dom/document-dom.component';
 
 @Component({
   selector: 'app-post-view',
-  imports: [
-    DecimalPipe,
-    I18nPluralPipe,
-    DatePipe,
-    MatIconModule,
-    MatButtonModule,
-    DocumentDomComponent,
-    MatDividerModule,
-    AsyncPipe,
-    RouterModule,
-    VisibilityDirective,
-    MatProgressSpinnerModule,
-    PostListMedComponent,
-    CommentsModule,
-  ],
+  standalone: false,
   templateUrl: './post-view.component.html',
   styleUrl: './post-view.component.scss',
 })
