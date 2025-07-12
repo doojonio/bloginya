@@ -5,8 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { RouterModule } from '@angular/router';
-import { PostListGridTitlesComponent } from '../view/post-list-grid-titles/post-list-grid-titles.component';
-import { PostListMedComponent } from '../view/post-list-med/post-list-med.component';
+import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
+import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 import { routes } from './category.routes';
 import { CategoryComponent } from './category/category.component';
 

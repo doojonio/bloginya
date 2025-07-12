@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { AppService } from '../../app.service';
-import { picStyle, PopularPost } from '../../posts.service';
+import { AppService } from '../../../app.service';
+import { picStyle, PopularPost } from '../../../posts.service';
 
 @Component({
   selector: 'app-post-list-grid',
@@ -61,7 +61,7 @@ export class PostListGridComponent {
     } else {
       // как же я ебал все это настраивать
       if (idx == 0 || idx == 3 || idx == 4) return [1, 3];
-      if (idx == 1 || idx == 6 ) return [1, 4];
+      if (idx == 1 || idx == 6) return [1, 4];
       if (idx == 2 || idx == 5 || idx == 7 || idx == 9) return [1, 2];
     }
     return [1, 1];

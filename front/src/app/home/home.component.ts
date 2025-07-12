@@ -16,12 +16,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { of, tap } from 'rxjs';
 import { AppService } from '../app.service';
-import { VisibilityDirective } from '../directives/visibility.directive';
 import { Category, PostsService } from '../posts.service';
 import { SeoService } from '../seo.service';
-import { PostListCategoryComponent } from '../view/post-list-category/post-list-category.component';
-import { PostListGridComponent } from '../view/post-list-grid/post-list-grid.componen';
-import { PostListOnelineComponent } from '../view/post-list-oneline/post-list-oneline.component';
+import { PostListCategoryComponent } from '../shared/components/post-list-category/post-list-category.component';
+import { PostListGridComponent } from '../shared/components/post-list-grid/post-list-grid.componen';
+import { PostListOnelineComponent } from '../shared/components/post-list-oneline/post-list-oneline.component';
+import { VisibilityDirective } from '../shared/directives/visibility.directive';
 
 @Component({
   selector: 'app-home',

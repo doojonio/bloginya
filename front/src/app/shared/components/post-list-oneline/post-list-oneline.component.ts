@@ -13,8 +13,8 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { AppService } from '../../app.service';
-import { picStyle } from '../../posts.service';
+import { AppService } from '../../../app.service';
+import { picStyle } from '../../../posts.service';
 
 @Component({
   selector: 'app-post-list-oneline',

@@ -4,8 +4,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
-import { AppService } from '../../app.service';
-import { Category, CatPost, picStyle } from '../../posts.service';
+import { AppService } from '../../../app.service';
+import { Category, CatPost, picStyle } from '../../../posts.service';
 import { PostListMedComponent } from '../post-list-med/post-list-med.component';
 
 @Component({
