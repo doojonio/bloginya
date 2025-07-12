@@ -9,9 +9,11 @@ import { PostListGridTitlesComponent } from '../shared/components/post-list-grid
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 import { routes } from './category.routes';
 import { CategoryComponent } from './category/category.component';
+import { CategoryService } from './category.service';
 
 @NgModule({
   declarations: [CategoryComponent],
+  providers: [CategoryService],
   exports: [CategoryComponent],
   imports: [
     CommonModule,

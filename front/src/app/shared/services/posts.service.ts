@@ -10,6 +10,7 @@ import {
   switchMap,
   throwError,
 } from 'rxjs';
+import { ServiceErrors } from '../interfaces/service-errors';
 import { VARIANT, variant } from './drive.service';
 
 @Injectable({
@@ -116,11 +117,11 @@ export class PostsService {
     const err = this.mapError(httpErr);
     // TODO: global config or service?
     const config = { duration: 5000 };
-    if (err == PostServiceErrors.UNDEF) {
+    if (err == ServiceErrors.UNDEF) {
       this.snackBar.open('Unknown error', 'Close', config);
-    } else if (err == PostServiceErrors.NORIGHT) {
+    } else if (err == ServiceErrors.NORIGHT) {
       this.snackBar.open('Forbidden', 'Close', config);
-    } else if (err == PostServiceErrors.NOCAT) {
+    } else if (err == ServiceErrors.NOCAT) {
       this.snackBar.open('Missing category', 'Close', config);
     }
 
@@ -130,11 +131,11 @@ export class PostsService {
   private mapError(error: HttpErrorResponse) {
     const message = error.error?.message;
     if (message == 'NOCAT') {
-      return PostServiceErrors.NOCAT;
+      return ServiceErrors.NOCAT;
     } else if (message == 'NORIGHT') {
-      return PostServiceErrors.NORIGHT;
+      return ServiceErrors.NORIGHT;
     }
-    return PostServiceErrors.UNDEF;
+    return ServiceErrors.UNDEF;
   }
 
   readPost(id: string) {
@@ -157,12 +158,6 @@ export function picStyle(driveId: string | null, varName: VARIANT) {
   }
 
   return 'url(' + variant(driveId, varName) + ') center / cover no-repeat';
-}
-
-export enum PostServiceErrors {
-  UNDEF,
-  NOCAT,
-  NORIGHT,
 }
 
 export interface OkResponse {

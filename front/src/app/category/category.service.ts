@@ -2,12 +2,16 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, throwError } from 'rxjs';
-import { PostServiceErrors } from '../shared/services/posts.service';
-import { Category, SortBy } from './category/category.component';
+import { ServiceErrors } from '../shared/interfaces/service-errors';
+import {
+  AddCategoryResponse,
+  Category,
+  CategoryForEditResponse,
+  CategoryPayload,
+  SortBy,
+} from './category.interface';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class CategoryService {
   private readonly snackBar = inject(MatSnackBar);
 
@@ -61,11 +65,11 @@ export class CategoryService {
     const err = this.mapError(httpErr);
     // TODO: global config or service?
     const config = { duration: 5000 };
-    if (err == PostServiceErrors.UNDEF) {
+    if (err == ServiceErrors.UNDEF) {
       this.snackBar.open('Unknown error', 'Close', config);
-    } else if (err == PostServiceErrors.NORIGHT) {
+    } else if (err == ServiceErrors.NORIGHT) {
       this.snackBar.open('Forbidden', 'Close', config);
-    } else if (err == PostServiceErrors.NOCAT) {
+    } else if (err == ServiceErrors.NOCAT) {
       this.snackBar.open('Missing category', 'Close', config);
     }
 
@@ -74,30 +78,10 @@ export class CategoryService {
   private mapError(error: HttpErrorResponse) {
     const message = error.error?.message;
     if (message == 'NOCAT') {
-      return PostServiceErrors.NOCAT;
+      return ServiceErrors.NOCAT;
     } else if (message == 'NORIGHT') {
-      return PostServiceErrors.NORIGHT;
+      return ServiceErrors.NORIGHT;
     }
-    return PostServiceErrors.UNDEF;
+    return ServiceErrors.UNDEF;
   }
-}
-export interface CategoryPayload {
-  title: string;
-  description: string | null;
-  parent_id?: string | null;
-  priority?: number | null;
-  shortname: string | null;
-  tags: string[];
-}
-export interface AddCategoryResponse {
-  id: string;
-  title: string;
-}
-
-export interface CategoryForEditResponse {
-  id: string;
-  title: string;
-  description: string;
-  shortname: string | null;
-  tags: string[];
 }

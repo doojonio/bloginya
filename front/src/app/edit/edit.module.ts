@@ -13,8 +13,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterModule } from '@angular/router';
 import { NgxEditorModule } from 'ngx-editor';
+import { PostEditorComponent } from './components/post-editor/post-editor.component';
 import { routes } from './edit.routes';
-import { PostEditorComponent } from './post-editor/post-editor.component';
 
 @NgModule({
   declarations: [PostEditorComponent],

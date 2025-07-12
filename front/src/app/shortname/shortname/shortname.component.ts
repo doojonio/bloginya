@@ -2,7 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
-import { Category, SortBy } from '../../category/category/category.component';
+import { SortBy } from '../../category/category.interface';
+import { Category } from '../../category/category.interface';
 import { ReadPostResponse } from '../../shared/services/posts.service';
 import {
   ItemShortnameResponse,

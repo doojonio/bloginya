@@ -4,10 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
 import { CategoryEditorComponent } from '../../category-editor/category-editor.component';
-import { CategoryService } from '../category.service';
-import { PostMed } from '../../shared/services/posts.service';
 import { SeoService } from '../../shared/services/seo.service';
 import { UserService } from '../../shared/services/user.service';
+import { Category, SortBy } from '../category.interface';
+import { CategoryService } from '../category.service';
 
 @Component({
   selector: 'app-category',
@@ -98,28 +98,4 @@ export class CategoryComponent {
       queryParamsHandling: 'merge',
     });
   }
-}
-
-export interface Category {
-  id: string;
-  title: string;
-  name: string | null;
-  sort: SortBy;
-  posts_num: number;
-  page: number;
-  grid_posts: CategoryPost[];
-  list_posts: PostMed[];
-}
-
-export interface CategoryPost {
-  picture_pre: string;
-  title: string;
-  id: string;
-  name: string;
-}
-
-export enum SortBy {
-  OLDEST = 'published_at',
-  NEWEST = '!published_at',
-  POPULAR = '!popularity',
 }

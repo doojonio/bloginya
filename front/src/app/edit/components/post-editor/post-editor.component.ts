@@ -35,13 +35,16 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs/operators';
-import { AppService } from '../../shared/services/app.service';
-import { CategoryService } from '../../category/category.service';
-import { DriveService, variant } from '../../shared/services/drive.service';
-import { PostsService, PostStatuses } from '../../shared/services/posts.service';
-import { ShortnamesService } from '../../shared/services/shortnames.service';
-import { UserService } from '../../shared/services/user.service';
-import { NewCategoryDialogComponent } from './new-category-dialog/new-category-dialog.component';
+import { CategoryService } from '../../../category/category.service';
+import { AppService } from '../../../shared/services/app.service';
+import { DriveService, variant } from '../../../shared/services/drive.service';
+import {
+  PostsService,
+  PostStatuses,
+} from '../../../shared/services/posts.service';
+import { ShortnamesService } from '../../../shared/services/shortnames.service';
+import { UserService } from '../../../shared/services/user.service';
+import { NewCategoryDialogComponent } from '../new-category-dialog/new-category-dialog.component';
 import {
   findPlaceholder,
   placeholderPlugin,
@@ -187,7 +190,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log("AA")
+    console.log('AA');
     this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
 
     this.savedPost$()
