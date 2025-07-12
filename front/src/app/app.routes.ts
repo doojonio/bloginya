@@ -1,11 +1,8 @@
 import { Routes } from '@angular/router';
-import { AboutComponent } from './about/about.component';
 import { HomeComponent } from './home/home.component';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { AnyViewComponent } from './view/any-view/any-view.component';
 import { CategoryComponent } from './view/category/category.component';
 import { DraftsComponent } from './view/drafts/drafts.component';
-import { PostViewComponent } from './view/post-view/post-view.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'POLYINE' },
@@ -18,14 +15,35 @@ export const routes: Routes = [
       ),
     title: 'POLYINE | Editor',
   },
-  { path: 'p/:postId', component: PostViewComponent },
+  {
+    path: 'p/:postId',
+    loadComponent: () =>
+      import('./view/post-view/post-view.component').then(
+        (c) => c.PostViewComponent
+      ),
+  },
   { path: 'c/:catId', component: CategoryComponent },
-  { path: 'me', component: AboutComponent },
-  { path: 'not-found', component: PageNotFoundComponent },
+  {
+    path: 'me',
+    loadComponent: () =>
+      import('./about/about.component').then((c) => c.AboutComponent),
+    title: 'POLYINE | About',
+  },
+  {
+    path: 'not-found',
+    loadComponent: () =>
+      import('./page-not-found/page-not-found.component').then(
+        (c) => c.PageNotFoundComponent
+      ),
+    title: 'POLYINE | Not Found',
+  },
   { path: ':shortname', component: AnyViewComponent },
   {
     path: '**',
-    component: PageNotFoundComponent,
+    loadComponent: () =>
+      import('./page-not-found/page-not-found.component').then(
+        (c) => c.PageNotFoundComponent
+      ),
     title: 'POLYINE | Not Found',
   },
 ];
