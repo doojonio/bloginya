@@ -1,0 +1,30 @@
+<mat-toolbar class="header">
+  <app-toolbar [drawer]="drawer"></app-toolbar>
+</mat-toolbar>
+<mat-sidenav-container
+  [style.marginTop.px]="isHandset() ? 56 : 64"
+  class="sidenav-container"
+>
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    [class]="drawerOpened ? 'drawer-open' : 'drawer-close'"
+    fixedInViewport
+    [fixedTopGap]="isHandset() ? 56 : 64"
+    (openedStart)="drawerOpened = true"
+    (closedStart)="drawerOpened = false"
+  >
+    <app-sidenav></app-sidenav>
+  </mat-sidenav>
+  <mat-sidenav-content #content>
+    <!-- Add Content Here -->
+    <ng-content></ng-content>
+    @if (footer() == Footer.ANIM) {
+    <app-footer></app-footer>
+    } @else if (footer() == Footer.LINE) {
+    <div class="footer-line"></div>
+    } @else if (footer() == Footer.BLANK) {
+    <div class="footer-blank"></div>
+    }
+  </mat-sidenav-content>
+</mat-sidenav-container>

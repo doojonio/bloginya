@@ -11,8 +11,11 @@ has 'current_user';
 has 'se_tags';
 has 'se_shortname';
 has 'log';
+has 'se_policy';
 
 async sub create_p ($self, $vals) {
+  die 'no rights' unless $self->se_policy->can_change_categories;
+
   $self->log->debug("Creating new category: '$vals->{title}'");
   my %fields = map { $_ => $vals->{$_} } grep {
     my $a = $_;
@@ -35,6 +38,8 @@ async sub create_p ($self, $vals) {
 }
 
 async sub update_p ($self, $id, $vals) {
+  die 'no rights' unless $self->se_policy->can_change_categories;
+
   $self->log->debug("Updating category $id with title '$vals->{title}'");
   my %fields = map { $_ => $vals->{$_} } grep {
     my $a = $_;
@@ -53,6 +58,8 @@ async sub update_p ($self, $id, $vals) {
 }
 
 async sub get_for_edit_p ($self, $id) {
+  die 'no rights' unless $self->se_policy->can_change_categories;
+
   $self->log->debug("Getting category $id for editing");
   my $cat = (await $self->db->select_p(
     [\'categories c', [-left => \'shortnames csn', 'csn.category_id' => 'c.id']],

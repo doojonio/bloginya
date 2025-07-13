@@ -1,0 +1,180 @@
+@use "@angular/material" as mat;
+// @use "../../../mixins" as m;
+@use "mixins" as m;
+
+:host {
+  --ngx-editor-border-radius: --var(--post-border-radius);
+  --ngx-editor-background-color: var(--post-background-color);
+  --ngx-editor-text-color: var(--post-text-color);
+  --ngx-editor-placeholder-color: var(--post-placeholder-color);
+  --ngx-editor-border-color: var(--post-border-color);
+  --ngx-editor-wrapper-border-color: var(--post-wrapper-border-color);
+
+  --ngx-editor-menubar-bg-color: var(--post-menubar-bg-color);
+  --ngx-editor-menubar-padding: var(--post-menubar-padding);
+  --ngx-editor-menubar-height: var(--post-menubar-height);
+
+  --ngx-editor-blockquote-color: var(--post-blockquote-color);
+  --ngx-editor-blockquote-border-width: var(--post-blockquote-border-width);
+
+  --ngx-editor-icon-size: 30px;
+  --ngx-editor-popup-bg-color: var(--mat-sys-surface);
+  --ngx-editor-popup-border-radius: 4px;
+  --ngx-editor-popup-shadow: var(--mat-sys-outline) 0px 2px 6px 2px;
+
+  --ngx-editor-menu-item-border-radius: 2px;
+  --ngx-editor-menu-item-active-color: var(--mat-sys-on-primary);
+  --ngx-editor-menu-item-hover-bg-color: var(--mat-sys-primary);
+  --ngx-editor-menu-item-active-bg-color: var(--mat-sys-primary);
+  --ngx-editor-seperator-color: var(--mat-sys-outline-variant);
+
+  --ngx-editor-focus-ring-color: var(--mat-sys-primary);
+  --ngx-editor-error-color: var(--mat-sys-error);
+  --ngx-editor-click-pointer: default;
+}
+
+:host {
+  display: flex;
+  justify-content: center;
+}
+
+.spin-container {
+  height: 100%;
+  mat-spinner {
+    margin: auto;
+  }
+}
+
+.container {
+  @include m.for-size(handset) {
+    width: 100%;
+  }
+  @include m.for-size(desktop) {
+    max-width: var(--post-max-width);
+  }
+}
+
+.title-bordered {
+  border: 1px dashed var(--mat-sys-outline-variant);
+}
+.title-imaged {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.title {
+  position: relative;
+  height: 20rem;
+  margin-bottom: 2rem;
+
+  display: flex;
+
+  border-radius: 1rem;
+
+  justify-content: center;
+  align-items: center;
+
+  textarea {
+    all: unset;
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-display-medium);
+    text-align: center;
+    text-wrap: wrap;
+    width: 80%;
+    max-width: 80%;
+    overflow: hidden;
+    resize: none;
+    font-weight: bold;
+  }
+
+  button {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    @include mat.icon-overrides(
+      (
+        color: var(--mat-sys-outline),
+      )
+    );
+  }
+}
+
+.menu-container {
+  display: flex;
+  justify-content: center;
+}
+
+.editor-acts {
+  .attachment-btn {
+    @include mat.icon-overrides(
+      (
+        color: var(--mat-sys-on-surface),
+      )
+    );
+  }
+}
+
+@include m.for-size(handset) {
+  .editor {
+    margin: 0 1rem;
+  }
+
+  .meta-editor {
+    margin: 0 1rem;
+  }
+}
+
+mat-divider,
+mat-progress-bar {
+  margin: 2rem 0;
+
+  @include m.for-size(handset) {
+    margin: 2rem 1rem;
+  }
+}
+
+.opt-row {
+  @include m.for-size(desktop) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    padding: 0.5rem 0;
+  }
+}
+.opt-title {
+  font: var(--mat-sys-title-medium);
+  min-width: 15rem;
+}
+.opt-value {
+  display: flex;
+
+  @include m.for-size(handset) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @include m.for-size(desktop) {
+    flex: 1;
+    justify-content: space-between;
+  }
+}
+
+.opt-toggles {
+  display: flex;
+  flex-flow: column;
+
+  mat-slide-toggle {
+    margin: 0.5rem 0;
+  }
+}
+
+.tags-field {
+  width: 100%;
+}
+
+.general-actions {
+  margin: 1rem;
+  display: flex;
+  justify-content: center;
+}

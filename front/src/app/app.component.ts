@@ -1,22 +1,22 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer } from '@angular/platform-browser';
-import { RouterOutlet } from '@angular/router';
-import { NavigationComponent } from './navigation/navigation.component';
+import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { Footer } from './footer';
+import {
+  NavigationComponent,
+  NavigationModule,
+} from './navigation/navigation.module';
 
 @Component({
   selector: 'app-root',
-  imports: [
-    RouterOutlet,
-    MatToolbarModule,
-    NavigationComponent,
-    NavigationComponent,
-  ],
+  imports: [RouterOutlet, MatToolbarModule, NavigationModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
+  private readonly activatedRoute = inject(ActivatedRoute);
   constructor(matIconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
     for (const icon of ['facebook', 'instagram', 'twitter', 'tiktok']) {
       matIconRegistry.addSvgIcon(
@@ -26,9 +26,14 @@ export class AppComponent {
     }
   }
 
-  @ViewChild('nav', { static: true }) el!: NavigationComponent;
+  footer = Footer.BLANK;
+
+  @ViewChild('nav', { static: true }) nav!: NavigationComponent;
   onActivate($event: any) {
-    this.el.scrollToTop();
-    this.el!.closeDrawer();
+    this.nav.scrollToTop();
+    this.nav!.closeDrawer();
+
+    const footer = this.activatedRoute.firstChild?.snapshot.data['footer'];
+    this.footer = footer === undefined ? Footer.BLANK : footer;
   }
 }

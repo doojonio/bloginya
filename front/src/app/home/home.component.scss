@@ -1,6 +1,5 @@
 @use "@angular/material" as mat;
-@use "../../theme-colors" as theme;
-@use "../../mixins" as mixs;
+@use "mixins" as mixs;
 
 .content {
   padding: 0 20px;

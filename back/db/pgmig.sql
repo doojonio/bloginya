@@ -1,5 +1,7 @@
 -- 2 up
+
 -- 2 down
+
 -- 1 up
 create extension if not exists "uuid-ossp";
 
@@ -279,8 +281,3 @@ drop type user_role;
 drop function random_string ();
 
 drop domain cool_id;
-
--- -- 2 up
--- select 1 from users;
--- -- 2 down
--- select 2 from users;

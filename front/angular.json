@@ -17,13 +17,11 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "stylePreprocessorOptions": { "includePaths": ["./src"] },
             "outputPath": "dist/front",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js",
-              "@angular/localize/init"
-            ],
+            "polyfills": ["zone.js", "@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -33,6 +31,7 @@
               }
             ],
             "styles": [
+              "src/_mixins.scss",
               "src/_theme-colors.scss",
               "src/styles.scss"
             ],
@@ -44,8 +43,8 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  // "maximumError": "1MB"
-                  "maximumError": "2MB"
+                  "maximumError": "1MB"
+                  // "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -95,10 +94,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/_theme-colors.scss",
-              "src/styles.scss"
-            ],
+            "styles": ["src/_theme-colors.scss", "src/styles.scss"],
             "scripts": []
           }
         }

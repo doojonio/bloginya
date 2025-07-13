@@ -98,6 +98,7 @@ sub _create_variant ($self, $orig, $dimension) {
     }
   }
 
+  $variant->Strip();
   $variant->Set(magick  => ($is_gif && $size->{gifable} ? 'gif' : 'webp'));
   $variant->Set(quality => $size->{quality}) if $size->{quality};
   my $path = $orig->dirname->child($dimension . '.webp');
