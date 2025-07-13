@@ -23,13 +23,14 @@
 
   img.i1 {
     width: 50%;
-    @include mixs.for-size(handset) {
-      width: 100%;
-    }
     flex-shrink: 0;
     // image center cover
     object-fit: cover;
     object-position: center;
+
+    @include mixs.for-size(handset) {
+      width: 100%;
+    }
   }
 
   div.text {
