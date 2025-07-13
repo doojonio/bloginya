@@ -12,7 +12,7 @@ import {
   switchMap,
 } from 'rxjs/operators';
 import { AppService } from '../../../shared/services/app.service';
-import { picStyle } from '../../../shared/services/picture.service';
+import { PictureService } from '../../../shared/services/picture.service';
 import { QueryResult, SearchService } from '../../services/search.service';
 
 @Component({
@@ -42,8 +42,9 @@ export class SearchComponent {
     )
   );
 
+  private readonly picS = inject(PictureService);
   itemBack(item: QueryResult) {
-    return picStyle(item.picture_pre, 'thumbnail');
+    return this.picS.picStyle(item.picture_pre, 'thumbnail');
   }
   itemUrl(item: QueryResult) {
     if (item.name) {

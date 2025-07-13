@@ -11,7 +11,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { filter, switchMap, take, tap, timer } from 'rxjs';
 import { UserRoles } from '../../shared/interfaces/user-roles.interface';
 import { AppService } from '../../shared/services/app.service';
-import { variant } from '../../shared/services/picture.service';
+import { PictureService } from '../../shared/services/picture.service';
 import { SeoService } from '../../shared/services/seo.service';
 import { UserService } from '../../shared/services/user.service';
 import { ReadPostResponse } from '../post.interface';
@@ -54,8 +54,9 @@ export class PostViewComponent {
 
   likeAnimClass = signal('');
 
+  private readonly picS = inject(PictureService);
   title_image_style = computed(() => {
-    const url = variant(this.post().picture_wp, 'medium');
+    const url = this.picS.variant(this.post().picture_wp, 'medium');
     return url
       ? {
           background: [

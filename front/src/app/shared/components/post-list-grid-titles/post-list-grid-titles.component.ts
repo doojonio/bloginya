@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { picStyle } from '../../services/picture.service';
 import { AppService } from '../../services/app.service';
+import { PictureService } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-list-grid-titles',
@@ -33,8 +33,9 @@ export class PostListGridTitlesComponent {
   appService = inject(AppService);
   isHandset$ = this.appService.isHandset();
 
+  private readonly picS = inject(PictureService);
   getPostPreStyle(post: Post) {
-    return picStyle(post.picture_pre, 'pre280');
+    return this.picS.picStyle(post.picture_pre, 'pre280');
   }
 }
 export interface Post {

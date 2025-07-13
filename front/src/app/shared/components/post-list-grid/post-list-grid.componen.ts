@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { PostPictured } from '../../../home/home.interface';
 import { AppService } from '../../services/app.service';
-import { picStyle } from '../../services/picture.service';
+import { PictureService } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-list-grid',
@@ -68,7 +68,8 @@ export class PostListGridComponent {
     return [1, 1];
   }
 
+  private readonly picS = inject(PictureService);
   getPostPreStyle(post: PostPictured) {
-    return picStyle(post.picture_pre, 'pre450');
+    return this.picS.picStyle(post.picture_pre, 'pre450');
   }
 }

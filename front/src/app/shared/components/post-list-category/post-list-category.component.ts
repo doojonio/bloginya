@@ -6,7 +6,7 @@ import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
 import { Category, PostDescribed } from '../../../home/home.interface';
 import { AppService } from '../../services/app.service';
-import { picStyle } from '../../services/picture.service';
+import { PictureService } from '../../services/picture.service';
 import { PostListMedComponent } from '../post-list-med/post-list-med.component';
 
 @Component({
@@ -25,8 +25,10 @@ export class PostListCategoryComponent {
   linkForPost(post: PostDescribed) {
     return post.name ? '/' + post.name : '/p/' + post.id;
   }
+
+  private readonly picS = inject(PictureService);
   imageUrl(post: PostDescribed) {
-    return picStyle(post.picture_pre, 'pre280');
+    return this.picS.picStyle(post.picture_pre, 'pre280');
   }
   onChangeTab($event: MatTabChangeEvent) {
     let cats = this.cats();

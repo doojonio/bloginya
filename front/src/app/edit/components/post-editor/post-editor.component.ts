@@ -38,7 +38,7 @@ import {
 import { CategoryService } from '../../../category/category.service';
 import { PostStatuses } from '../../../shared/interfaces/post-statuses.interface';
 import { AppService } from '../../../shared/services/app.service';
-import { variant } from '../../../shared/services/picture.service';
+import { PictureService } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
 import { UserService } from '../../../shared/services/user.service';
 import { DriveService } from '../../services/drive.service';
@@ -64,6 +64,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly categoriesS = inject(CategoryService);
   private readonly shortnamesS = inject(ShortnamesService);
   private readonly router = inject(Router);
+  private readonly picS = inject(PictureService);
 
   readonly dialog = inject(MatDialog);
 
@@ -198,7 +199,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         this.draft.setValue({
           title: post.title || '',
           document: post.document,
-          picture_wp: variant(post.picture_wp, 'medium'),
+          picture_wp: this.picS.variant(post.picture_wp, 'medium'),
         });
 
         this.tags.set(post.tags);
@@ -290,7 +291,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe((resp) =>
-        this.draft.get('picture_wp')!.setValue(variant(resp.id, 'medium'))
+        this.draft
+          .get('picture_wp')!
+          .setValue(this.picS.variant(resp.id, 'medium'))
       );
   }
 
@@ -407,7 +410,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         return throwError(() => err);
       }),
       map((res) => {
-        return { id: pholdId, path: variant(res.id, 'medium') };
+        return { id: pholdId, path: this.picS.variant(res.id, 'medium') };
       })
     );
 

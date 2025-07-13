@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { picStyle } from '../../services/picture.service';
+import { PictureService } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-med',
@@ -17,8 +17,9 @@ export class PostMedComponent {
     return post.name ? '/' + post.name : '/p/' + post.id;
   }
 
+  private readonly picS = inject(PictureService);
   getPostPreStyle(post: PostMed) {
-    return picStyle(post.picture_pre, 'pre140');
+    return this.picS.picStyle(post.picture_pre, 'pre140');
   }
 }
 
@@ -29,7 +30,8 @@ export interface PostMed {
   picture_pre: string | null;
   description: string | null;
   tags: string[];
-}export interface PostMed {
+}
+export interface PostMed {
   title: string;
   id: string;
   name: string | null;
@@ -37,4 +39,3 @@ export interface PostMed {
   description: string | null;
   tags: string[];
 }
-

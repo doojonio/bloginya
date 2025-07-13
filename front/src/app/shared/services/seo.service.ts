@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { variant } from './picture.service';
+import { PictureService } from './picture.service';
 
 @Injectable({
   providedIn: 'root',
@@ -8,6 +8,7 @@ import { variant } from './picture.service';
 export class SeoService {
   private readonly metaService = inject(Meta);
   private readonly titleService = inject(Title);
+  private readonly picS = inject(PictureService);
 
   private readonly SITE = 'https://hpotato.io/';
   private readonly SITE_NAME = 'POLYINE';
@@ -98,7 +99,8 @@ export class SeoService {
       type: 'article',
       url: this.SITE + (post.name ? post.name : 'p/' + post.id),
       image:
-        this.SITE + (variant(post.picture_pre, 'medium') || this.DEFAULT_PRE),
+        this.SITE +
+        (this.picS.variant(post.picture_pre, 'medium') || this.DEFAULT_PRE),
       domain: this.DOMAIN,
     });
   }

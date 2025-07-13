@@ -9,17 +9,18 @@ export class PictureService {
       return 'rgb(117, 85, 112)';
     }
 
-    return 'url(' + variant(driveId, varName) + ') center / cover no-repeat';
+    return (
+      'url(' + this.variant(driveId, varName) + ') center / cover no-repeat'
+    );
+  }
+  variant(driveId: string | null, variant: VARIANT) {
+    if (driveId == null || driveId == '') {
+      return null;
+    }
+    return driveId + '?d=' + variant;
   }
 }
 
-export function picStyle(driveId: string | null, varName: VARIANT) {
-  if (driveId == null) {
-    return 'rgb(117, 85, 112)';
-  }
-
-  return 'url(' + variant(driveId, varName) + ') center / cover no-repeat';
-}
 export type VARIANT =
   | 'thumbnail'
   | 'pre140'
@@ -28,10 +29,3 @@ export type VARIANT =
   | 'medium'
   | 'large'
   | 'original';
-
-export function variant(driveId: string | null, variant: VARIANT) {
-  if (driveId == null || driveId == '') {
-    return null;
-  }
-  return driveId + '?d=' + variant;
-}

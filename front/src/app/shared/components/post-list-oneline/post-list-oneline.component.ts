@@ -14,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { AppService } from '../../services/app.service';
-import { picStyle } from '../../services/picture.service';
+import { PictureService } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-list-oneline',
@@ -52,12 +52,13 @@ export class PostListOnelineComponent {
     }
   });
 
+  private readonly picS = inject(PictureService);
   getPostPreStyle(post: PostOneLinePost) {
-    return { background: picStyle(post.picture_pre, 'pre280') };
+    return { background: this.picS.picStyle(post.picture_pre, 'pre280') };
   }
 
   /* DEKSTOP
-  */
+   */
   @ViewChild('postsContainer') postsContainer!: ElementRef<HTMLDivElement>;
 
   scrollPrev(): void {
