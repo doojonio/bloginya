@@ -146,6 +146,8 @@ sub _setup_routes($self) {
 
   # User
   $api_A->post('/users/block')->to('User#block');
+  $api_A->get('/users/settings')->to('User#settings');
+  $api_A->put('/users/settings')->to('User#update_settings');
 }
 
 

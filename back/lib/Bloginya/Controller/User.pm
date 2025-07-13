@@ -20,5 +20,18 @@ async sub block($self) {
   return $self->msg('OK');
 }
 
+async sub settings($self) {
+  my $u = await $self->current_user_p;
+  return $self->render(json => {username => $u->{username}});
+}
+
+async sub update_settings($self) {
+  my $form = $self->i(json => 'UpdateUserSettingsPayload');
+
+  await $self->service('settings')->update_settings_p($form);
+
+  return $self->msg('OK');
+}
+
 
 1
