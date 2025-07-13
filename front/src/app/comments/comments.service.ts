@@ -16,7 +16,7 @@ export class CommentsService {
       params = params.set('reply_to_id', replyToId);
     }
 
-    return this.http.get<GetCommentResponseItem[]>('/api/comments', {
+    return this.http.get<GetCommentsResponseItem[]>('/api/comments', {
       params,
     });
   }
@@ -54,7 +54,7 @@ export class CommentsService {
   }
 }
 
-export interface GetCommentResponseItem {
+export interface GetCommentsResponseItem {
   id: string;
   user_id: string;
   created_at: string;

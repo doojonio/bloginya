@@ -1,9 +1,8 @@
-
-
-export interface DraftsResponse {
-  drafts: Draft[];
-  continue_edit: Draft[];
-}export interface Draft {
+export interface GetDraftsResponse {
+  drafts: GetDraftsItem[];
+  continue_edit: GetDraftsItem[];
+}
+export interface GetDraftsItem {
   id: string;
   name: null;
   picture_pre: string | null;
@@ -11,4 +10,3 @@ export interface DraftsResponse {
   created_date: string;
   draft_id: string | null;
 }
-
