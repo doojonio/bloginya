@@ -1,3 +1,10 @@
+@use "mixins" as mixs;
+
+:host {
+  display: block;
+  padding: 1rem;
+}
+
 .bcrumb {
   color: var(--mat-sys-primary);
   font: var(--mat-sys-title-large);
@@ -10,8 +17,15 @@
   flex-flow: row nowrap;
   margin-bottom: 3rem;
 
+  @include mixs.for-size(handset) {
+    flex-flow: column nowrap;
+  }
+
   img.i1 {
     width: 50%;
+    @include mixs.for-size(handset) {
+      width: 100%;
+    }
     flex-shrink: 0;
     // image center cover
     object-fit: cover;
@@ -69,13 +83,23 @@ blockquote:after {
 
 blockquote:before {
   content: "“";
-  left: 10rem;
+  left: 17%;
+
+  @include mixs.for-size(handset) {
+    top: -5%;
+    left: 0%;
+  }
 }
 
 blockquote:after {
   content: "”";
-  right: 11rem;
-  bottom: -8rem;
+  right: 17%;
+  bottom: -80%;
+
+  @include mixs.for-size(handset) {
+    right: 0%;
+    // bottom: -60%;
+  }
 }
 
 .vertical-divider {
@@ -92,26 +116,26 @@ blockquote:after {
   border-radius: 100%;
   object-fit: cover;
   object-position: center;
-    margin: 2rem;
+  margin: 2rem;
 }
 
 .dev-cont {
-    display: flex;
-    justify-content: center;
-    flex-flow: column nowrap;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  flex-flow: column nowrap;
+  align-items: center;
 
-    .t2 {
-        font-weight: bold;
-    }
+  .t2 {
+    font-weight: bold;
+  }
 
-    .b1 {
-        text-align: center;
-    }
+  .b1 {
+    text-align: center;
+  }
 }
 
 .end {
-    margin: 10rem 0 0 0;
-    border-top: 2px solid var(--mat-sys-primary);
-    min-height: 20rem;
+  margin: 10rem 0 0 0;
+  border-top: 2px solid var(--mat-sys-primary);
+  min-height: 20rem;
 }
