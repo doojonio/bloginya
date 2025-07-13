@@ -19,8 +19,12 @@
   <mat-sidenav-content #content>
     <!-- Add Content Here -->
     <ng-content></ng-content>
-    @if (isHandset()) {
+    @if (footer() == Footer.ANIM) {
     <app-footer></app-footer>
+    } @else if (footer() == Footer.LINE) {
+    <div class="footer-line"></div>
+    } @else if (footer() == Footer.BLANK) {
+    <div class="footer-blank"></div>
     }
   </mat-sidenav-content>
 </mat-sidenav-container>

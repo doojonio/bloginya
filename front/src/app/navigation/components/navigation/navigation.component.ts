@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, input, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDrawer, MatSidenavContent } from '@angular/material/sidenav';
+import { Footer } from '../../../footer';
 import { AppService } from '../../../shared/services/app.service';
 
 @Component({
@@ -15,7 +16,11 @@ export class NavigationComponent implements OnInit {
   appService = inject(AppService);
   isHandset = toSignal(this.appService.isHandset());
 
+  footer = input.required<Footer>();
+
   drawerOpened = false;
+
+  Footer = Footer;
 
   private scrollToTopSub = this.appService
     .getScrollToTop()

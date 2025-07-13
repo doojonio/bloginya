@@ -1,8 +1,14 @@
 import { Routes } from '@angular/router';
+import { Footer } from './footer';
 import { HomeComponent } from './home/home.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent, title: 'POLYINE' },
+  {
+    path: '',
+    component: HomeComponent,
+    title: 'POLYINE',
+    data: { footer: Footer.ANIM },
+  },
   {
     path: 'drafts',
     loadChildren: () =>
@@ -27,6 +33,7 @@ export const routes: Routes = [
     path: 'me',
     loadComponent: () =>
       import('./about/about.component').then((c) => c.AboutComponent),
+    data: { footer: Footer.LINE },
     title: 'POLYINE | About',
   },
   {

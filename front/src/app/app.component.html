@@ -1,4 +1,4 @@
-<app-navigation #nav>
+<app-navigation [footer]="footer" #nav>
   <div class="router-container">
     <router-outlet (activate)="onActivate($event)" />
   </div>
