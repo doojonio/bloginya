@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { UserRoles } from '../../../shared/interfaces/user-roles.interface';
 import { UserService } from '../../../shared/services/user.service';
 import { NewDraftService } from '../../services/new-draft.service';
 
@@ -14,6 +15,8 @@ export class SidenavComponent implements OnInit {
   private draftS = inject(NewDraftService);
   private router = inject(Router);
   user$ = this.userS.getCurrentUser();
+
+  UserRoles = UserRoles;
 
   ngOnInit(): void {}
 

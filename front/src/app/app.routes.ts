@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Footer } from './footer';
 import { HomeComponent } from './home/home.component';
+import { authorizedGuard } from './shared/guards/authorized.guard';
 
 export const routes: Routes = [
   {
@@ -11,12 +12,14 @@ export const routes: Routes = [
   },
   {
     path: 'drafts',
+    canActivate: [authorizedGuard],
     loadChildren: () =>
       import('./drafts/drafts.module').then((m) => m.DraftsModule),
     title: 'POLYINE | Drafts',
   },
   {
     path: 'e',
+    canActivate: [authorizedGuard],
     loadChildren: () => import('./edit/edit.module').then((m) => m.EditModule),
     title: 'POLYINE | Editor',
   },
@@ -35,6 +38,15 @@ export const routes: Routes = [
       import('./about/about.component').then((c) => c.AboutComponent),
     data: { footer: Footer.LINE },
     title: 'POLYINE | About',
+  },
+  {
+    path: 'profile',
+    canActivate: [authorizedGuard],
+    loadComponent: () =>
+      import('./profile-settings/profile-settings.component').then(
+        (c) => c.ProfileSettingsComponent
+      ),
+    title: 'POLYINE | Profile Settings',
   },
   {
     path: 'not-found',

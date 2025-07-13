@@ -1,8 +1,12 @@
 <mat-nav-list>
-  @if (user$ | async) {
+  @if (user$ | async; as user) {
+
+  <a mat-list-item i18n routerLink="/profile">Profile</a>
+  @if (user.role == UserRoles.OWNER || user.role == UserRoles.CREATOR) {
+
   <a mat-list-item i18n (click)="addDraft()">New</a>
   <a mat-list-item i18n routerLink="/drafts">Drafts</a>
-  } @else {
+  } } @else {
   <a mat-list-item i18n href="/api/oauth/to_google">Login</a>
   }
 
