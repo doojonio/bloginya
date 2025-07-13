@@ -17,7 +17,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Editor, Validators as EditorValidators } from 'ngx-editor';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -35,15 +34,15 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs/operators';
-import { CategoryService } from '../../../category/category.service';
+import { NewCategoryDialogComponent } from '../../../category/category.module';
 import { PostStatuses } from '../../../shared/interfaces/post-statuses.interface';
 import { AppService } from '../../../shared/services/app.service';
+import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
 import { UserService } from '../../../shared/services/user.service';
 import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
-import { NewCategoryDialogComponent } from '../new-category-dialog/new-category-dialog.component';
 import {
   findPlaceholder,
   placeholderPlugin,
@@ -58,10 +57,9 @@ import {
 export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly appS = inject(AppService);
   private readonly userS = inject(UserService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifierS = inject(NotifierService);
   private readonly driveS = inject(DriveService);
   private readonly editS = inject(EditorService);
-  private readonly categoriesS = inject(CategoryService);
   private readonly shortnamesS = inject(ShortnamesService);
   private readonly router = inject(Router);
   private readonly picS = inject(PictureService);
@@ -89,7 +87,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   updateCategories$ = new BehaviorSubject(1);
   categories$ = this.updateCategories$.pipe(
-    switchMap((_) => this.categoriesS.getCategories())
+    switchMap((_) => this.editS.getCategories())
   );
 
   tags = signal<string[]>([]);
@@ -359,9 +357,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         catchError((err) => {
-          this.snackBar.open('An error occurred when uploading', 'OK', {
-            duration: 5000,
-          });
+          this.notifierS.notify('An error occurred when uploading', 'OK');
           return throwError(() => err);
         }),
         finalize(() => (this.attachmentLoading = false))

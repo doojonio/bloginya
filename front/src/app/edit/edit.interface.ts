@@ -28,3 +28,8 @@ export interface UpdateDraftPayload {
   picture_wp?: string | null;
   picture_pre?: string | null;
 }
+
+export interface ListCategoryItem {
+  id: string;
+  title: string;
+}

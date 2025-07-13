@@ -4,30 +4,17 @@ import {
   AbstractControl,
   FormControl,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { MatDialogRef } from '@angular/material/dialog';
 import { catchError, map, of, Subject, takeUntil } from 'rxjs';
-import { CategoryService } from '../../../category/category.service';
+import { CategoryService } from '../../../shared/services/category.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
 
 @Component({
   selector: 'app-new-category-dialog',
-  imports: [
-    MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatChipsModule,
-  ],
+  standalone: false,
   templateUrl: './new-category-dialog.component.html',
   styleUrl: './new-category-dialog.component.scss',
 })

@@ -3,7 +3,7 @@ import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { SortBy } from '../../category/category.interface';
-import { Category } from '../../category/category.interface';
+import { CategoryLoaded } from '../../category/category.interface';
 import { ReadPostResponse } from '../../post/post.interface';
 import {
   ItemShortnameResponse,
@@ -70,7 +70,7 @@ export class ShortnameComponent {
 
   toCategory(item: ItemShortnameResponse) {
     if (item.type == 'category') {
-      return item.content as Category;
+      return item.content as CategoryLoaded;
     }
     throw 'Failed to load item';
   }

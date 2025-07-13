@@ -5,6 +5,7 @@ import { NotifierService } from '../../shared/services/notifier.service';
 import {
   ApplyChangesPayload,
   GetForEditResponse,
+  ListCategoryItem,
   UpdateDraftPayload,
 } from '../edit.interface';
 
@@ -12,6 +13,10 @@ import {
 export class EditorService {
   private readonly http = inject(HttpClient);
   private readonly notifierS = inject(NotifierService);
+
+  getCategories() {
+    return this.http.get<ListCategoryItem[]>('/api/categories/list');
+  }
 
   getForEdit(postId: string) {
     return this.http.get<GetForEditResponse>('/api/posts/for_edit', {

@@ -9,6 +9,12 @@ import { ServiceErrors } from '../interfaces/service-errors.interface';
 export class NotifierService {
   private readonly snackBar = inject(MatSnackBar);
 
+  private readonly CONFIG = { duration: 5000 };
+
+  notify(msg: string, act = 'Close') {
+    this.snackBar.open(msg, act, this.CONFIG);
+  }
+
   mapError(error: HttpErrorResponse) {
     const message = error.error?.message;
     if (message == 'NOCAT') {
@@ -22,13 +28,12 @@ export class NotifierService {
   notifyError(httpErr: HttpErrorResponse) {
     const err = this.mapError(httpErr);
     // TODO: global config or service?
-    const config = { duration: 5000 };
     if (err == ServiceErrors.UNDEF) {
-      this.snackBar.open('Unknown error', 'Close', config);
+      this.snackBar.open('Unknown error', 'Close', this.CONFIG);
     } else if (err == ServiceErrors.NORIGHT) {
-      this.snackBar.open('Forbidden', 'Close', config);
+      this.snackBar.open('Forbidden', 'Close', this.CONFIG);
     } else if (err == ServiceErrors.NOCAT) {
-      this.snackBar.open('Missing category', 'Close', config);
+      this.snackBar.open('Missing category', 'Close', this.CONFIG);
     }
 
     return err;

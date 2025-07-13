@@ -2,10 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class PostsService {
+@Injectable()
+export class NewDraftService {
   private readonly http = inject(HttpClient);
 
   createDraft() {
@@ -14,5 +12,3 @@ export class PostsService {
       .pipe(map((r) => r.id));
   }
 }
-
-

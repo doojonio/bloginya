@@ -3,12 +3,12 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
-import { CategoryEditorComponent } from '../../category-editor/category-editor.component';
-import { UserRoles } from '../../shared/interfaces/user-roles.interface';
-import { SeoService } from '../../shared/services/seo.service';
-import { UserService } from '../../shared/services/user.service';
-import { Category, SortBy } from '../category.interface';
-import { CategoryService } from '../category.service';
+import { UserRoles } from '../../../shared/interfaces/user-roles.interface';
+import { SeoService } from '../../../shared/services/seo.service';
+import { UserService } from '../../../shared/services/user.service';
+import { CategoryLoaded, SortBy } from '../../category.interface';
+import { CategoryService } from '../../../shared/services/category.service';
+import { CategoryEditorComponent } from '../category-editor/category-editor.component';
 
 @Component({
   selector: 'app-category',
@@ -49,7 +49,7 @@ export class CategoryComponent {
       this.cat.set(cat);
     });
 
-  cat = model<Category>();
+  cat = model<CategoryLoaded>();
 
   private readonly dialog = inject(MatDialog);
   editCategory() {

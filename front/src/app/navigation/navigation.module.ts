@@ -16,6 +16,7 @@ import { NavigationComponent } from './components/navigation/navigation.componen
 import { SearchComponent } from './components/search/search.component';
 import { SidenavComponent } from './components/sidenav/sidenav.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import { NewDraftService } from './services/new-draft.service';
 import { SearchService } from './services/search.service';
 
 @NgModule({
@@ -26,7 +27,7 @@ import { SearchService } from './services/search.service';
     FooterComponent,
     SearchComponent,
   ],
-  providers: [SearchService],
+  providers: [SearchService, NewDraftService],
   exports: [NavigationComponent],
   imports: [
     FormsModule,

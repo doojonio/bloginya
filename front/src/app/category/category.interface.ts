@@ -19,17 +19,17 @@ export interface CategoryForEditResponse {
   shortname: string | null;
   tags: string[];
 }
-export interface Category {
+export interface CategoryLoaded {
   id: string;
   title: string;
   name: string | null;
   sort: SortBy;
   posts_num: number;
   page: number;
-  grid_posts: CategoryPost[];
+  grid_posts: PostCategoryGrid[];
   list_posts: PostMed[];
 }
-export interface CategoryPost {
+export interface PostCategoryGrid {
   picture_pre: string;
   title: string;
   id: string;

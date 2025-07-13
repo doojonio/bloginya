@@ -1,29 +1,25 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, throwError } from 'rxjs';
-import { NotifierService } from '../shared/services/notifier.service';
+import { NotifierService } from './notifier.service';
 import {
   AddCategoryResponse,
-  Category,
   CategoryForEditResponse,
+  CategoryLoaded,
   CategoryPayload,
   SortBy,
-} from './category.interface';
+} from '../../category/category.interface';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CategoryService {
   private readonly notifierS = inject(NotifierService);
 
   constructor(private readonly http: HttpClient) {}
 
   loadCategory(id: string, page?: number, sortBy?: SortBy) {
-    return this.http.get<Category>('/api/categories/load', {
+    return this.http.get<CategoryLoaded>('/api/categories/load', {
       params: { id, page: page || 0, sort: sortBy || SortBy.NEWEST },
     });
-  }
-  getCategories() {
-    return this.http.get<Category[]>('/api/categories/list');
   }
 
   getForEdit(id: string) {
@@ -60,7 +56,7 @@ export class CategoryService {
       );
   }
   getCategoryByTitle(title: string) {
-    return this.http.get<Category>('/api/categories/by_title', {
+    return this.http.get<CategoryLoaded>('/api/categories/by_title', {
       params: { title },
     });
   }
