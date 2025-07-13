@@ -3,16 +3,14 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterOutlet } from '@angular/router';
-import { NavigationComponent } from './navigation/navigation.component';
+import {
+  NavigationComponent,
+  NavigationModule,
+} from './navigation/navigation.module';
 
 @Component({
   selector: 'app-root',
-  imports: [
-    RouterOutlet,
-    MatToolbarModule,
-    NavigationComponent,
-    NavigationComponent,
-  ],
+  imports: [RouterOutlet, MatToolbarModule, NavigationModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

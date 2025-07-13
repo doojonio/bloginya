@@ -23,7 +23,11 @@
   <mat-icon matSuffix>search</mat-icon>
   }
 
-  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="goToItem($event)" [autoActiveFirstOption]="true">
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    (optionSelected)="goToItem($event)"
+    [autoActiveFirstOption]="true"
+  >
     @for (res of results(); track res.id) {
     <mat-option [id]="itemUrl(res).join('/')">
       <a (click)="closeSearch()" [routerLink]="itemUrl(res)" class="opt">

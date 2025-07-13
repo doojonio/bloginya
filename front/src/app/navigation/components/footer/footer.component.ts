@@ -1,12 +1,9 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatIcon } from '@angular/material/icon';
-import { AppService } from '../../shared/services/app.service';
+import { AppService } from '../../../shared/services/app.service';
 
 @Component({
   selector: 'app-footer',
-  imports: [AsyncPipe, MatIcon, MatDividerModule],
+  standalone: false,
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })

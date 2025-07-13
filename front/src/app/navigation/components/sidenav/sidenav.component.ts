@@ -1,13 +1,11 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { MatListModule, MatNavList } from '@angular/material/list';
-import { Router, RouterModule } from '@angular/router';
-import { PostsService } from '../../shared/services/posts.service';
-import { UserService } from '../../shared/services/user.service';
+import { Router } from '@angular/router';
+import { PostsService } from '../../../shared/services/posts.service';
+import { UserService } from '../../../shared/services/user.service';
 
 @Component({
   selector: 'app-sidenav',
-  imports: [MatNavList, RouterModule, MatListModule, AsyncPipe],
+  standalone: false,
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.scss',
 })

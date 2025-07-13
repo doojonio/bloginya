@@ -1,29 +1,13 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import {
-  MatDrawer,
-  MatSidenavContent,
-  MatSidenavModule,
-} from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
-import { AppService } from '../shared/services/app.service';
-import { FooterComponent } from './footer/footer.component';
-import { SidenavComponent } from './sidenav/sidenav.component';
-import { ToolbarComponent } from './toolbar/toolbar.component';
+import { MatDrawer, MatSidenavContent } from '@angular/material/sidenav';
+import { AppService } from '../../../shared/services/app.service';
 
 @Component({
   selector: 'app-navigation',
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.scss',
-  imports: [
-    MatToolbarModule,
-    MatSidenavModule,
-    RouterModule,
-    ToolbarComponent,
-    SidenavComponent,
-    FooterComponent,
-  ],
+  standalone: false,
 })
 export class NavigationComponent implements OnInit {
   ngOnInit(): void {}

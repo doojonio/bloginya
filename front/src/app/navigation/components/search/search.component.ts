@@ -1,16 +1,8 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {
-  MatAutocompleteActivatedEvent,
-  MatAutocompleteModule,
-} from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { Router, RouterModule } from '@angular/router';
+import { FormControl } from '@angular/forms';
+import { MatAutocompleteActivatedEvent } from '@angular/material/autocomplete';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import {
   catchError,
@@ -21,21 +13,11 @@ import {
 } from 'rxjs/operators';
 import { AppService } from '../../../shared/services/app.service';
 import { picStyle } from '../../../shared/services/picture.service';
-import { QueryResult, SearchService } from '../../../shared/services/search.service';
+import { QueryResult, SearchService } from '../../services/search.service';
 
 @Component({
   selector: 'app-search',
-  imports: [
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatAutocompleteModule,
-    ReactiveFormsModule,
-    AsyncPipe,
-    MatButtonModule,
-    RouterModule,
-  ],
+  standalone: false,
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })

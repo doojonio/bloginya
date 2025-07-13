@@ -1,21 +1,10 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject, input, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatDrawer } from '@angular/material/sidenav';
-import { RouterModule } from '@angular/router';
-import { AppService } from '../../shared/services/app.service';
-import { SearchComponent } from './search/search.component';
+import { AppService } from '../../../shared/services/app.service';
 
 @Component({
   selector: 'app-toolbar',
-  imports: [
-    MatIconModule,
-    AsyncPipe,
-    MatButtonModule,
-    RouterModule,
-    SearchComponent,
-  ],
+  standalone: false,
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss',
 })
