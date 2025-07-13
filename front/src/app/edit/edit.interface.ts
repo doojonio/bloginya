@@ -29,7 +29,7 @@ export interface UpdateDraftPayload {
   picture_pre?: string | null;
 }
 
-export interface ListCategoryItem {
+export interface GetCategoriesItem {
   id: string;
   title: string;
 }

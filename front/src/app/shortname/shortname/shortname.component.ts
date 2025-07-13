@@ -2,8 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
-import { SortBy } from '../../category/category.interface';
-import { CategoryLoaded } from '../../category/category.interface';
+import { SortBy } from "../../shared/services/category.service";
+import { LoadCategoryResponse } from '../../shared/services/category.service';
 import { ReadPostResponse } from '../../post/post.interface';
 import {
   ItemShortnameResponse,
@@ -70,7 +70,7 @@ export class ShortnameComponent {
 
   toCategory(item: ItemShortnameResponse) {
     if (item.type == 'category') {
-      return item.content as CategoryLoaded;
+      return item.content as LoadCategoryResponse;
     }
     throw 'Failed to load item';
   }

@@ -4,10 +4,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
 import { UserRoles } from '../../../shared/interfaces/user-roles.interface';
+import {
+  CategoryService,
+  LoadCategoryResponse,
+  SortBy,
+} from '../../../shared/services/category.service';
 import { SeoService } from '../../../shared/services/seo.service';
 import { UserService } from '../../../shared/services/user.service';
-import { CategoryLoaded, SortBy } from '../../category.interface';
-import { CategoryService } from '../../../shared/services/category.service';
 import { CategoryEditorComponent } from '../category-editor/category-editor.component';
 
 @Component({
@@ -28,9 +31,7 @@ export class CategoryComponent {
   private readonly userService = inject(UserService);
   user$ = this.userService.getCurrentUser();
 
-  public get SortBy() {
-    return SortBy;
-  }
+  SortBy = SortBy;
 
   catIdSub = combineLatest([
     toObservable(this.catId),
@@ -49,7 +50,7 @@ export class CategoryComponent {
       this.cat.set(cat);
     });
 
-  cat = model<CategoryLoaded>();
+  cat = model<LoadCategoryResponse>();
 
   private readonly dialog = inject(MatDialog);
   editCategory() {
@@ -73,11 +74,9 @@ export class CategoryComponent {
         }
         return cat;
       });
-      this.router.navigate([
-        '/',
-        resp.shortname ? resp.shortname : 'c',
-        resp.id,
-      ]);
+      this.router.navigate(
+        resp.shortname ? ['/', resp.shortname] : ['/', 'c', resp.id]
+      );
     });
   }
 
