@@ -1,6 +1,11 @@
 @use "mixins" as mixs;
 
 .image {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.image {
   background: url("/assets/images/m_wp_footer.webp");
 
   background-size: cover;

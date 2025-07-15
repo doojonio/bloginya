@@ -20,7 +20,7 @@
   }
 
   .title {
-    color: var(--mat-sys-primary);
+    color: #ffffff;
     font: var(--mat-sys-headline-small);
     font-weight: bold;
 
@@ -44,6 +44,8 @@
 
   .text {
     font: var(--mat-sys-label-small);
+    opacity: 0.5;
+    // text-shadow: 0 0 5px #ffffff;
   }
 
   @include mixs.for-size(desktop) {
@@ -76,9 +78,10 @@ mat-divider {
 
 @keyframes neon-glow {
   from {
-    text-shadow: 0 0 10px var(--mat-sys-primary), 0 0 20px var(--mat-sys-primary),
+    text-shadow: 0 0 10px var(--mat-sys-primary),
+      0 0 20px var(--mat-sys-primary),
       0 0 30px var(--mat-sys-primary), 0 0 40px var(--mat-sys-primary),
-      0 0 70px #9c1466, 0 0 80px #9c1466,
+      0 0 70px var(--mat-sys-primary), 0 0 80px var(--mat-sys-primary),
       0 0 100px #77004c, 0 0 150px #77004c;
   }
   to {

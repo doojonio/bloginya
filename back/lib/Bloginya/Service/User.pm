@@ -15,6 +15,11 @@ async sub is_blog_has_users_p($self) {
   return !!(await $self->db->query_p('select exists (select 1 from users)'))->arrays->first->[0];
 }
 
+async sub is_username_taken_p ($self, $username) {
+  my $res = await $self->db->select_p('users', 'id', {username => $username});
+  return ($res->hashes->first // {})->{id};
+}
+
 async sub find_or_create_by_google_id_p($self, $userinfo, $token) {
   my %user = (
     email           => $userinfo->{email},

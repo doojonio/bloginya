@@ -33,5 +33,11 @@ async sub update_settings($self) {
   return $self->msg('OK');
 }
 
+async sub is_username_taken ($self) {
+  my $username = $self->i(username => 'str[3,20]');
+  my $taken    = await $self->service('user')->is_username_taken_p($username);
+  return $self->render(json => $taken);
+}
+
 
 1

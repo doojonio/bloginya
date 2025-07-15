@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
@@ -9,6 +10,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { map } from 'rxjs';
 import { NotifierService } from '../shared/services/notifier.service';
 import { SettingsService } from './services/settings.service';
 
@@ -41,6 +43,9 @@ import { SettingsService } from './services/settings.service';
         </mat-error>
         <mat-error *ngIf="form.get('username')?.hasError('maxlength')" i18n>
           Username cannot be more than 20 characters long.
+        </mat-error>
+        <mat-error *ngIf="form.get('username')?.hasError('taken')" i18n>
+          This username is already taken.
         </mat-error>
       </mat-form-field>
       <button mat-raised-button color="primary" (click)="save()" i18n>
@@ -77,8 +82,15 @@ export class ProfileSettingsComponent {
         Validators.minLength(3),
         Validators.maxLength(20),
       ],
+      asyncValidators: [this.checkUnique.bind(this)],
     }),
   });
+
+  checkUnique(control: AbstractControl) {
+    return this.settingsS
+      .isUsernameTaken(control.value)
+      .pipe(map((isTaken) => (isTaken ? { taken: true } : null)));
+  }
 
   save() {
     if (this.form.invalid) {
