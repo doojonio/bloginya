@@ -141,7 +141,7 @@ package Bloginya::Service::Search::_Query {
       return qq~$word:*~;
     }
 
-    my $search_str = my $search_str = join ' | ', map { _tsq($_) } @$words;
+    my $search_str = join ' | ', map { _tsq($_) } @$words;
 
     push $self->stmt_posts->{where}{-and}->@*, \['pf.fts @@ to_tsquery( l.fts_cfg, (?))', $search_str];
     push $self->stmt_cats->{where}{-and}->@*,

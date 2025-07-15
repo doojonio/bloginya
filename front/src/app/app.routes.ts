@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Footer } from './footer';
 import { HomeComponent } from './home/home.component';
+import { adminGuard } from './shared/guards/admin.guard';
 import { authorizedGuard } from './shared/guards/authorized.guard';
 
 export const routes: Routes = [
@@ -16,6 +17,12 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./drafts/drafts.module').then((m) => m.DraftsModule),
     title: 'POLYINE | Drafts',
+  },
+  {
+    path: 'nimda',
+    canActivate: [adminGuard],
+    loadChildren: () =>
+      import('./admin/admin.module').then((m) => m.AdminModule),
   },
   {
     path: 'e',

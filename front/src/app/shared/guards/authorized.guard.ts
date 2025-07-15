@@ -4,7 +4,6 @@ import { map, tap } from 'rxjs';
 import { UserService } from '../services/user.service';
 
 export const authorizedGuard: CanActivateFn = (route, state) => {
-  const router = inject(Router);
   return inject(UserService)
     .getCurrentUser()
     .pipe(

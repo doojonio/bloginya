@@ -145,10 +145,13 @@ sub _setup_routes($self) {
   $r->get('/drive/*upload_id')->to('Drive#get_file');
 
   # User
-  $api_A->post('/users/block')->to('User#block');
   $api_A->get('/users/settings')->to('User#settings');
   $api_A->put('/users/settings')->to('User#update_settings');
   $api_U->get('/users/is_username_taken')->to('User#is_username_taken');
+
+  # Admin
+  $api_A->post('/users/block')->to('Admin#block');
+  $api_A->get('/users/list')->to('Admin#users_list');
 }
 
 
