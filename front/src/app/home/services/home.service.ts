@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, map, of, shareReplay, switchMap } from 'rxjs';
-import { PostDescribed, HomeResponse } from '../home.interface';
+import { inject, Injectable, signal } from '@angular/core';
+import { BehaviorSubject, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { HomeResponse, PostDescribed } from '../home.interface';
 
 @Injectable()
 export class HomeService {
   private readonly http = inject(HttpClient);
-
   private readonly updateHome$ = new BehaviorSubject<boolean>(true);
+  private readonly catsCache = signal({});
+
   home$ = this.updateHome$.pipe(
     switchMap((_) =>
       this.http.get<HomeResponse>('/api/posts/home', {
@@ -19,6 +20,7 @@ export class HomeService {
 
   updateHome() {
     this.updateHome$.next(true);
+    this.catsCache.set({});
   }
 
   getPopularPosts() {
@@ -45,8 +47,18 @@ export class HomeService {
   }
 
   getPostByCategory(catId: string) {
-    return this.http.get<PostDescribed[]>('/api/posts/by_category', {
-      params: { id: catId },
-    });
+    const cached = (this.catsCache() as any)[catId];
+    if (cached) {
+      return of(cached);
+    }
+    return this.http
+      .get<PostDescribed[]>('/api/posts/by_category', {
+        params: { id: catId },
+      })
+      .pipe(
+        tap((posts) => {
+          this.catsCache.update((cache) => ({ ...cache, [catId]: posts }));
+        })
+      );
   }
 }
