@@ -12,7 +12,6 @@ export class UsersComponent {
   users$ = this.usersService.getUsers();
 
   displayedColumns: string[] = [
-    'id',
     'username',
     'email',
     'role',
