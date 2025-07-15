@@ -35,7 +35,7 @@ export class SearchComponent {
       startWith(''),
       filter(Boolean),
       filter((val) => val.length > 2),
-      debounceTime(500),
+      debounceTime(100),
       switchMap((value) =>
         this.searchService.search(value).pipe(catchError((_) => of([])))
       )

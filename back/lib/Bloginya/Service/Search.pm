@@ -137,10 +137,15 @@ package Bloginya::Service::Search::_Query {
 
     return unless @$words;
 
-    local $" = " ";
-    push $self->stmt_posts->{where}{-and}->@*, \['pf.fts @@ websearch_to_tsquery( l.fts_cfg, (?))', "@$words"];
+    my sub _tsq ($word) {
+      return qq~$word:*~;
+    }
+
+    my $search_str = my $search_str = join ' | ', map { _tsq($_) } @$words;
+
+    push $self->stmt_posts->{where}{-and}->@*, \['pf.fts @@ to_tsquery( l.fts_cfg, (?))', $search_str];
     push $self->stmt_cats->{where}{-and}->@*,
-      \["to_tsvector('simple', c.title) @@ websearch_to_tsquery( 'simple', (?))", "@$words"];
+      \["to_tsvector('simple', c.title) @@ to_tsquery( 'simple', (?))", $search_str];
   }
 
   sub _filter_tags($self) {
