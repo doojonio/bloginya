@@ -14,12 +14,13 @@
 }
 
 .info {
-  background-image: url("/assets/images/text_paper.webp");
+  background: #faa5c6;
+  // background: var(--mat-sys-primary);
 
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 64px 45px;
+  padding: 32px 45px 64px 45px;
 }
 
 @keyframes anim-in-out {

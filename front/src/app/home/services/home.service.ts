@@ -1,6 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs';
 import { HomeResponse, PostDescribed } from '../home.interface';
 
 @Injectable()
@@ -15,8 +23,19 @@ export class HomeService {
         params: { category_tag: 'langs' },
       })
     ),
+    tap(this.preloadCategories.bind(this)),
     shareReplay(1)
   );
+
+  preloadCategories(res: HomeResponse) {
+    for (const cat of res.cats) {
+      if (cat.id == res.top_cat.id) {
+        continue;
+      }
+
+      this.getPostByCategory(cat.id).pipe(take(1)).subscribe();
+    }
+  }
 
   updateHome() {
     this.updateHome$.next(true);
