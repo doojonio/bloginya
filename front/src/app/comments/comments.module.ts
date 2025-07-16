@@ -9,6 +9,7 @@ import { CommentInputComponent } from './comment-input/comment-input.component';
 import { CommentViewComponent } from './comment-view/comment-view.component';
 import { CommentsComponent } from './comments/comments.component';
 import { MatMenuModule } from '@angular/material/menu';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
+    RouterModule,
   ],
 })
 export class CommentsModule {}

@@ -149,6 +149,7 @@ sub _setup_routes($self) {
   $api_A->get('/users/settings')->to('User#settings');
   $api_A->put('/users/settings')->to('User#update_settings');
   $api_U->get('/users/is_username_taken')->to('User#is_username_taken');
+  $api_U->get('/users/profile')->to('User#get_profile');
 
   # Admin
   $api_A->post('/users/block')->to('Admin#block');

@@ -23,5 +23,11 @@ async sub is_username_taken ($self) {
   return $self->render(json => $taken);
 }
 
+async sub get_profile ($self) {
+  my $id      = $self->i(id => 'uuid');
+  my $profile = await $self->service('user')->load_profile_p($id);
+  return $self->render(json => $profile);
+}
+
 
 1

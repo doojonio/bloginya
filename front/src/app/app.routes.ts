@@ -25,6 +25,13 @@ export const routes: Routes = [
       import('./admin/admin.module').then((m) => m.AdminModule),
   },
   {
+    path: 'user/:userId',
+    loadComponent: () =>
+      import('./user-profile/user-profile.component').then(
+        (c) => c.UserProfileComponent
+      ),
+  },
+  {
     path: 'e',
     canActivate: [authorizedGuard],
     loadChildren: () => import('./edit/edit.module').then((m) => m.EditModule),

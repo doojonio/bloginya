@@ -3,3 +3,9 @@ export enum UserRoles {
   CREATOR = 'creator',
   VISITOR = 'visitor',
 }
+
+export enum UserStatuses {
+  ACTIVE = 'active',
+  BANNED = 'banned',
+  DELETED = 'deleted',
+}
