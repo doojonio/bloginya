@@ -138,11 +138,7 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
         title
         id
         csn.name
-      ),
-      \[
-        '(select count(*) from posts where category_id = c.id and status = (?)) as category_posts_num',
-        POST_STATUS_PUB
-      ],
+      ), \['(select count(*) from posts where category_id = c.id and status = (?)) as posts_num', POST_STATUS_PUB],
     ],
     {id => $id}
   ))->hashes->first;
