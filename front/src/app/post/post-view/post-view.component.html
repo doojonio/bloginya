@@ -32,17 +32,20 @@
         @if (p.enable_likes) {
         <div>
           <div class="like-button-wrapper">
+            @if (likedUsers$() | async; as users) { @if (users.length) {
+
             <div class="liked-users">
-              @for (user of (likedUsers$() | async); track user.id) {
+              @for (user of users; track user.id) {
               <a
                 class="liked-user-image"
                 [routerLink]="['/user', user.id]"
                 [matTooltip]="user.username"
               >
-                <img [src]="user.picture" [alt]="user.username"/>
+                <img [src]="user.picture" [alt]="user.username" />
               </a>
               }
             </div>
+            } }
             <button
               (mouseover)="showLikedUsers = true"
               (mouseout)="showLikedUsers = false"
