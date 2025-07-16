@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
@@ -12,25 +12,35 @@ import { ProfileReaderService } from './profile-reader.service';
     MatProgressSpinnerModule,
     PostListMedComponent,
     RouterModule,
+    DatePipe,
   ],
   providers: [ProfileReaderService],
   template: `
     @if(( this.user$()|async ); as user) {
     <div class="headline">
       <img [src]="user.picture" />
-      <h1>{{ user.username }}</h1>
+      <div class="info">
+        <h1>{{ user.username }}</h1>
+        <p>{{ user.created_at | date }}</p>
+      </div>
     </div>
 
     <div class="post-comments">
       <div class="posts">
-        <h1>Posts</h1>
+        @if (user.posts.length) {
+        <h2>Posts</h2>
         <app-post-list-med [posts]="user.posts"></app-post-list-med>
+        } @else {
+        <h2>This user has no posts!</h2>
+        }
       </div>
       <div class="comments">
-        <h1>Comments</h1>
+        @if (user.comments.length) {
+
+        <h2>Comments</h2>
         @for (comment of user.comments; track comment.id) {
         <div>
-          <h3>
+          <p>
             On post:
             <a
               [routerLink]="
@@ -40,13 +50,16 @@ import { ProfileReaderService } from './profile-reader.service';
               "
               >{{ comment.post_title }}</a
             >
-          </h3>
+          </p>
 
           <div class="comment">
             <img [src]="user.picture" class="comment-picture" />
             <p>{{ comment.content }}</p>
           </div>
         </div>
+        } } @else {
+
+        <h2>This user has no comments!</h2>
         }
       </div>
     </div>
@@ -69,6 +82,21 @@ import { ProfileReaderService } from './profile-reader.service';
       img {
         border-radius: 100%;
       }
+
+      .info {
+        display: flex;
+        flex-flow: column nowrap;
+        gap: 0.5rem;
+        justify-content: center;
+
+        h1 {
+          color: var(--mat-sys-primary);
+        }
+
+        & > * {
+          margin: 0;
+        }
+      }
     }
 
     .post-comments {
@@ -83,6 +111,7 @@ import { ProfileReaderService } from './profile-reader.service';
 
     a {
       color: var(--mat-sys-primary);
+      font-weight: bold;
     }
 
     mat-spinner {
@@ -92,17 +121,20 @@ import { ProfileReaderService } from './profile-reader.service';
     .comment {
       display: flex;
       flex-flow: row nowrap;
+      align-items: center;
       gap: 1rem;
 
       .comment-picture {
-        width: 48px;
-        height: 48px;
+        width: 2rem;
+        height: 2rem;
         border-radius: 100%;
       }
     }
 
     .comments {
       flex-basis: 50%;
+      display: flex;
+      flex-flow: column nowrap;
     }
   `,
 })
