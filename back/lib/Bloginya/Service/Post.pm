@@ -495,7 +495,7 @@ async sub liked_users_p ($self, $post_id) {
     [\'post_likes pl', [-left => \'users u', 'u.id' => 'pl.user_id']],
     ['u.id', 'u.username', [\"u.google_userinfo->>'picture'" => 'picture']],
     {post_id => $post_id},
-    {limit => 5},
+    {limit   => 5},
   );
 
   return $res->hashes;
