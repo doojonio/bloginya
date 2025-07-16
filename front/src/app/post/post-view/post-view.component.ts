@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { filter, switchMap, take, tap, timer } from 'rxjs';
+import { filter, shareReplay, switchMap, take, tap, timer } from 'rxjs';
 import { UserRoles } from '../../shared/interfaces/user-roles.interface';
 import { AppService } from '../../shared/services/app.service';
 import { PictureService } from '../../shared/services/picture.service';
@@ -82,6 +82,13 @@ export class PostViewComponent {
   );
 
   showComments = false;
+  showLikedUsers: any;
+  likedUsers$ = computed(() =>
+    this.readerS
+      .getLikedUsers(this.post().id)
+      .pipe(shareReplay(1), tap(console.trace))
+  );
+
   toggleShowComments() {
     this.showComments = !this.showComments;
   }

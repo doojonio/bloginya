@@ -31,13 +31,30 @@
       <div class="actions">
         @if (p.enable_likes) {
         <div>
-          <button
-            matIconButton
-            (click)="p.liked ? unlike() : like()"
-            [class]="likeAnimClass()"
-          >
-            <mat-icon>{{ p.liked ? "favorite" : "favorite_border" }}</mat-icon>
-          </button>
+          <div class="like-button-wrapper">
+            <div class="liked-users">
+              @for (user of (likedUsers$() | async); track user.id) {
+              <a
+                class="liked-user-image"
+                [routerLink]="['/user', user.id]"
+                [matTooltip]="user.username"
+              >
+                <img [src]="user.picture" [alt]="user.username"/>
+              </a>
+              }
+            </div>
+            <button
+              (mouseover)="showLikedUsers = true"
+              (mouseout)="showLikedUsers = false"
+              matIconButton
+              (click)="p.liked ? unlike() : like()"
+              [class]="likeAnimClass()"
+            >
+              <mat-icon>{{
+                p.liked ? "favorite" : "favorite_border"
+              }}</mat-icon>
+            </button>
+          </div>
           @if (p.likes) {
           {{ p.likes }}
           }
@@ -52,8 +69,8 @@
           {{ p.comments }}
           }
         </div>
-        } @if (currentUser$ | async; as user) { @if (user.role == UserRoles.OWNER ||
-        user.id == p.id) {
+        } @if (currentUser$ | async; as user) { @if (user.role ==
+        UserRoles.OWNER || user.id == p.id) {
         <div>
           <button matIconButton routerLink="/e/{{ p.id }}">
             <mat-icon>edit</mat-icon>

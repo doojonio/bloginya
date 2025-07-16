@@ -3,6 +3,12 @@ use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
 
 use experimental 'try';
 
+async sub liked_users ($self) {
+  my $id    = $self->i(id => 'cool_id');
+  my $users = await $self->service('post')->liked_users_p($id);
+  return $self->render(json => $users);
+}
+
 async sub drafts ($self) {
   my $drafts = await $self->service('post')->get_drafts_p();
   return $self->render(json => $drafts);

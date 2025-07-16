@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { CommentsModule } from '../comments/comments.module';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
@@ -17,8 +18,8 @@ import { VisibilityDirective } from '../shared/directives/visibility.directive';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
 import { PostViewComponent } from './post-view/post-view.component';
 import { routes } from './post.routes';
-import { ReaderService } from './services/reader.service';
 import { LikerService } from './services/liker.service';
+import { ReaderService } from './services/reader.service';
 
 @NgModule({
   declarations: [PostViewComponent, DocumentDomComponent],
@@ -38,6 +39,7 @@ import { LikerService } from './services/liker.service';
     RouterModule,
     RouterModule.forChild(routes),
     VisibilityDirective,
+    MatTooltipModule,
   ],
   providers: [ReaderService, LikerService],
 })

@@ -26,7 +26,7 @@
   text-align: center;
 }
 
-@include mixs.for-size('desktop') {
+@include mixs.for-size("desktop") {
   .container {
     margin: auto;
     max-width: var(--post-max-width);
@@ -130,4 +130,50 @@ mat-divider {
   flex-direction: column;
   margin-top: 1rem;
   margin-bottom: 3rem;
+}
+
+.liked-users {
+  position: absolute;
+  // show on top of the button
+  top: -130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: none; /* Hidden by default */
+  font: var(--mat-sys-body-small);
+}
+
+.like-button-wrapper {
+  position: relative; /* Needed for absolute positioning of tooltip */
+}
+
+.like-button-wrapper:hover .liked-users {
+  display: block; /* Show on hover */
+
+  // animate opacity
+  animation: fadeIn 0.6s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.liked-user-image {
+  img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
 }
