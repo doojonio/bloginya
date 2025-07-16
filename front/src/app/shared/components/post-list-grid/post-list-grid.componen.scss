@@ -1,5 +1,13 @@
 @use "@angular/material" as mat;
 @use "mixins" as mixs;
+
+mat-grid-list {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  &.hide {
+    opacity: 0.7;
+  }
+}
 .title {
   color: var(--mat-sys-primary);
   font: var(--mat-sys-title-medium);
@@ -46,4 +54,10 @@
       width: 40ch;
     }
   }
+}
+
+
+.anim {
+  // opacity animation
+
 }

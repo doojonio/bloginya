@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { finalize, interval, take } from 'rxjs';
 import { PostPictured } from '../../../home/home.interface';
 import { AppService } from '../../services/app.service';
 import { PictureService } from '../../services/picture.service';
@@ -44,8 +45,15 @@ export class PostListGridComponent {
 
   onSecondPage = false;
 
+  animating = false;
   togglePage() {
-    this.onSecondPage = !this.onSecondPage;
+    this.animating = true;
+    interval(200)
+      .pipe(
+        take(1),
+        finalize(() => (this.animating = false))
+      )
+      .subscribe((_) => (this.onSecondPage = !this.onSecondPage));
   }
 
   calculateDimension(idx: number, count: number) {
