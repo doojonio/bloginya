@@ -68,6 +68,7 @@ import { ProfileReaderService } from './profile-reader.service';
     }
   `,
   styles: `
+    @use 'mixins' as mixs;
     :host {
       display: block;
       padding: 1rem;
@@ -104,6 +105,9 @@ import { ProfileReaderService } from './profile-reader.service';
       flex-flow: row nowrap;
       gap: 2rem;
 
+      @include mixs.for-size(handset) {
+        flex-flow: column;
+      }
     }
     .posts {
       flex-basis: 50%;
