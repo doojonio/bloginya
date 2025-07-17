@@ -13,4 +13,5 @@ export class FooterComponent {
   appName$ = this.appService.getAppName();
 
   currentYear = new Date().getFullYear();
+  isHandset$ = this.appService.isHandset();
 }

@@ -18,6 +18,13 @@
   background-size: cover;
   background-position: center;
   height: 230px;
+
+  @include mixs.for-size(desktop) {
+    background: url("/assets/images/wp_footer.webp") no-repeat;
+    background-size: cover;
+    background-position: center;
+    height: 350px;
+  }
 }
 
 .info {

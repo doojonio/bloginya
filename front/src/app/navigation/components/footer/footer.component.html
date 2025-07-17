@@ -6,6 +6,18 @@
   <div class="info">
     <p class="subtitle animation" i18n>But These 5 Languages are something!</p>
 
+    @if (isHandset$ | async) {
+
+      <span class="title">{{ appName$ | async }}</span>
+
+    <div class="socials">
+      @for (item of (socials$|async); track item.href) {
+      <a href="{{ item.href }}"><mat-icon [svgIcon]="item.icon"></mat-icon></a>
+      }
+    </div>
+
+    } @else {
+
     <div>
       <div class="columns">
         <div class="column">
@@ -45,5 +57,6 @@
         </div>
       </div>
     </div>
+    }
   </div>
 </div>
