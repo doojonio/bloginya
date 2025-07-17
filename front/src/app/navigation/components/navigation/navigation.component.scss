@@ -1,5 +1,10 @@
 @use "mixins" as mixs;
 
+:host {
+  display: block;
+  height: 100%;
+}
+
 .header {
   position: fixed;
   top: 0;
@@ -28,6 +33,14 @@ app-toolbar {
 
 .sidenav {
   width: 15rem;
+}
+
+mat-sidenav-container {
+  min-height: 100%;
+}
+
+mat-sidenav-content {
+  min-height: 100%;
 }
 
 @include mixs.for-size(desktop) {
