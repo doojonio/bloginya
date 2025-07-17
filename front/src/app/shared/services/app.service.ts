@@ -62,10 +62,9 @@ export class AppService {
 
   getSocials(): Observable<Social[]> {
     return of([
-      { href: 'https://facebook.com', icon: 'facebook' },
       { href: 'https://instagram.com', icon: 'instagram' },
-      { href: 'https://x.com', icon: 'twitter' },
-      { href: 'https://tiktok.com', icon: 'tiktok' },
+      { href: 'https://blog.naver.com/ine1103', icon: 'naver' },
+      { href: 'https://google.com', icon: 'podcast' },
     ]);
   }
 

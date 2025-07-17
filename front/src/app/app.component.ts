@@ -18,7 +18,7 @@ import {
 export class AppComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
   constructor(matIconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
-    for (const icon of ['facebook', 'instagram', 'twitter', 'tiktok']) {
+    for (const icon of ['instagram', 'podcast', 'naver']) {
       matIconRegistry.addSvgIcon(
         icon,
         sanitizer.bypassSecurityTrustResourceUrl(`../assets/icons/${icon}.svg`)
