@@ -86,7 +86,7 @@ export class PostViewComponent {
   likedUsers$ = computed(() =>
     this.readerS
       .getLikedUsers(this.post().id)
-      .pipe(shareReplay(1), tap(console.trace))
+      .pipe(shareReplay(1))
   );
 
   toggleShowComments() {

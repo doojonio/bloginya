@@ -25,7 +25,6 @@ export const appConfig: ApplicationConfig = {
       useValue: (config: ImageLoaderConfig) => {
         let dim = BreakpointMap[140];
 
-        console.log(config)
         if (config.width && config.width in BreakpointMap) {
           dim = BreakpointMap[config.width];
         }

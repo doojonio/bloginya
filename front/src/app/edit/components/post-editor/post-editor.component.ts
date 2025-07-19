@@ -188,7 +188,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('AA');
     this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
 
     this.savedPost$()
