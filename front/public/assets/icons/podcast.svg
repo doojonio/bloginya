@@ -12,7 +12,7 @@
   <defs
      id="defs1">
     <style
-       id="style1">.cls-1,.cls-2{fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}.cls-2{fill-rule:evenodd;}</style>
+       id="style1">.cls-1,.cls-2{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}.cls-2{fill-rule:evenodd;}</style>
   </defs>
   <g
      id="ic-media-microphone"

@@ -12,7 +12,7 @@
   <defs
      id="defs1" />
   <path
-     fill="#000000"
+     fill="currentColor"
      d="M 0,0 V 448 H 172.366 V 223.862 L 322.358,448 H 495 V 0 H 322.358 V 223.862 L 172.366,0 Z"
      id="path1" />
 </svg>

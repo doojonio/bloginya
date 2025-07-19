@@ -27,6 +27,6 @@ export class ReaderService {
 
 export interface GetLikedUsersItem {
   id: string;
-  name: string;
+  username: string;
   picture: string;
 }

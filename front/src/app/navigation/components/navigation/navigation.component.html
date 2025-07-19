@@ -20,9 +20,9 @@
     <!-- Add Content Here -->
     <ng-content></ng-content>
     @if (footer() == Footer.ANIM) {
-    <app-footer></app-footer>
+    <app-footer class="footer"></app-footer>
     } @else if (footer() == Footer.LINE) {
-    <div class="footer-line"></div>
+    <app-footer class="footer" mode="dark"></app-footer>
     } @else if (footer() == Footer.BLANK) {
     <div class="footer-blank"></div>
     }

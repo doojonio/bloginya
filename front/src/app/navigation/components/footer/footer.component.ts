@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { AppService } from '../../../shared/services/app.service';
 
 @Component({
@@ -8,6 +8,8 @@ import { AppService } from '../../../shared/services/app.service';
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {
+  mode = input<'light' | 'dark'>('light');
+
   private appService = inject(AppService);
   socials$ = this.appService.getSocials();
   appName$ = this.appService.getAppName();

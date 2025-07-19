@@ -1,4 +1,5 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CdkNoDataRow } from '@angular/cdk/table';
+import { AsyncPipe, CommonModule, NgTemplateOutlet } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -48,6 +49,8 @@ import { SearchService } from './services/search.service';
     MatSidenavModule,
     MatToolbarModule,
     RouterModule,
+    CdkNoDataRow,
+    NgTemplateOutlet,
   ],
 })
 export class NavigationModule {}

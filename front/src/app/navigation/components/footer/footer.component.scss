@@ -1,6 +1,11 @@
+@use "@angular/material" as mat;
 @use "mixins" as mixs;
 @use "theme-colors" as c;
 @use "sass:map";
+
+:host {
+  display: block;
+}
 
 .footer-slogan {
   display: flex;
@@ -29,12 +34,17 @@
   }
 }
 
-.info {
+.info-pink {
   background: map.get(c.$primary-palette, 80);
-  // background: map.get(c.$primary-palette, 80);
-  // background: var(--mat-sys-primary);
-
   color: var(--mat-sys-on-secondary);
+}
+
+.info-dark {
+  background: none;
+  color: var(--mat-sys-primary);
+}
+
+.info {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -57,14 +67,17 @@
   animation: anim-in-out 3s infinite;
 }
 
+.primary-border {
+  border-top: 2px solid var(--mat-sys-primary);
+}
+
 .title {
-  color: var(--mat-sys-on-secondary);
   font: var(--mat-sys-title-large);
   font-weight: bold;
 }
 
 .subtitle {
-  color: var(--mat-sys-on-secondary-fixed);
+  // color: var(--mat-sys-on-secondary-fixed);
   font: var(--mat-sys-label-small);
   font-weight: bold;
   text-align: center;
@@ -78,7 +91,10 @@
   mat-icon {
     height: 24px;
     width: 24px;
-    color: black;
+  }
+
+  @include mixs.for-size(handset) {
+    justify-content: space-around;
   }
 }
 
@@ -103,6 +119,10 @@
   margin-bottom: 1rem;
 }
 
+.column-50 {
+  flex-basis: 50%;
+}
+
 .contact-column {
   margin-left: 2rem;
 }
@@ -118,5 +138,9 @@
   .app-name {
     font: var(--mat-sys-headline-small);
     font-weight: bold;
+  }
+
+  @include mixs.for-size(handset) {
+    flex-flow: column;
   }
 }

@@ -1,26 +1,24 @@
-<div class="container">
+<div class="container" [class.primary-border]="mode() == 'dark'">
+  @if(mode() == "light") {
   <div class="footer-slogan">
     <p>All Languages Are Beautiful</p>
   </div>
   <div class="image"></div>
-  <div class="info">
+  }
+  <div
+    class="info"
+    [class.info-pink]="mode() == 'light'"
+    [class.info-dark]="mode() == 'dark'"
+  >
+    @if(mode() == "light") {
+
     <p class="subtitle animation" i18n>But These 5 Languages are something!</p>
 
-    @if (isHandset$ | async) {
-
-      <span class="title">{{ appName$ | async }}</span>
-
-    <div class="socials">
-      @for (item of (socials$|async); track item.href) {
-      <a href="{{ item.href }}"><mat-icon [svgIcon]="item.icon"></mat-icon></a>
-      }
-    </div>
-
-    } @else {
+    }
 
     <div>
       <div class="columns">
-        <div class="column">
+        <div class="column" [class.column-50]="isHandset$ | async">
           <p class="column-title">5 Languages</p>
           <a routerLink="/korean">Korean</a>
           <a routerLink="/chinese">Chinese</a>
@@ -28,26 +26,38 @@
           <a routerLink="/japanese">Japanese</a>
           <a routerLink="/russian">Russian</a>
         </div>
-        <div class="column">
+        <div class="column" [class.column-50]="isHandset$ | async">
           <p class="column-title">About</p>
           <a routerLink="/me">Me</a>
           <a routerLink="/blog">Blog</a>
         </div>
+        @if(!(isHandset$ |async )) {
         <div class="column contact-column">
           <p class="column-title">Contact</p>
           <a href="mailto:1103traveller@gmail.com"
             >1103traveller&#64;gmail.com</a
           >
 
-          <div class="socials">
-            @for (item of (socials$|async); track item.href) {
-            <a href="{{ item.href }}"
-              ><mat-icon [svgIcon]="item.icon"></mat-icon
-            ></a>
-            }
-          </div>
+          <ng-container *ngTemplateOutlet="socials"></ng-container>
         </div>
+        }
       </div>
+
+      <ng-template #socials>
+        <div
+          class="socials"
+        >
+          @for (item of (socials$|async); track item.href) {
+          <a href="{{ item.href }}"
+            ><mat-icon [svgIcon]="item.icon"></mat-icon
+          ></a>
+          }
+        </div>
+      </ng-template>
+
+      @if (isHandset$ | async) {
+      <ng-container *ngTemplateOutlet="socials"></ng-container>
+      }
 
       <div class="s-copyright">
         <span class="app-name">{{ appName$ | async }}</span>
@@ -57,6 +67,5 @@
         </div>
       </div>
     </div>
-    }
   </div>
 </div>
