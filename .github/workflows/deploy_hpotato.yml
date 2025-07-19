@@ -10,8 +10,6 @@ on:
 jobs:
   on-success:
     name: Deploy Ansible Playbook
-    needs:
-      - build_push
     runs-on: ubuntu-latest
     environment: hpotato
     steps:
