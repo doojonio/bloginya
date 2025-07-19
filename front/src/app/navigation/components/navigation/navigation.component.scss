@@ -2,7 +2,6 @@
 
 :host {
   display: block;
-  height: 100%;
 }
 
 .header {
@@ -41,6 +40,10 @@ mat-sidenav-container {
 
 mat-sidenav-content {
   min-height: 100%;
+  .page {
+    // minus height of topbar and footer margin
+    min-height: calc(100vh - 64px - 10rem);
+  }
 }
 
 @include mixs.for-size(desktop) {

@@ -17,14 +17,13 @@
     <app-sidenav></app-sidenav>
   </mat-sidenav>
   <mat-sidenav-content #content>
-    <!-- Add Content Here -->
-    <ng-content></ng-content>
+    <div class="page">
+      <ng-content></ng-content>
+    </div>
     @if (footer() == Footer.ANIM) {
     <app-footer class="footer"></app-footer>
-    } @else if (footer() == Footer.LINE) {
+    } @else {
     <app-footer class="footer" mode="dark"></app-footer>
-    } @else if (footer() == Footer.BLANK) {
-    <div class="footer-blank"></div>
     }
   </mat-sidenav-content>
 </mat-sidenav-container>

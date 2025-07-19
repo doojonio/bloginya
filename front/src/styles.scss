@@ -23,19 +23,10 @@
   --post-blockquote-border-width: 3px;
 
   --app-autocomplete-shape: 28px;
-
-  @include mixs.for-size("handset") {
-    @include mat.autocomplete-overrides(
-      (
-        background-color: var(--mat-sys-surface-variant),
-        container-shape: var(--app-autocomplete-shape),
-      )
-    );
-  }
 }
 
 html {
-  height: 100%;
+  // min-height: 100%;
   color-scheme: dark;
 
   a {
@@ -52,10 +43,19 @@ html {
       density: 0,
     )
   );
+
+  @include mixs.for-size("handset") {
+    @include mat.autocomplete-overrides(
+      (
+        background-color: var(--mat-sys-surface-variant),
+        container-shape: var(--app-autocomplete-shape),
+      )
+    );
+  }
 }
 
 body {
-  height: 100%;
+  // min-height: 100%;
   margin: 0;
 }
 
@@ -80,4 +80,3 @@ app-category {
     }
   }
 }
-
