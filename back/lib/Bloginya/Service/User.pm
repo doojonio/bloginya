@@ -30,12 +30,16 @@ async sub find_or_create_by_google_id_p($self, $userinfo, $token) {
     google_userinfo => {-json => $userinfo},
   );
 
+  my %on_conflict = %user;
+  delete $on_conflict{username};
+
   my $tx = $self->db->begin;
   unless ((await $self->db->select_p('users', '1', {google_id => $user{google_id}}))->hashes->first) {
     $user{role} = (await $self->is_blog_has_users_p) ? USER_ROLE_VISITOR : USER_ROLE_OWNER;
   }
 
-  my $user = (await $self->db->insert_p('users', \%user, {on_conflict => [['google_id'] => \%user], returning => 'id'}))
+  my $user
+    = (await $self->db->insert_p('users', \%user, {on_conflict => [['google_id'] => \%on_conflict], returning => 'id'}))
     ->hashes->first;
 
   $tx->commit;
