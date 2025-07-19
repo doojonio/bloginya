@@ -1,0 +1,76 @@
+@use "@angular/material" as mat;
+@use "mixins" as mixs;
+
+@include mixs.for-size("handset") {
+  app-search {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+div.container {
+  box-sizing: border-box;
+  display: flex;
+  padding: 0 1rem;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  align-items: center;
+
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-primary),
+    )
+  );
+
+  app-search {
+    flex-basis: 33%;
+    max-width: 40rem;
+  }
+}
+
+a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-decoration: none;
+  color: inherit;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.5s linear;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.5s, opacity 0.5s linear;
+}
+
+.title {
+  font: var(--mat-sys-title-large);
+  color: var(--mat-sys-primary);
+
+  font-weight: bold;
+  line-height: 100%;
+  text-align: center;
+}

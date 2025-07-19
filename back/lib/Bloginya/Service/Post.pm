@@ -490,5 +490,15 @@ async sub list_popular_posts_p($self, $limit = 26, $offset = 0) {
   return $res->hashes;
 }
 
+async sub liked_users_p ($self, $post_id) {
+  my $res = await $self->db->select_p(
+    [\'post_likes pl', [-left => \'users u', 'u.id' => 'pl.user_id']],
+    ['u.id', 'u.username', [\"u.google_userinfo->>'picture'" => 'picture']],
+    {post_id => $post_id},
+    {limit   => 5},
+  );
+
+  return $res->hashes;
+}
 
 1;

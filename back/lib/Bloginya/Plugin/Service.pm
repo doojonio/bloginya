@@ -27,8 +27,6 @@ sub register ($self, $app, $conf) {
 }
 
 sub _service($self, $c, $name, @args) {
-  $c->log->trace('service: ' . $name);
-
   if ($self->seen->{$name}) {
     my @seen = keys($self->seen->%*);
     local $" = ',';

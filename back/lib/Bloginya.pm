@@ -73,22 +73,6 @@ sub _setup_routes($self) {
     }
   );
 
-  # Unauthorized routes
-  $api_U->get('/categories')->to('Category#get');
-  $api_U->get('/categories/list')->to('Category#list');
-  $api_U->get('/categories/load')->to('Category#load_category');
-  $api_U->get('/oauth/from_google')->to('OAuth#from_google');
-  $api_U->get('/oauth/to_google')->to('OAuth#to_google');
-  $api_U->get('/posts')->to('Post#get');
-  $api_U->get('/posts/home')->to('Post#list_home');
-  $api_U->get('/posts/list')->to('Post#list');
-  $api_U->get('/settings')->to('App#settings');
-  $api_U->get('/shortnames/item')->to('Shortname#get_item_by_name');
-  $api_U->get('/posts/similliar')->to('Post#search_similliar_posts');
-  $api_U->get('/posts/by_category')->to('Post#list_by_category');
-  $api_U->get('/comments')->to('Comment#list_by_post');
-  $api_U->get('/search')->to('Search#search');
-
   # Authorized routes
   my $api_A = $api->under(
     '/' => sub ($c) {
@@ -111,27 +95,65 @@ sub _setup_routes($self) {
     }
   );
 
-  $api_A->delete('/comments/like')->to('Comment#unlike');
+  # Post
   $api_A->delete('/posts/like')->to('Post#unlike');
-  $api_A->get('/categories/by_title')->to('Category#get_by_title');
   $api_A->get('/posts/drafts')->to('Post#drafts');
   $api_A->get('/posts/for_edit')->to('Post#get_for_edit');
-  $api_A->get('/shortnames')->to('Shortname#get_by_name');
-  $api_A->post('/categories')->to('Category#save');
-  $api_A->put('/categories')->to('Category#update');
-  $api_A->get('/categories/for_edit')->to('Category#get_for_edit');
-  $api_A->post('/comments/like')->to('Comment#like');
-  $api_A->post('/drive')->to('Drive#put_file');
   $api_A->post('/posts/like')->to('Post#like');
   $api_A->post('/posts/new')->to('Post#create_draft');
   $api_A->post('/posts/publish')->to('Post#publish');
-  $api_A->post('comments')->to('Comment#add_comment');
   $api_A->put('/posts/draft')->to('Post#update_draft');
   $api_A->put('posts')->to('Post#apply_changes');
-  $api_A->delete('/comments')->to('Comment#delete');
-  $api_A->post('/users/block')->to('User#block');
+  $api_U->get('/posts')->to('Post#get');
+  $api_U->get('/posts/by_category')->to('Post#list_by_category');
+  $api_U->get('/posts/home')->to('Post#list_home');
+  $api_U->get('/posts/list')->to('Post#list');
+  $api_U->get('/posts/similliar')->to('Post#search_similliar_posts');
+  $api_U->get('/posts/liked_users')->to('Post#liked_users');
 
+  # Category
+  $api_A->get('/categories/by_title')->to('Category#get_by_title');
+  $api_A->get('/categories/for_edit')->to('Category#get_for_edit');
+  $api_A->post('/categories')->to('Category#save');
+  $api_A->put('/categories')->to('Category#update');
+  $api_U->get('/categories')->to('Category#get');
+  $api_U->get('/categories/list')->to('Category#list');
+  $api_U->get('/categories/load')->to('Category#load_category');
+
+  # OAuth
+  $api_U->get('/oauth/from_google')->to('OAuth#from_google');
+  $api_U->get('/oauth/to_google')->to('OAuth#to_google');
+
+  # App
+  $api_U->get('/settings')->to('App#settings');
+
+  # Shortname
+  $api_A->get('/shortnames')->to('Shortname#get_by_name');
+  $api_U->get('/shortnames/item')->to('Shortname#get_item_by_name');
+
+  # Comment
+  $api_A->delete('/comments')->to('Comment#delete');
+  $api_A->delete('/comments/like')->to('Comment#unlike');
+  $api_A->post('/comments/like')->to('Comment#like');
+  $api_A->post('comments')->to('Comment#add_comment');
+  $api_U->get('/comments')->to('Comment#list_by_post');
+
+  # Search
+  $api_U->get('/search')->to('Search#search');
+
+  # Drive
+  $api_A->post('/drive')->to('Drive#put_file');
   $r->get('/drive/*upload_id')->to('Drive#get_file');
+
+  # User
+  $api_A->get('/users/settings')->to('User#settings');
+  $api_A->put('/users/settings')->to('User#update_settings');
+  $api_U->get('/users/is_username_taken')->to('User#is_username_taken');
+  $api_U->get('/users/profile')->to('User#get_profile');
+
+  # Admin
+  $api_A->post('/users/block')->to('Admin#block');
+  $api_A->get('/users/list')->to('Admin#users_list');
 }
 
 

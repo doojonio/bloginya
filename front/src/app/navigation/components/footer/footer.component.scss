@@ -1,0 +1,146 @@
+@use "@angular/material" as mat;
+@use "mixins" as mixs;
+@use "theme-colors" as c;
+@use "sass:map";
+
+:host {
+  display: block;
+}
+
+.footer-slogan {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0;
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-primary);
+  font-weight: bold;
+}
+
+.image {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+
+  background: url("/assets/images/m_wp_footer.webp");
+
+  background-size: cover;
+  background-position: center;
+  height: 230px;
+
+  @include mixs.for-size(desktop) {
+    background: url("/assets/images/wp_footer.webp") no-repeat;
+    background-size: cover;
+    background-position: center;
+    height: 350px;
+  }
+}
+
+.info-pink {
+  background: map.get(c.$primary-palette, 80);
+  color: var(--mat-sys-on-secondary);
+}
+
+.info-dark {
+  background: none;
+  color: var(--mat-sys-primary);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 45px 64px 45px;
+}
+
+@keyframes anim-in-out {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animation {
+  animation: anim-in-out 3s infinite;
+}
+
+.primary-border {
+  border-top: 2px solid var(--mat-sys-primary);
+}
+
+.title {
+  font: var(--mat-sys-title-large);
+  font-weight: bold;
+}
+
+.subtitle {
+  // color: var(--mat-sys-on-secondary-fixed);
+  font: var(--mat-sys-label-small);
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.socials {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  mat-icon {
+    height: 24px;
+    width: 24px;
+  }
+
+  @include mixs.for-size(handset) {
+    justify-content: space-around;
+  }
+}
+
+.columns {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 2rem;
+}
+
+.column {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.2rem;
+
+  a {
+    margin: 0;
+  }
+}
+
+.column-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.column-50 {
+  flex-basis: 50%;
+}
+
+.contact-column {
+  margin-left: 2rem;
+}
+
+.s-copyright {
+  margin-top: 4rem;
+
+  display: flex;
+  flex-flow: row;
+  gap: 1rem;
+  align-items: center;
+
+  .app-name {
+    font: var(--mat-sys-headline-small);
+    font-weight: bold;
+  }
+
+  @include mixs.for-size(handset) {
+    flex-flow: column;
+  }
+}

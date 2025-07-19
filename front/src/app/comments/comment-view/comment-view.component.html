@@ -1,0 +1,65 @@
+@if (comment(); as com) {
+<img [class]="replyToId() ? 'av-small' : 'av'" src="{{ com.picture }}" />
+<div class="comment">
+  <div class="top">
+    <a class="uname" [routerLink]="'/user/' + com.user_id">{{
+      "@" + com.username
+    }}</a>
+    <a class="date">{{ com.created_at | date }}</a>
+  </div>
+  <div class="content">
+    {{ com.content }}
+  </div>
+  <div class="actions">
+    <button
+      class="btn-like"
+      [class]="likeAnimClass()"
+      matIconButton
+      (click)="com.liked ? unlike() : like()"
+    >
+      <mat-icon>{{ com.liked ? "favorite" : "favorite_border" }}</mat-icon>
+    </button>
+    @if (com.likes) {
+    {{ com.likes }}
+    }
+    <button matButton="text" (click)="startReply()" i18n>Reply</button>
+
+    @if(user(); as user) { @if (com.user_id == user.id || user.role ==
+    UserRoles.OWNER) {
+    <button matIconButton [mat-menu-trigger-for]="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      @if (user.id == com.user_id || user.role == UserRoles.OWNER) {
+      <button mat-menu-item (click)="deleteComment(com.id)">Delete</button>
+      } @if (user.role == UserRoles.OWNER && user.id != com.user_id) {
+      <button mat-menu-item (click)="blockUser(com.user_id)">Block</button>
+      }
+    </mat-menu>
+    } }
+  </div>
+
+  @if (isReplying) {
+  <app-comment-input
+    [postId]="postId()"
+    [replyToId]="replyToId() || com.id"
+    [initialInput]="replyToId() ? '@' + com.username : ''"
+    (onCancel)="stopReply()"
+    (onAddComment)="onAddReply($event)"
+  ></app-comment-input>
+  } @if (!replyToId() && com.replies) {
+  <button matButton="text" (click)="toggleReplies()">
+    <mat-icon inline>{{
+      isShowingReplies ? "arrow_drop_up" : "arrow_drop_down"
+    }}</mat-icon
+    >{{ com.replies }} replies
+  </button>
+  } @if (isShowingReplies) {
+  <app-comments
+    [postId]="postId()"
+    [replyToId]="com.id"
+    #replies
+  ></app-comments>
+  }
+</div>
+}

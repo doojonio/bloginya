@@ -15,9 +15,10 @@ sub run ($self, @args) {
     die 'Allowed only in test env';
   }
 
-  my $mig = $self->app->mig;
-  $self->_loud('Running migrations to 0');
-  $mig->migrate(0);
+  my $mig  = $self->app->mig;
+  my $prev = $mig->latest - 1;
+  $self->_loud("Running migrations to $prev");
+  $mig->migrate($prev);
   $self->_loud('Running migrations to head');
   $mig->migrate;
   $self->_loud('Done.');

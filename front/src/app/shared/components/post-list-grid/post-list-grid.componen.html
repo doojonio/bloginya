@@ -1,0 +1,31 @@
+@if (title(); as title) {
+<p class="title">{{ title }}</p>
+}
+<mat-grid-list
+  [class.hide]="animating"
+  [gutterSize]="isHandset() ? '2' : '10'"
+  [cols]="isHandset() ? 3 : 4"
+  [rowHeight]="isHandset() ? 130 : 100"
+>
+  @for (item of ( onSecondPage ? secondPage() : firstPage() ) ; track item.id;
+  let idx = $index; let count = $count ) { @let dim = calculateDimension(idx,
+  count);
+  <a routerLink="/{{ item.name ? item.name : 'p/' + item.id }}">
+    <mat-grid-tile
+      class="image"
+      [style.background]="getPostPreStyle(item)"
+      [colspan]="dim[0]"
+      [rowspan]="dim[1]"
+    ></mat-grid-tile>
+  </a>
+  }
+</mat-grid-list>
+@if(this.secondPage()) {
+<div class="actions">
+  <button [disabled]="animating" (click)="togglePage()" matButton="outlined">
+    <mat-icon>
+      {{ onSecondPage ? "navigate_before" : "navigate_next" }}</mat-icon
+    >
+  </button>
+</div>
+}

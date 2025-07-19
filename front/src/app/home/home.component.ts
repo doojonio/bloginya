@@ -15,13 +15,14 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { of, tap } from 'rxjs';
-import { AppService } from '../app.service';
-import { VisibilityDirective } from '../directives/visibility.directive';
-import { Category, PostsService } from '../posts.service';
-import { SeoService } from '../seo.service';
-import { PostListCategoryComponent } from '../view/post-list-category/post-list-category.component';
-import { PostListGridComponent } from '../view/post-list-grid/post-list-grid.componen';
-import { PostListOnelineComponent } from '../view/post-list-oneline/post-list-oneline.component';
+import { PostListCategoryComponent } from '../shared/components/post-list-category/post-list-category.component';
+import { PostListGridComponent } from '../shared/components/post-list-grid/post-list-grid.componen';
+import { PostListOnelineComponent } from '../shared/components/post-list-oneline/post-list-oneline.component';
+import { VisibilityDirective } from '../shared/directives/visibility.directive';
+import { AppService } from '../shared/services/app.service';
+import { SeoService } from '../shared/services/seo.service';
+import { Category } from './home.interface';
+import { HomeService } from './services/home.service';
 
 @Component({
   selector: 'app-home',
@@ -39,22 +40,23 @@ import { PostListOnelineComponent } from '../view/post-list-oneline/post-list-on
     VisibilityDirective,
     MatDividerModule,
   ],
+  providers: [HomeService],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnDestroy, OnInit {
   appService = inject(AppService);
   isHandset = toSignal(this.appService.isHandset());
-  postsService = inject(PostsService);
-  seoService = inject(SeoService);
+  homeS = inject(HomeService);
+  seoS = inject(SeoService);
 
   ngOnInit(): void {
-    this.seoService.applyDefault();
-    this.postsService.updateHome();
+    this.seoS.applyDefault();
+    this.homeS.updateHome();
   }
 
-  newPosts$ = this.postsService.getNewPosts();
-  langs$ = this.postsService.getHomeCats().pipe(
+  newPosts$ = this.homeS.getNewPosts();
+  langs$ = this.homeS.getHomeCats().pipe(
     tap((langs) => {
       this.selectedLang.set(langs[0]);
     })
@@ -65,9 +67,9 @@ export class HomeComponent implements OnDestroy, OnInit {
     if (!lang) {
       return of([]);
     }
-    return this.postsService.getHomeCatPosts(lang.id);
+    return this.homeS.getHomeCatPosts(lang.id);
   });
-  popularPosts$ = this.postsService.getPopularPosts();
+  popularPosts$ = this.homeS.getPopularPosts();
 
   onSloganIntersecting($event: boolean) {
     this.appService.setIsShowingToolbarTitle(!$event);

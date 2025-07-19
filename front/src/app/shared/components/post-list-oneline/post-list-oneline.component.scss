@@ -1,0 +1,88 @@
+@use "@angular/material" as mat;
+@use "mixins" as mixs;
+
+.title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-medium);
+  box-shadow: var(--mat-sys-level0);
+}
+.post {
+  margin: 0 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.post-pre {
+  display: block;
+  width: 280px;
+  height: 250px;
+  border-radius: 16px;
+
+  cursor: pointer;
+}
+
+.posts {
+  display: flex;
+  overflow-x: auto;
+}
+
+.post-descr {
+  display: flex;
+  flex-direction: column;
+  p {
+    margin: 0;
+  }
+}
+
+.post-subtitle {
+  font: var(--mat-sys-label-small);
+  @include mixs.line-clamp(1);
+}
+.post-title {
+  @include mixs.line-clamp(2);
+  font: var(--mat-sys-headline-small);
+  color: var(--mat-sys-primary);
+}
+
+.container {
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: visible;
+}
+
+button.btn {
+  mat-icon {
+    margin: 0;
+  }
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-primary),
+    )
+  );
+
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mat-sys-surface),
+    )
+  );
+
+  opacity: 0.5;
+
+
+  &.btn-prev {
+    position: absolute;
+    left: 0;
+    top: 125px;
+  }
+  &.btn-next {
+    position: absolute;
+    right: 0;
+    top: 125px;
+  }
+}
+
+
+.posts-wrapper {
+  position: relative;
+}

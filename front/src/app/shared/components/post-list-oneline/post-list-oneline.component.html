@@ -1,0 +1,44 @@
+@if (title(); as title) {
+
+<p class="title">{{ title }}</p>
+}
+
+<div class="posts-wrapper">
+  <div class="posts noscrollbar" #postsContainer>
+    @for (item of posts(); track item.id) {
+    <div class="post">
+      <a
+        class="post-pre"
+        routerLink="/{{ item.name ? item.name : 'p/' + item.id }}"
+        [style]="getPostPreStyle(item)"
+      >
+      </a>
+      <div class="post-descr">
+        <p #postTitle class="post-title" [style.minHeight]="minHeight()">
+          <a routerLink="/{{ item.name ? item.name : 'p/' + item.id }}">
+            {{ item.title }}
+          </a>
+        </p>
+        <a
+          [routerLink]="
+            '/' +
+            (item.category_name ? item.category_name : 'c/' + item.category_id)
+          "
+          class="post-subtitle"
+        >
+          {{ item.category_title | uppercase }}
+        </a>
+      </div>
+    </div>
+    }
+  </div>
+
+  @if (!( isHandset$ | async )) {
+  <button matButton="filled" class="btn btn-prev" (click)="scrollPrev()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  <button matButton="filled" class="btn btn-next" (click)="scrollNext()">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+  }
+</div>

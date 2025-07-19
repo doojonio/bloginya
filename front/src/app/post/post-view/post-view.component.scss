@@ -1,0 +1,179 @@
+@use "@angular/material" as mat;
+@use "mixins" as mixs;
+
+.title-image {
+  height: 18rem;
+
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: column;
+  align-items: center;
+
+  border-bottom: 1px solid var(--mat-sys-primary);
+
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-label-medium);
+  padding: 1rem 0;
+}
+
+.title {
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-headline-large);
+  font-weight: bold;
+  padding: 0 1rem;
+  margin: 2rem 0;
+  text-wrap: wrap;
+  text-align: center;
+}
+
+@include mixs.for-size("desktop") {
+  .container {
+    margin: auto;
+    max-width: var(--post-max-width);
+  }
+}
+
+.content-container {
+  padding: 0rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.tags {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  color: var(--mat-sys-outline);
+  font: var(--mat-sys-body-large);
+  margin-bottom: 2rem;
+
+  & > * {
+    cursor: pointer;
+  }
+}
+
+.meta {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: nowrap;
+
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-primary),
+    )
+  );
+  color: var(--mat-sys-primary);
+
+  & > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.animate {
+  animation: like-animation 0.5s ease-out;
+}
+
+@keyframes like-animation {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(0, -50%) scale(2.5);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.date {
+  color: var(--mat-sys-outline);
+  font: var(--mat-sys-body-large);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-divider {
+  margin: 2rem 0;
+}
+
+.more-from {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.more-from-title {
+  display: flex;
+  justify-content: flex-start;
+  padding: 2rem 0;
+  font: var(--mat-sys-body-large);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.more-posts {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+}
+
+.liked-users {
+  position: absolute;
+  // show on top of the button
+  top: -130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: none; /* Hidden by default */
+  font: var(--mat-sys-body-small);
+}
+
+.like-button-wrapper {
+  position: relative; /* Needed for absolute positioning of tooltip */
+}
+
+.like-button-wrapper:hover .liked-users {
+  display: block; /* Show on hover */
+
+  // animate opacity
+  animation: fadeIn 0.6s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.liked-user-image {
+  img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+}
