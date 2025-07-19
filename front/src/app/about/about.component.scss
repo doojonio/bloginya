@@ -28,6 +28,8 @@
     object-fit: cover;
     object-position: center;
 
+    border-radius: 1rem;
+
     @include mixs.for-size(handset) {
       width: 100%;
     }
