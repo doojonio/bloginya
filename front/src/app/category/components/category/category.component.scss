@@ -1,5 +1,7 @@
 @use "@angular/material" as mat;
 @use "mixins" as mixs;
+@use "sass:map";
+@use "theme-colors" as c;
 
 @include mixs.for-size("desktop") {
   .container-outer {
@@ -15,7 +17,8 @@
   height: 10rem;
 
   font: var(--mat-sys-title-medium);
-  background: #896483;
+  // background: #896483;
+  background: map.get(c.$primary-palette, secondary, 50);
   color: var(--mat-sys-primary);
 
   margin-bottom: 1rem;

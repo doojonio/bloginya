@@ -29,3 +29,13 @@ export type VARIANT =
   | 'medium'
   | 'large'
   | 'original';
+
+export const BreakpointMap: { [key: number]: VARIANT } = {
+  40: 'thumbnail',
+  140: 'pre140',
+  280: 'pre280',
+  450: 'pre450',
+  880: 'medium',
+  1600: 'large',
+  2560: 'original',
+};

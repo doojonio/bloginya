@@ -5,8 +5,10 @@ import {
   withInMemoryScrolling,
 } from '@angular/router';
 
+import { IMAGE_CONFIG, IMAGE_LOADER, ImageLoaderConfig } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
+import { BreakpointMap } from './shared/services/picture.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,5 +19,24 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding()
     ),
     provideHttpClient(),
+    // TODO finish this shit
+    {
+      provide: IMAGE_LOADER,
+      useValue: (config: ImageLoaderConfig) => {
+        let dim = BreakpointMap[140];
+
+        console.log(config)
+        if (config.width && config.width in BreakpointMap) {
+          dim = BreakpointMap[config.width];
+        }
+        return config.src + '?d=' + dim;
+      },
+    },
+    {
+      provide: IMAGE_CONFIG,
+      useValue: {
+        breakpoints: [Object.keys(BreakpointMap).sort()],
+      },
+    },
   ],
 };

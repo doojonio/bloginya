@@ -1,5 +1,7 @@
 @use "@angular/material" as mat;
+@use "sass:map";
 @use "mixins" as mixs;
+@use "theme-colors" as c;
 
 .content {
   padding: 0 20px;
@@ -20,7 +22,7 @@
   }
 
   .title {
-    color: #ffffff;
+    color: map.get(c.$primary-palette, 100);
     font: var(--mat-sys-headline-small);
     font-weight: bold;
 
@@ -45,7 +47,6 @@
   .text {
     font: var(--mat-sys-label-small);
     opacity: 0.5;
-    // text-shadow: 0 0 5px #ffffff;
   }
 
   @include mixs.for-size(desktop) {
@@ -79,15 +80,17 @@ mat-divider {
 @keyframes neon-glow {
   from {
     text-shadow: 0 0 10px var(--mat-sys-primary),
-      0 0 20px var(--mat-sys-primary),
-      0 0 30px var(--mat-sys-primary), 0 0 40px var(--mat-sys-primary),
-      0 0 70px var(--mat-sys-primary), 0 0 80px var(--mat-sys-primary),
-      0 0 100px #77004c, 0 0 150px #77004c;
+      0 0 20px var(--mat-sys-primary), 0 0 30px var(--mat-sys-primary),
+      0 0 40px var(--mat-sys-primary), 0 0 70px var(--mat-sys-primary),
+      0 0 80px var(--mat-sys-primary), 0 0 100px map.get(c.$primary-palette, 25),
+      0 0 150px map.get(c.$primary-palette, 25);
   }
   to {
     text-shadow: 0 0 5px var(--mat-sys-primary), 0 0 10px var(--mat-sys-primary),
       0 0 15px var(--mat-sys-primary), 0 0 20px var(--mat-sys-primary),
-      0 0 35px #9c1466, 0 0 40px #9c1466,
-      0 0 50px #77004c, 0 0 75px #77004c;
+      0 0 35px map.get(c.$primary-palette, 35),
+      0 0 40px map.get(c.$primary-palette, 35),
+      0 0 50px map.get(c.$primary-palette, 25),
+      0 0 75px map.get(c.$primary-palette, 25);
   }
 }

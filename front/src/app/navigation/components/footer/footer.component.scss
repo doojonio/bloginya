@@ -1,4 +1,6 @@
 @use "mixins" as mixs;
+@use "theme-colors" as c;
+@use "sass:map";
 
 .footer-slogan {
   display: flex;
@@ -28,7 +30,8 @@
 }
 
 .info {
-  background: #faa5c6;
+  background: map.get(c.$primary-palette, 80);
+  // background: map.get(c.$primary-palette, 80);
   // background: var(--mat-sys-primary);
 
   color: var(--mat-sys-on-secondary);
