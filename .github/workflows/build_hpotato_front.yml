@@ -1,16 +1,16 @@
-name: Deploy front using Ansible
+name: Build Front Dev
 
 on:
   push:
     branches:
-      - master
+      - develop
     paths:
       - "front/**"
 
 jobs:
   build_push:
     runs-on: ubuntu-latest
-    environment: polyine
+    environment: hpotato
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,4 +29,4 @@ jobs:
         with:
           context: ./front
           push: true
-          tags: cr.selcloud.ru/registry-12/bloginya_front:latest
+          tags: cr.selcloud.ru/registry-12/bloginya_front:develop

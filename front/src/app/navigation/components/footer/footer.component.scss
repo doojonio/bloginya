@@ -81,6 +81,10 @@
   font: var(--mat-sys-label-small);
   font-weight: bold;
   text-align: center;
+
+  @include mixs.for-size(desktop) {
+    margin-bottom: 4rem;
+  }
 }
 
 .socials {
