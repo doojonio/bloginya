@@ -222,9 +222,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         tap((_) => (this.hasUnsavedChanges = true)),
         filter((_) => this.draft.valid),
         debounceTime(1000),
-        switchMap((form) => this.saveDraft(form))
+        switchMap((form) => this.saveDraft(form).pipe(catchError((_) => of(null))))
       )
-      .subscribe((_) => {});
+      .subscribe(() => {});
   }
 
   saveDraft(form: any) {
