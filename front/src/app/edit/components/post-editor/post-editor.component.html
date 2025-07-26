@@ -52,7 +52,7 @@
   @if (attachmentLoading || wpLoading) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   } @else {
-  <mat-divider></mat-divider>
+  <mat-divider [class.unsaved]="hasUnsavedChanges"></mat-divider>
   }
   <form class="meta-editor" [formGroup]="meta">
     <div class="opts">

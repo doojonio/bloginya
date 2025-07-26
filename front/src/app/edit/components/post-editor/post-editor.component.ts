@@ -31,11 +31,14 @@ import {
   map,
   share,
   shareReplay,
+  skip,
   switchMap,
   takeUntil,
+  tap,
 } from 'rxjs/operators';
 import { NewCategoryDialogComponent } from '../../../category/category.module';
 import { PostStatuses } from '../../../shared/interfaces/post-statuses.interface';
+import schema from '../../../shared/prosemirror/schema';
 import { AppService } from '../../../shared/services/app.service';
 import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
@@ -46,7 +49,7 @@ import { EditorService } from '../../services/editor.service';
 import {
   findPlaceholder,
   placeholderPlugin,
-} from './plugins/placeholder.plugin';
+} from './prosemirror/placeholder.plugin';
 
 @Component({
   selector: 'app-post-editor',
@@ -115,6 +118,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   });
   editor = new Editor({
     plugins: [placeholderPlugin],
+    schema: schema,
   });
   picture_wp$ = this.draft.get('picture_wp')!.valueChanges.pipe(shareReplay(1));
   title_class$ = this.picture_wp$.pipe(
@@ -160,6 +164,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   isApplyDisabled = false;
+  hasUnsavedChanges = false;
 
   validateUniqueShortname(control: AbstractControl) {
     const { value } = control;
@@ -212,9 +217,10 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       });
     this.draft.valueChanges
       .pipe(
-        // skip(1),
+        skip(1),
         takeUntil(this.destroy$),
-        filter((_) => this.draft.valid && this.draft.touched),
+        tap((_) => (this.hasUnsavedChanges = true)),
+        filter((_) => this.draft.valid),
         debounceTime(1000),
         switchMap((form) => this.saveDraft(form))
       )
@@ -222,11 +228,13 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   saveDraft(form: any) {
-    return this.editS.updateDraft(this.postId(), {
-      title: form.title,
-      document: form.document,
-      picture_wp: form.picture_wp,
-    });
+    return this.editS
+      .updateDraft(this.postId(), {
+        title: form.title,
+        document: form.document,
+        picture_wp: form.picture_wp,
+      })
+      .pipe(tap(() => (this.hasUnsavedChanges = false)));
   }
 
   removeTag(tag: string) {
