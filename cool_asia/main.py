@@ -36,14 +36,14 @@ app = FastAPI(
 kks = pykakasi.kakasi()
 
 
-@app.post("/to-pinyin", response_model=PinyinResponse)
-async def convert_to_pinyin(request: TextRequest):
+@app.get("/api/cool_asia/pinyin", response_model=PinyinResponse)
+async def convert_to_pinyin(text: str):
     """
     Converts Chinese text (Hanzi) to Pinyin.
     """
     try:
         print(request.text)
-        pinyin_text = hanzi.to_pinyin(request.text)
+        pinyin_text = hanzi.to_pinyin(text)
         return PinyinResponse(pinyin=pinyin_text)
     except Exception as e:
         raise HTTPException(
@@ -51,13 +51,13 @@ async def convert_to_pinyin(request: TextRequest):
         )
 
 
-@app.post("/to-hiragana", response_model=HiraganaResponse)
-async def convert_to_hiragana(request: TextRequest):
+@app.get("/api/cool_asia/hiragana", response_model=HiraganaResponse)
+async def convert_to_hiragana(text: str):
     """
     Converts Japanese text (containing Kanji) to Hiragana.
     """
     try:
-        result = kks.convert(request.text)
+        result = kks.convert(text)
         hiragana_text = "".join([item["hira"] for item in result])
         return HiraganaResponse(hiragana=hiragana_text)
     except Exception as e:

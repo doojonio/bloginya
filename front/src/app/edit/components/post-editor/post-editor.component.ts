@@ -44,6 +44,7 @@ import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
 import { UserService } from '../../../shared/services/user.service';
+import { AsianHelpersService } from '../../services/asian-helpers.service';
 import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
 import {
@@ -66,6 +67,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly shortnamesS = inject(ShortnamesService);
   private readonly router = inject(Router);
   private readonly picS = inject(PictureService);
+  private readonly asianS = inject(AsianHelpersService);
 
   readonly dialog = inject(MatDialog);
 
@@ -116,9 +118,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     enableLikes: new FormControl(true, [Validators.required]),
     enableComments: new FormControl(true, [Validators.required]),
   });
-  editor = new Editor({
-    plugins: [placeholderPlugin],
+  readonly editor = new Editor({
     schema: schema,
+    plugins: [placeholderPlugin, this.asianS.getSearchPlugin()],
   });
   picture_wp$ = this.draft.get('picture_wp')!.valueChanges.pipe(shareReplay(1));
   title_class$ = this.picture_wp$.pipe(
@@ -215,6 +217,21 @@ export class PostEditorComponent implements OnInit, OnDestroy {
           enableComments: post.enable_comments,
         });
       });
+
+    this.draft
+      .get('document')!
+      .valueChanges.pipe(
+        takeUntil(this.destroy$),
+        tap(() => console.log(this.editor.schema.marks)),
+        debounceTime(400),
+        switchMap((_) =>
+          this.asianS
+            .updateHelpers(this.editor)
+            .pipe(catchError((_) => of(null)))
+        )
+      )
+      .subscribe(() => {});
+
     this.draft.valueChanges
       .pipe(
         skip(1),
@@ -222,7 +239,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         tap((_) => (this.hasUnsavedChanges = true)),
         filter((_) => this.draft.valid),
         debounceTime(1000),
-        switchMap((form) => this.saveDraft(form).pipe(catchError((_) => of(null))))
+        switchMap((form) =>
+          this.saveDraft(form).pipe(catchError((_) => of(null)))
+        )
       )
       .subscribe(() => {});
   }
@@ -286,7 +305,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     if (!files.length) {
       return;
     }
-    const file = files[0];
 
     this.wpLoading = true;
     this.driveS

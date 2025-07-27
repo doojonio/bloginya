@@ -16,20 +16,24 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterModule } from '@angular/router';
 import { NgxEditorModule } from 'ngx-editor';
-import {
-  CategoryModule,
-  NewCategoryDialogComponent,
-} from '../category/category.module';
+import { NewCategoryDialogComponent } from '../category/category.module';
 import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 import { PostEditorComponent } from './components/post-editor/post-editor.component';
 import { routes } from './edit.routes';
+import { AsianHelpersService } from './services/asian-helpers.service';
+import { CoolAsiaService } from './services/cool-asia.service';
 import { DriveService } from './services/drive.service';
 import { EditorService } from './services/editor.service';
 
 @NgModule({
   declarations: [PostEditorComponent, NewCategoryDialogComponent],
-  providers: [EditorService, DriveService],
+  providers: [
+    EditorService,
+    DriveService,
+    AsianHelpersService,
+    CoolAsiaService,
+  ],
   imports: [
     RouterModule.forChild(routes),
     CommonModule,
