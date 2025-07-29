@@ -233,6 +233,3 @@ create table
 
 create index user_action_log_user_id_idx on user_action_log (user_id);
 
--- 1 down
-
-select "No";
