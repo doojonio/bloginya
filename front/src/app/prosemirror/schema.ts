@@ -1,30 +1,6 @@
 import { marks as basicMarks, nodes as basicNodes } from 'ngx-editor';
 import { MarkSpec, Schema } from 'prosemirror-model';
 
-// const ruby: NodeSpec = {
-//   content: '(text*|rt?)',
-//   inline: true,
-//   group: 'inline',
-//   parseDOM: [{ tag: 'ruby' }],
-//   toDOM() {
-//     return ['ruby', 0, ['rt', 0]];
-//   },
-// };
-
-// const rt: NodeSpec = {
-//   content: 'text*',
-//   inline: true,
-//   group: 'inline',
-//   parseDOM: [{ tag: 'rt' }],
-//   toDOM() {
-//     return ['rt', 0];
-//   },
-// };
-
-// const nodes = Object.assign({}, basicNodes, {
-// });
-
-// define ruby with rt MARK specification
 const ruby: MarkSpec = {
   attrs: {
     rt: { default: '' },
@@ -46,17 +22,16 @@ const ruby: MarkSpec = {
   ],
   toDOM(node) {
     const { rt } = node.attrs;
-    return ['ruby', ['span', 0], ['rt', { class: 'app-rt-enabled' }, rt]];
+    return ['ruby', ['span', 0], ['rt', rt]];
   },
 };
 
 const marks = Object.assign({}, basicMarks, {
+  SHIBAL: ruby,
   ruby,
 });
 
-const schema = new Schema({
+export const customSchema = new Schema({
   nodes: basicNodes,
   marks: marks,
 });
-
-export default schema;

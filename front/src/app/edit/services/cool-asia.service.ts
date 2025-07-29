@@ -8,23 +8,23 @@ export class CoolAsiaService {
 
   constructor() {}
 
-  getHiragana(text: string) {
+  getHiraganas(texts: string[]) {
     return this.http
-      .get<GetHiraganaResponse>('/api/cool_asia/hiragana', { params: { text } })
-      .pipe(map((res) => res.hiragana));
+      .post<GetHiraganaResponse>('/api/cool_asia/hiragana', { texts })
+      .pipe(map((res) => res.hiraganas));
   }
 
-  getPinyin(text: string) {
+  getPinyins(texts: string[]) {
     return this.http
-      .get<GetPinyinResponse>('/api/cool_asia/pinyin', { params: { text } })
-      .pipe(map((res) => res.pinyin));
+      .post<GetPinyinResponse>('/api/cool_asia/pinyin', { texts })
+      .pipe(map((res) => res.pinyins));
   }
 }
 
 export interface GetHiraganaResponse {
-  hiragana: string;
+  hiraganas: string[];
 }
 
 export interface GetPinyinResponse {
-  pinyin: string;
+  pinyins: string[];
 }

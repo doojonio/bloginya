@@ -37,13 +37,12 @@ import {
   tap,
 } from 'rxjs/operators';
 import { NewCategoryDialogComponent } from '../../../category/category.module';
+import { customSchema } from '../../../prosemirror/schema';
 import { PostStatuses } from '../../../shared/interfaces/post-statuses.interface';
-import schema from '../../../shared/prosemirror/schema';
 import { AppService } from '../../../shared/services/app.service';
 import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
-import { UserService } from '../../../shared/services/user.service';
 import { AsianHelpersService } from '../../services/asian-helpers.service';
 import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
@@ -60,7 +59,6 @@ import {
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly appS = inject(AppService);
-  private readonly userS = inject(UserService);
   private readonly notifierS = inject(NotifierService);
   private readonly driveS = inject(DriveService);
   private readonly editS = inject(EditorService);
@@ -71,10 +69,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   readonly dialog = inject(MatDialog);
 
-  isHandset$ = this.appS.isHandset();
   private destroy$ = new Subject<void>();
-  currentUser$ = this.userS.getCurrentUser();
-  statuses$ = this.appS.getPostStatuses();
   STATUSES = [
     { name: 'Public', value: PostStatuses.Pub },
     { name: 'Draft', value: PostStatuses.Draft },
@@ -99,7 +94,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   draft = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(3)]),
-    document: new FormControl(undefined, [EditorValidators.required()]),
+    document: new FormControl(undefined, [
+      EditorValidators.required(customSchema),
+    ]),
     picture_wp: new FormControl<string | null>(null),
   });
   meta = new FormGroup({
@@ -118,11 +115,15 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     enableLikes: new FormControl(true, [Validators.required]),
     enableComments: new FormControl(true, [Validators.required]),
   });
-  readonly editor = new Editor({
-    schema: schema,
+
+  conf = {
     plugins: [placeholderPlugin, this.asianS.getSearchPlugin()],
-  });
+    schema: customSchema,
+  };
+  editor = new Editor(this.conf);
+
   picture_wp$ = this.draft.get('picture_wp')!.valueChanges.pipe(shareReplay(1));
+
   title_class$ = this.picture_wp$.pipe(
     map((url) => (url ? 'title-imaged' : 'title-bordered'))
   );
@@ -218,11 +219,12 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         });
       });
 
+    // interval(1000).subscribe(() => console.log(this.editor));
+
     this.draft
       .get('document')!
       .valueChanges.pipe(
         takeUntil(this.destroy$),
-        tap(() => console.log(this.editor.schema.marks)),
         debounceTime(400),
         switchMap((_) =>
           this.asianS

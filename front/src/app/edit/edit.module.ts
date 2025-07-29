@@ -19,6 +19,7 @@ import { NgxEditorModule } from 'ngx-editor';
 import { NewCategoryDialogComponent } from '../category/category.module';
 import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
+import { MenuComponent } from './components/menu/menu.component';
 import { PostEditorComponent } from './components/post-editor/post-editor.component';
 import { routes } from './edit.routes';
 import { AsianHelpersService } from './services/asian-helpers.service';
@@ -27,7 +28,11 @@ import { DriveService } from './services/drive.service';
 import { EditorService } from './services/editor.service';
 
 @NgModule({
-  declarations: [PostEditorComponent, NewCategoryDialogComponent],
+  declarations: [
+    PostEditorComponent,
+    NewCategoryDialogComponent,
+    MenuComponent,
+  ],
   providers: [
     EditorService,
     DriveService,

@@ -17,9 +17,18 @@
       {{ line }}<br />
       }
     </div>
+    @if (hasRt()) {
+    <div [style.padding.rem]="1">
+      <mat-slide-toggle [(ngModel)]="showAsianHelpers" i18n
+        >Pinyin/Hiragana</mat-slide-toggle
+      >
+    </div>
+    }
     <app-document-dom
       class="content"
       [document]="p.document"
+      [showRt]="showAsianHelpers"
+      (hasRt)="hasRt.set($event)"
     ></app-document-dom>
 
     <div class="tags">
