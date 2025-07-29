@@ -6,22 +6,24 @@ from pydantic import BaseModel, Field
 # --- Pydantic Models for Request/Response ---
 
 
-class TextRequest(BaseModel):
-    """Request model for input text."""
+class TextsRequest(BaseModel):
+    """Request model for input texts."""
 
-    text: str = Field(..., min_length=1, description="The text to be converted.")
+    texts: list[str] = Field(
+        ..., min_length=1, description="The list of texts to be converted."
+    )
 
 
 class PinyinResponse(BaseModel):
     """Response model for Pinyin conversion."""
 
-    pinyin: str
+    pinyins: list[str]
 
 
 class HiraganaResponse(BaseModel):
     """Response model for Hiragana conversion."""
 
-    hiragana: str
+    hiraganas: list[str]
 
 
 # --- FastAPI Application ---
@@ -36,30 +38,31 @@ app = FastAPI(
 kks = pykakasi.kakasi()
 
 
-@app.get("/api/cool_asia/pinyin", response_model=PinyinResponse)
-async def convert_to_pinyin(text: str):
+@app.post("/api/cool_asia/pinyin", response_model=PinyinResponse)
+async def convert_to_pinyin(request: TextsRequest):
     """
-    Converts Chinese text (Hanzi) to Pinyin.
+    Converts a list of Chinese texts (Hanzi) to Pinyin.
     """
     try:
-        print(request.text)
-        pinyin_text = hanzi.to_pinyin(text)
-        return PinyinResponse(pinyin=pinyin_text)
+        pinyin_texts = [hanzi.to_pinyin(text) for text in request.texts]
+        return PinyinResponse(pinyins=pinyin_texts)
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"An error occurred during Pinyin conversion: {e}"
         )
 
 
-@app.get("/api/cool_asia/hiragana", response_model=HiraganaResponse)
-async def convert_to_hiragana(text: str):
+@app.post("/api/cool_asia/hiragana", response_model=HiraganaResponse)
+async def convert_to_hiragana(request: TextsRequest):
     """
-    Converts Japanese text (containing Kanji) to Hiragana.
+    Converts a list of Japanese texts (containing Kanji) to Hiragana.
     """
     try:
-        result = kks.convert(text)
-        hiragana_text = "".join([item["hira"] for item in result])
-        return HiraganaResponse(hiragana=hiragana_text)
+        hiragana_texts = [
+            "".join([item["hira"] for item in kks.convert(text)])
+            for text in request.texts
+        ]
+        return HiraganaResponse(hiraganas=hiragana_texts)
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"An error occurred during Hiragana conversion: {e}"
