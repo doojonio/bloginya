@@ -21,7 +21,6 @@ sub run ($self, @args) {
     my $it        = $ps->iterate($post->{document});
     while (my $el = <$it>) {
       if ($el->{type} eq 'ordered_list' && exists $el->{attrs}{order} && !defined($el->{attrs}{order})) {
-        delete($el->{order});
         $el->{attrs}{order} = 1;
         $is_update++;
       }
