@@ -10,4 +10,6 @@ import { Component } from '@angular/core';
     }
   `,
 })
-export class MenuComponent {}
+export class MenuComponent {
+
+}

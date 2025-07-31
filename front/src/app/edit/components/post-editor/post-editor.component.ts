@@ -71,9 +71,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   STATUSES = [
-    { name: 'Public', value: PostStatuses.Pub },
-    { name: 'Draft', value: PostStatuses.Draft },
-    { name: 'Del', value: PostStatuses.Del },
+    { name: $localize`Public`, value: PostStatuses.Pub },
+    { name: $localize`Draft`, value: PostStatuses.Draft },
+    { name: $localize`Del`, value: PostStatuses.Del },
   ];
 
   toolbar$ = this.appS.getEditorToolbar();

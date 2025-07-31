@@ -22,7 +22,6 @@ export class AsianHelpersService {
   updateHelpers(editor: Editor) {
     const decorations = getMatchHighlights(editor.view.state);
     const state = editor.view.state;
-    // console.log(editor.schema.marks);
     const tr = state.tr;
     const mapping = tr.mapping;
 

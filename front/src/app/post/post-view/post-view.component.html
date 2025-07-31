@@ -18,7 +18,7 @@
       }
     </div>
     @if (hasRt()) {
-    <div [style.padding.rem]="1">
+    <div [style.display]="'flex'" [style.justify-content] = "'right'" [style.width]="'100%'">
       <mat-slide-toggle [(ngModel)]="showAsianHelpers" i18n
         >Pinyin/Hiragana</mat-slide-toggle
       >

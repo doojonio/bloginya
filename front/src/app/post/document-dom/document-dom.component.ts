@@ -31,7 +31,6 @@ export class DocumentDomComponent {
   ngAfterViewInit() {
     const rtTags = this.element.nativeElement.shadowRoot.querySelector('rt');
     rtTags ? this.hasRt.emit(true) : this.hasRt.emit(false);
-    console.log(rtTags);
   }
 
   getContent(): SafeHtml | undefined {
@@ -39,6 +38,7 @@ export class DocumentDomComponent {
     if (!document) {
       return;
     }
+
     return this.sanitizer.bypassSecurityTrustHtml(
       toHTML(document, customSchema)
     );
