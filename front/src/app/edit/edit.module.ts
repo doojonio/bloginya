@@ -2,6 +2,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -16,23 +17,33 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterModule } from '@angular/router';
 import { NgxEditorModule } from 'ngx-editor';
-import {
-  CategoryModule,
-  NewCategoryDialogComponent,
-} from '../category/category.module';
+import { NewCategoryDialogComponent } from '../category/category.module';
 import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
+import { MenuComponent } from './components/menu/menu.component';
 import { PostEditorComponent } from './components/post-editor/post-editor.component';
 import { routes } from './edit.routes';
+import { AsianHelpersService } from './services/asian-helpers.service';
+import { CoolAsiaService } from './services/cool-asia.service';
 import { DriveService } from './services/drive.service';
 import { EditorService } from './services/editor.service';
 
 @NgModule({
-  declarations: [PostEditorComponent, NewCategoryDialogComponent],
-  providers: [EditorService, DriveService],
+  declarations: [
+    PostEditorComponent,
+    NewCategoryDialogComponent,
+    MenuComponent,
+  ],
+  providers: [
+    EditorService,
+    DriveService,
+    AsianHelpersService,
+    CoolAsiaService,
+  ],
   imports: [
     RouterModule.forChild(routes),
     CommonModule,
+    MatButtonToggleModule,
     MatProgressSpinnerModule,
     NgxEditorModule,
     MatButtonModule,

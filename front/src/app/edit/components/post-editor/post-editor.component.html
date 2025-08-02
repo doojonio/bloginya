@@ -31,7 +31,12 @@
           [editor]="editor"
           [toolbar]="(toolbar$ | async)!"
           [colorPresets]="(colorPresets$ | async) || []"
+          [customMenuRef]="customMenu"
         ></ngx-editor-menu>
+
+        <ng-template #customMenu>
+          <app-menu [editor]="editor"></app-menu>
+        </ng-template>
       </div>
       <ngx-editor [editor]="editor" formControlName="document"></ngx-editor>
       <div class="editor-acts">
@@ -52,7 +57,7 @@
   @if (attachmentLoading || wpLoading) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   } @else {
-  <mat-divider></mat-divider>
+  <mat-divider [class.unsaved]="hasUnsavedChanges"></mat-divider>
   }
   <form class="meta-editor" [formGroup]="meta">
     <div class="opts">

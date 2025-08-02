@@ -20,6 +20,10 @@ export class SidenavComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  login() {
+    this.userS.goToLogin();
+  }
+
   addDraft() {
     this.draftS
       .createDraft()

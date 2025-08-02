@@ -9,18 +9,22 @@ async sub to_google($self) {
 
   my $url = Mojo::URL->new($conf->{auth_uri});
 
+  my $called_from = $self->i('callback_uri' => 'str|undef') // '/';
+
   $url->query(
     client_id     => $conf->{client_id},
     redirect_uri  => $conf->{redirect_uri},
     response_type => 'code',
     scope         => 'email',
+    state         => $called_from,
   );
 
   return $self->redirect_to($url);
 }
 
 async sub from_google($self) {
-  my $code = $self->i(code => 'str');
+  my $code  = $self->i(code  => 'str');
+  my $state = $self->i(state => 'str');
 
   my $google_service = $self->service('google');
   my $token          = await $google_service->get_token_p($code);
@@ -29,7 +33,7 @@ async sub from_google($self) {
   my $id = await $self->service('user')->find_or_create_by_google_id_p($userinfo, $token);
   await $self->create_session_p($id);
 
-  return $self->redirect_to('/');
+  return $self->redirect_to($state || '/');
 }
 
 1

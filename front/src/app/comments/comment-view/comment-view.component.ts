@@ -31,6 +31,7 @@ export class CommentViewComponent {
   user = toSignal(this.userService.getCurrentUser());
   likeAnimClass = signal('');
   postId = input.required<string>();
+  defaultPicture = '/assets/images/default_user.webp';
 
   like() {
     this.commentsService

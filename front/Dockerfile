@@ -15,7 +15,7 @@ RUN npm run build --prod
 FROM nginx:1.27
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist/front/browser /usr/share/nginx/html
+COPY --from=build /app/dist/front/browser/ /usr/share/nginx/html
 
 EXPOSE 8080
 

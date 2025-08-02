@@ -1,12 +1,18 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { throwError } from 'rxjs';
 import { OkResponse } from '../shared/interfaces/responses.interface';
+import { UserService } from '../shared/services/user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CommentsService {
   constructor(private http: HttpClient) {}
+
+  private userS = inject(UserService);
+  user = toSignal(this.userS.getCurrentUser());
 
   getComments(postId: string, replyToId?: string) {
     let params = new HttpParams();
@@ -35,6 +41,11 @@ export class CommentsService {
     });
   }
   like(id: string) {
+    if (!this.user()) {
+      this.userS.goToLogin();
+      return throwError(() => new Error('User not logged in'));
+    }
+
     return this.http.post<OkResponse>('/api/comments/like', null, {
       params: { id },
     });

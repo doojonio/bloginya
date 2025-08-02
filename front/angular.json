@@ -4,6 +4,14 @@
   "newProjectRoot": "projects",
   "projects": {
     "front": {
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "ko": {
+            "translation": "./messages.ko.xlf"
+          }
+        }
+      },
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,6 +25,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "localize": false,
             "stylePreprocessorOptions": { "includePaths": ["./src"] },
             "outputPath": "dist/front",
             "index": "src/index.html",
@@ -44,7 +53,6 @@
                   "type": "initial",
                   "maximumWarning": "500kB",
                   "maximumError": "1MB"
-                  // "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",

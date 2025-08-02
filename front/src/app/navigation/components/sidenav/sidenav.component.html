@@ -9,7 +9,7 @@
   } @if (user.role == UserRoles.OWNER) {
   <a mat-list-item i18n routerLink="/nimda">Admin</a>
   } } @else {
-  <a mat-list-item i18n href="/api/oauth/to_google">Login</a>
+  <a mat-list-item i18n (click)="login()">Login</a>
   }
 
   <h4 class="title" i18n>5 LANGUAGES</h4>

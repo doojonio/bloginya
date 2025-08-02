@@ -1,5 +1,8 @@
 @if (comment(); as com) {
-<img [class]="replyToId() ? 'av-small' : 'av'" src="{{ com.picture }}" />
+<img
+  [class]="replyToId() ? 'av-small' : 'av'"
+  src="{{ com.picture || defaultPicture }}"
+/>
 <div class="comment">
   <div class="top">
     <a class="uname" [routerLink]="'/user/' + com.user_id">{{

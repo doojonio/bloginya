@@ -28,7 +28,8 @@ export class CommentInputComponent implements OnInit {
 
   user = toSignal(this.userService.getCurrentUser());
   avatar$ = this.userService.getCurrentUser().pipe(map((u) => u?.picture));
-  avatar = computed(() => this.user()?.picture);
+  avatar = computed(() => this.user()?.picture || this.defaultPicture);
+  defaultPicture = '/assets/images/default_user.webp';
 
   commentsService = inject(CommentsService);
 
@@ -62,6 +63,10 @@ export class CommentInputComponent implements OnInit {
   isTyping = false;
   startTyping() {
     this.isTyping = true;
+
+    if (!this.user()) {
+      this.userService.goToLogin();
+    }
   }
 
   onCancel = output();

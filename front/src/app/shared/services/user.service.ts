@@ -16,4 +16,10 @@ export class UserService {
   getCurrentUser() {
     return this.settings$.pipe(map((settings) => settings.user));
   }
+
+  goToLogin(callback_uri: string = window.location.href) {
+    const uri = new URL('/api/oauth/to_google', window.location.origin);
+    uri.searchParams.set('callback_uri', callback_uri);
+    window.location.href = uri.toString();
+  }
 }

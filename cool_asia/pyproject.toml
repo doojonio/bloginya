@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "translator-service"
+version = "0.1.0"
+description = "A FastAPI microservice to translate Chinese to Pinyin and Japanese to Hiragana."
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.111.0"
+uvicorn = {extras = ["standard"], version = "^0.30.1"}
+dragonmapper = "^0.2.6"
+pykakasi = "^2.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

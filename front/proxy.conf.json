@@ -1,10 +1,14 @@
 {
-   "/api": {
-     "target": "http://localhost:3000",
-     "secure": false
-   },
-   "/drive": {
-     "target": "http://localhost:3000",
-     "secure": false
-   }
+  "/api/cool_asia": {
+    "target": "http://localhost:8000",
+    "secure": false
+  },
+  "/api": {
+    "target": "http://localhost:3000",
+    "secure": false
+  },
+  "/drive": {
+    "target": "http://localhost:3000",
+    "secure": false
+  }
 }
