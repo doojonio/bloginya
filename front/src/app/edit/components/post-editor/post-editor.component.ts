@@ -43,13 +43,14 @@ import { AppService } from '../../../shared/services/app.service';
 import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
-import { AsianHelpersService } from '../../services/asian-helpers.service';
-import { DriveService } from '../../services/drive.service';
-import { EditorService } from '../../services/editor.service';
+import { helperMarkPlugin } from '../../prosemirror/helper-mark.plugin';
 import {
   findPlaceholder,
   placeholderPlugin,
-} from './prosemirror/placeholder.plugin';
+} from '../../prosemirror/placeholder.plugin';
+import { AsianHelpersService } from '../../services/asian-helpers.service';
+import { DriveService } from '../../services/drive.service';
+import { EditorService } from '../../services/editor.service';
 
 @Component({
   selector: 'app-post-editor',
@@ -117,7 +118,11 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   });
 
   conf = {
-    plugins: [placeholderPlugin, this.asianS.getSearchPlugin()],
+    plugins: [
+      placeholderPlugin,
+      this.asianS.getSearchPlugin(),
+      helperMarkPlugin,
+    ],
     schema: customSchema,
   };
   editor = new Editor(this.conf);
@@ -218,8 +223,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
           enableComments: post.enable_comments,
         });
       });
-
-    // interval(1000).subscribe(() => console.log(this.editor));
 
     this.draft
       .get('document')!
@@ -342,7 +345,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
             enable_comments: meta.enableComments || false,
           });
         }),
-        catchError((err) => throwError(() => console.log(err))),
+        catchError((err) => throwError(() => {})),
         takeUntil(this.destroy$)
       )
       .subscribe((_) => {

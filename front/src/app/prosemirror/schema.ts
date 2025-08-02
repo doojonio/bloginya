@@ -27,7 +27,6 @@ const ruby: MarkSpec = {
 };
 
 const marks = Object.assign({}, basicMarks, {
-  SHIBAL: ruby,
   ruby,
 });
 

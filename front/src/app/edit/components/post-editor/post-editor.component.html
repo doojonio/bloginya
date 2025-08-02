@@ -31,7 +31,12 @@
           [editor]="editor"
           [toolbar]="(toolbar$ | async)!"
           [colorPresets]="(colorPresets$ | async) || []"
+          [customMenuRef]="customMenu"
         ></ngx-editor-menu>
+
+        <ng-template #customMenu>
+          <app-menu [editor]="editor"></app-menu>
+        </ng-template>
       </div>
       <ngx-editor [editor]="editor" formControlName="document"></ngx-editor>
       <div class="editor-acts">
