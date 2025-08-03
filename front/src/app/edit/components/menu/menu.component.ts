@@ -154,7 +154,7 @@ class AsianHelperMenuItem extends MenuItem {
 
 class HirganaMenuItem extends AsianHelperMenuItem {
   override key: 'hiragana' = 'hiragana';
-  override icon = 'H';
+  override icon = 'F';
   override title = 'Hiragana';
 }
 
