@@ -90,7 +90,13 @@
         </div>
         } }
       </div>
-      <div class="date">{{ p.date | date : "yyyy.MM.dd" }}</div>
+      <div class="post-add-info">
+        @if (currentUser$ | async; as user) { @if(user.role == UserRoles.OWNER)
+        {
+          <mat-icon>visibility</mat-icon>
+        {{ viewCount$ | async }} · } }
+        {{ p.date | date : "yyyy.MM.dd" }}
+      </div>
     </div>
   </div>
   @if (showComments) {

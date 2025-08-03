@@ -6,6 +6,7 @@ import {
   I18nPluralPipe,
 } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,7 +22,7 @@ import { PostViewComponent } from './post-view/post-view.component';
 import { routes } from './post.routes';
 import { LikerService } from './services/liker.service';
 import { ReaderService } from './services/reader.service';
-import { FormsModule } from '@angular/forms';
+import { StatService } from './services/stat.service';
 
 @NgModule({
   declarations: [PostViewComponent, DocumentDomComponent],
@@ -45,6 +46,6 @@ import { FormsModule } from '@angular/forms';
     MatSlideToggleModule,
     FormsModule,
   ],
-  providers: [ReaderService, LikerService],
+  providers: [ReaderService, LikerService, StatService],
 })
 export class PostModule {}

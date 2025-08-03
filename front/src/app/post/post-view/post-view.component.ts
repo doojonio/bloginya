@@ -8,7 +8,18 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { filter, shareReplay, switchMap, take, tap, timer } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  filter,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  take,
+  tap,
+  timer,
+} from 'rxjs';
 import { UserRoles } from '../../shared/interfaces/user-roles.interface';
 import { AppService } from '../../shared/services/app.service';
 import { PictureService } from '../../shared/services/picture.service';
@@ -17,6 +28,7 @@ import { UserService } from '../../shared/services/user.service';
 import { ReadPostResponse } from '../post.interface';
 import { LikerService } from '../services/liker.service';
 import { ReaderService } from '../services/reader.service';
+import { StatService } from '../services/stat.service';
 
 @Component({
   selector: 'app-post-view',
@@ -30,6 +42,7 @@ export class PostViewComponent {
   private readonly usersService = inject(UserService);
   private readonly appService = inject(AppService);
   private readonly seoService = inject(SeoService);
+  private readonly statS = inject(StatService);
 
   UserRoles = UserRoles;
 
@@ -47,6 +60,24 @@ export class PostViewComponent {
     });
 
   post = model.required<ReadPostResponse>();
+
+  sendStatByIdSubs = toObservable(this.post)
+    .pipe(
+      takeUntilDestroyed(),
+      filter(Boolean),
+      switchMap((post) => {
+        return this.statS
+          .recordRead(post.id, 'short')
+          .pipe(catchError(() => of()));
+      })
+    )
+    .subscribe();
+
+  viewCount$ = combineLatest([this.currentUser$, toObservable(this.post)]).pipe(
+    filter(([user, _]) => user?.role == UserRoles.OWNER),
+    switchMap(([_, post]) => this.statS.getViews(post.id).pipe(catchError(() => of(null)))),
+    map(views => views ? views.short_views : 0)
+  );
 
   showAsianHelpers = false;
   hasRt = signal(false);
