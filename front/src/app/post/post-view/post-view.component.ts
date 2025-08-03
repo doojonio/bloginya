@@ -48,6 +48,9 @@ export class PostViewComponent {
 
   post = model.required<ReadPostResponse>();
 
+  showAsianHelpers = false;
+  hasRt = signal(false);
+
   onNewPostSubs = toObservable(this.post).subscribe((_) => {
     this.appService.scrolToTop();
   });
@@ -84,9 +87,7 @@ export class PostViewComponent {
   showComments = false;
   showLikedUsers: any;
   likedUsers$ = computed(() =>
-    this.readerS
-      .getLikedUsers(this.post().id)
-      .pipe(shareReplay(1))
+    this.readerS.getLikedUsers(this.post().id).pipe(shareReplay(1))
   );
 
   toggleShowComments() {

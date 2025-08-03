@@ -31,22 +31,26 @@ import {
   map,
   share,
   shareReplay,
+  skip,
   switchMap,
   takeUntil,
+  tap,
 } from 'rxjs/operators';
 import { NewCategoryDialogComponent } from '../../../category/category.module';
+import { customSchema } from '../../../prosemirror/schema';
 import { PostStatuses } from '../../../shared/interfaces/post-statuses.interface';
 import { AppService } from '../../../shared/services/app.service';
 import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
-import { UserService } from '../../../shared/services/user.service';
-import { DriveService } from '../../services/drive.service';
-import { EditorService } from '../../services/editor.service';
+import { helperMarkPlugin } from '../../prosemirror/helper-mark.plugin';
 import {
   findPlaceholder,
   placeholderPlugin,
-} from './plugins/placeholder.plugin';
+} from '../../prosemirror/placeholder.plugin';
+import { AsianHelpersService } from '../../services/asian-helpers.service';
+import { DriveService } from '../../services/drive.service';
+import { EditorService } from '../../services/editor.service';
 
 @Component({
   selector: 'app-post-editor',
@@ -56,24 +60,21 @@ import {
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly appS = inject(AppService);
-  private readonly userS = inject(UserService);
   private readonly notifierS = inject(NotifierService);
   private readonly driveS = inject(DriveService);
   private readonly editS = inject(EditorService);
   private readonly shortnamesS = inject(ShortnamesService);
   private readonly router = inject(Router);
   private readonly picS = inject(PictureService);
+  private readonly asianS = inject(AsianHelpersService);
 
   readonly dialog = inject(MatDialog);
 
-  isHandset$ = this.appS.isHandset();
   private destroy$ = new Subject<void>();
-  currentUser$ = this.userS.getCurrentUser();
-  statuses$ = this.appS.getPostStatuses();
   STATUSES = [
-    { name: 'Public', value: PostStatuses.Pub },
-    { name: 'Draft', value: PostStatuses.Draft },
-    { name: 'Del', value: PostStatuses.Del },
+    { name: $localize`Public`, value: PostStatuses.Pub },
+    { name: $localize`Draft`, value: PostStatuses.Draft },
+    { name: $localize`Del`, value: PostStatuses.Del },
   ];
 
   toolbar$ = this.appS.getEditorToolbar();
@@ -94,7 +95,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   draft = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(3)]),
-    document: new FormControl(undefined, [EditorValidators.required()]),
+    document: new FormControl(undefined, [
+      EditorValidators.required(customSchema),
+    ]),
     picture_wp: new FormControl<string | null>(null),
   });
   meta = new FormGroup({
@@ -113,10 +116,19 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     enableLikes: new FormControl(true, [Validators.required]),
     enableComments: new FormControl(true, [Validators.required]),
   });
-  editor = new Editor({
-    plugins: [placeholderPlugin],
-  });
+
+  conf = {
+    plugins: [
+      placeholderPlugin,
+      this.asianS.getSearchPlugin(),
+      helperMarkPlugin,
+    ],
+    schema: customSchema,
+  };
+  editor = new Editor(this.conf);
+
   picture_wp$ = this.draft.get('picture_wp')!.valueChanges.pipe(shareReplay(1));
+
   title_class$ = this.picture_wp$.pipe(
     map((url) => (url ? 'title-imaged' : 'title-bordered'))
   );
@@ -160,6 +172,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   isApplyDisabled = false;
+  hasUnsavedChanges = false;
 
   validateUniqueShortname(control: AbstractControl) {
     const { value } = control;
@@ -210,23 +223,42 @@ export class PostEditorComponent implements OnInit, OnDestroy {
           enableComments: post.enable_comments,
         });
       });
+
+    this.draft
+      .get('document')!
+      .valueChanges.pipe(
+        takeUntil(this.destroy$),
+        debounceTime(400),
+        switchMap((_) =>
+          this.asianS
+            .updateHelpers(this.editor)
+            .pipe(catchError((_) => of(null)))
+        )
+      )
+      .subscribe(() => {});
+
     this.draft.valueChanges
       .pipe(
-        // skip(1),
+        skip(1),
         takeUntil(this.destroy$),
-        filter((_) => this.draft.valid && this.draft.touched),
+        tap((_) => (this.hasUnsavedChanges = true)),
+        filter((_) => this.draft.valid),
         debounceTime(1000),
-        switchMap((form) => this.saveDraft(form))
+        switchMap((form) =>
+          this.saveDraft(form).pipe(catchError((_) => of(null)))
+        )
       )
-      .subscribe((_) => {});
+      .subscribe(() => {});
   }
 
   saveDraft(form: any) {
-    return this.editS.updateDraft(this.postId(), {
-      title: form.title,
-      document: form.document,
-      picture_wp: form.picture_wp,
-    });
+    return this.editS
+      .updateDraft(this.postId(), {
+        title: form.title,
+        document: form.document,
+        picture_wp: form.picture_wp,
+      })
+      .pipe(tap(() => (this.hasUnsavedChanges = false)));
   }
 
   removeTag(tag: string) {
@@ -278,7 +310,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     if (!files.length) {
       return;
     }
-    const file = files[0];
 
     this.wpLoading = true;
     this.driveS
@@ -314,7 +345,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
             enable_comments: meta.enableComments || false,
           });
         }),
-        catchError((err) => throwError(() => console.log(err))),
+        catchError((err) => throwError(() => {})),
         takeUntil(this.destroy$)
       )
       .subscribe((_) => {
