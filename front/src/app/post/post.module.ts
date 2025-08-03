@@ -6,10 +6,12 @@ import {
   I18nPluralPipe,
 } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { CommentsModule } from '../comments/comments.module';
@@ -20,6 +22,7 @@ import { PostViewComponent } from './post-view/post-view.component';
 import { routes } from './post.routes';
 import { LikerService } from './services/liker.service';
 import { ReaderService } from './services/reader.service';
+import { StatService } from './services/stat.service';
 
 @NgModule({
   declarations: [PostViewComponent, DocumentDomComponent],
@@ -40,7 +43,9 @@ import { ReaderService } from './services/reader.service';
     RouterModule.forChild(routes),
     VisibilityDirective,
     MatTooltipModule,
+    MatSlideToggleModule,
+    FormsModule,
   ],
-  providers: [ReaderService, LikerService],
+  providers: [ReaderService, LikerService, StatService],
 })
 export class PostModule {}

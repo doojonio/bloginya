@@ -15,11 +15,13 @@ async sub settings ($self) {
     $user{username} = $user->{username};
   }
 
-  my $se_post = $self->service('post');
+  my $se_cat = $self->service('category');
 
-  # my $categories = await $se_post->list_site_categories_p();
+  # TODO: move tag to settins
+  my $category_tag = 'langs';
+  my $cats         = await $se_cat->list_site_categories_by_tag_p($category_tag);
 
-  return $self->render(json => {user => %user ? \%user : undef});
+  return $self->render(json => {user => %user ? \%user : undef, categories => $cats});
 }
 
 

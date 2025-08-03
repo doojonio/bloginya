@@ -1,1 +1,3 @@
-<div [innerHTML]="getContent()"></div>
+<div
+    [class.rt-disabled]="!showRt()"
+[innerHTML]="getContent()"></div>

@@ -17,9 +17,18 @@
       {{ line }}<br />
       }
     </div>
+    @if (hasRt()) {
+    <div class="pinyin-hiragana-wrapper">
+      <mat-slide-toggle [(ngModel)]="showAsianHelpers" i18n
+        >P/F</mat-slide-toggle
+      >
+    </div>
+    }
     <app-document-dom
       class="content"
       [document]="p.document"
+      [showRt]="showAsianHelpers"
+      (hasRt)="hasRt.set($event)"
     ></app-document-dom>
 
     <div class="tags">
@@ -81,7 +90,13 @@
         </div>
         } }
       </div>
-      <div class="date">{{ p.date | date : "yyyy.MM.dd" }}</div>
+      <div class="post-add-info">
+        @if (currentUser$ | async; as user) { @if(user.role == UserRoles.OWNER)
+        {
+          <mat-icon>visibility</mat-icon>
+        {{ viewCount$ | async }} · } }
+        {{ p.date | date : "yyyy.MM.dd" }}
+      </div>
     </div>
   </div>
   @if (showComments) {

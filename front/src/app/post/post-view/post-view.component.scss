@@ -98,7 +98,7 @@
   }
 }
 
-.date {
+.post-add-info {
   color: var(--mat-sys-outline);
   font: var(--mat-sys-body-large);
   display: flex;
@@ -176,4 +176,12 @@ mat-divider {
     border-radius: 50%;
     margin-right: 0.5rem;
   }
+}
+
+.pinyin-hiragana-wrapper {
+  display: flex;
+  justify-content: right;
+  // margin-top: 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
 }
