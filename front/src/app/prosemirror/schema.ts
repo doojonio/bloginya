@@ -22,7 +22,7 @@ const ruby: MarkSpec = {
   ],
   toDOM(node) {
     const { rt } = node.attrs;
-    return ['ruby', ['span', 0], ['rt', rt]];
+    return ['ruby', ['span', 0], ['rt', { contenteditable: 'false', style: 'user-select: none;' }, rt]];
   },
 };
 

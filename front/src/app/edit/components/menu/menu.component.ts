@@ -1,4 +1,11 @@
-import { Component, computed, input, Signal, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  input,
+  output,
+  Signal,
+  signal,
+} from '@angular/core';
 import { Editor } from 'ngx-editor';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
@@ -23,7 +30,7 @@ import {
     >
       @for (item of [hiragana, pinyin]; track item.title) {
       <mat-button-toggle
-        (click)="item.onClick()"
+        (click)="asianHelperClicked.emit(item.key); item.onClick()"
         [value]="item.key"
         [value]="item.key"
         [title]="item.title"
@@ -63,6 +70,8 @@ export class MenuComponent {
   pinyin = new PinyinMenuItem(this.editor);
 
   asianHelpers = [this.hiragana, this.pinyin];
+
+  asianHelperClicked = output<string>();
 
   selectedAsianHelper = computed(() => {
     const hiragana = this.hiragana.isActive();

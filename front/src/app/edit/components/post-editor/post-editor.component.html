@@ -35,7 +35,10 @@
         ></ngx-editor-menu>
 
         <ng-template #customMenu>
-          <app-menu [editor]="editor"></app-menu>
+          <app-menu
+            [editor]="editor"
+            (asianHelperClicked)="asianHelperClicked.next()"
+          ></app-menu>
         </ng-template>
       </div>
       <ngx-editor [editor]="editor" formControlName="document"></ngx-editor>

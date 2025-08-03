@@ -22,7 +22,7 @@ import { Editor, Validators as EditorValidators } from 'ngx-editor';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { Router } from '@angular/router';
-import { BehaviorSubject, concat, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, concat, merge, of, Subject, throwError } from 'rxjs';
 import {
   catchError,
   debounceTime,
@@ -200,6 +200,8 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     });
   }
 
+  asianHelperClicked = new Subject<void>();
+
   ngOnInit(): void {
     this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
 
@@ -224,9 +226,8 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         });
       });
 
-    this.draft
-      .get('document')!
-      .valueChanges.pipe(
+    merge(this.draft.get('document')!.valueChanges, this.asianHelperClicked)
+      .pipe(
         takeUntil(this.destroy$),
         debounceTime(400),
         switchMap((_) =>

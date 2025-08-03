@@ -9,7 +9,7 @@ import { CoolAsiaService } from './cool-asia.service';
 @Injectable()
 export class AsianHelpersService {
   private readonly query = new SearchQuery({
-    search: '\\p{Script=Han}+',
+    search: '\\p{Script=Han}',
     regexp: true,
   });
   private readonly plugin = search({ initialQuery: this.query });
