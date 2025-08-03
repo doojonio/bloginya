@@ -2,7 +2,7 @@ name: Deploy Dev
 
 on:
   workflow_run:
-    workflows: [Build Front Dev, Build Back Dev]
+    workflows: [Build Front Dev, Build Back Dev, Build CoolAsia Dev]
     types: [completed]
     branches:
       - develop
