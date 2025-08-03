@@ -154,7 +154,7 @@ export interface Social {
 
 export interface SettingsResponse {
   user: SettingsUser | null;
-  categories: Category;
+  categories: Category[];
   socials: Social;
 }
 

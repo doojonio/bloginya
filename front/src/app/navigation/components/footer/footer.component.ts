@@ -1,5 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { AppService } from '../../../shared/services/app.service';
+import { TaggedCategoriesService } from '../../../shared/services/tagged-categories.service';
 
 @Component({
   selector: 'app-footer',
@@ -10,9 +11,12 @@ import { AppService } from '../../../shared/services/app.service';
 export class FooterComponent {
   mode = input<'light' | 'dark'>('light');
 
+  taggedCatS = inject(TaggedCategoriesService);
+
   private appService = inject(AppService);
   socials$ = this.appService.getSocials();
   appName$ = this.appService.getAppName();
+  categories$ = this.taggedCatS.getBlogCategories();
 
   currentYear = new Date().getFullYear();
   isHandset$ = this.appService.isHandset();

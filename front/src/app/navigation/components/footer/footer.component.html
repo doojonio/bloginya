@@ -20,11 +20,11 @@
       <div class="columns">
         <div class="column" [class.column-50]="isHandset$ | async">
           <p class="column-title">5 Languages</p>
-          <a routerLink="/korean">Korean</a>
-          <a routerLink="/chinese">Chinese</a>
-          <a routerLink="/english">English</a>
-          <a routerLink="/japanese">Japanese</a>
-          <a routerLink="/russian">Russian</a>
+          @for (cat of (categories$ | async); track cat.id) {
+          <a routerLink="/{{ cat.name ? cat.name : `c/${cat.id}` }}">{{
+            cat.title
+          }}</a>
+          }
         </div>
         <div class="column" [class.column-50]="isHandset$ | async">
           <p class="column-title">About</p>
@@ -44,9 +44,7 @@
       </div>
 
       <ng-template #socials>
-        <div
-          class="socials"
-        >
+        <div class="socials">
           @for (item of (socials$|async); track item.href) {
           <a href="{{ item.href }}"
             ><mat-icon [svgIcon]="item.icon"></mat-icon
