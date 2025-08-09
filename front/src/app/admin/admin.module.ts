@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { NgModule } from '@angular/core';
 
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MaybeShortnamePipe } from '../shared/pipes/maybe-shortname.pipe';
@@ -20,6 +21,7 @@ import { UsersService } from './services/users.service';
     DatePipe,
     MatIconModule,
     MaybeShortnamePipe,
+    MatCardModule,
   ],
 })
 export class AdminModule {}

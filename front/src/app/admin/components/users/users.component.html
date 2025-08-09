@@ -1,4 +1,23 @@
 <h1>Users</h1>
+
+@if (isHandset$ | async ) { @for (user of users$ | async; track user) {
+
+<mat-card>
+  <mat-card-content>
+    <p><strong>ID:</strong> {{ user.id }}</p>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Role:</strong> {{ user.role }}</p>
+    <p><strong>Status:</strong> {{ user.status }}</p>
+    <p><strong>Comments:</strong> {{ user.comments_count }}</p>
+    <p><strong>Posts:</strong> {{ user.posts_count }}</p>
+    <p><strong>Likes:</strong> {{ user.likes_count }}</p>
+    <p><strong>Created At:</strong> {{ user.created_at | date }}</p>
+  </mat-card-content>
+</mat-card>
+
+} } @else {
+
 <table mat-table [dataSource]="users$" class="mat-elevation-z8">
   <ng-container matColumnDef="id">
     <th mat-header-cell *matHeaderCellDef>No.</th>
@@ -58,3 +77,5 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 </table>
+
+}
