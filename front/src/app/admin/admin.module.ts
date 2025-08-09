@@ -1,14 +1,23 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { NgModule } from '@angular/core';
 
+import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { AdminRoutingModule } from './admin-routing.module';
+import { CategoriesComponent } from './components/categories/categories.component';
+import { RootComponent } from './components/root/root.component';
 import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 
 @NgModule({
-  declarations: [UsersComponent],
+  declarations: [UsersComponent, RootComponent, CategoriesComponent],
   providers: [UsersService],
-  imports: [CommonModule, AdminRoutingModule, MatTableModule, DatePipe],
+  imports: [
+    CommonModule,
+    AdminRoutingModule,
+    MatTableModule,
+    DatePipe,
+    MatIconModule,
+  ],
 })
 export class AdminModule {}

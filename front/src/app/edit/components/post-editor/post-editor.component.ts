@@ -50,6 +50,7 @@ import {
   PostStatuses,
 } from '../../../shared/interfaces/entities.interface';
 import { AppService } from '../../../shared/services/app.service';
+import { CategoryService } from '../../../shared/services/category.service';
 import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
@@ -77,6 +78,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly picS = inject(PictureService);
   private readonly asianS = inject(AsianHelpersService);
+  private readonly categoriesS = inject(CategoryService);
 
   readonly dialog = inject(MatDialog);
 
@@ -99,7 +101,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   updateCategories$ = new BehaviorSubject(1);
   categories$ = this.updateCategories$.pipe(
-    switchMap((_) => this.editS.getCategories())
+    switchMap((_) => this.categoriesS.getCategories())
   );
 
   tags = signal<string[]>([]);

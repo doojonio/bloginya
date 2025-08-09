@@ -1,7 +1,13 @@
 <div class="container-outer">
   @if (cat(); as cat) {
   <div class="title-container">
-    <p>{{ cat.title }}</p>
+    <p>
+      {{ cat.title }}
+
+      @if (cat.status == CategoryStatuses.Private) {
+      <mat-icon inline>lock</mat-icon>
+      }
+    </p>
 
     @if (( user$ | async )?.role == UserRoles.OWNER) {
     <button matIconButton (click)="editCategory()">

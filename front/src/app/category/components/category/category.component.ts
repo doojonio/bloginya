@@ -3,7 +3,10 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
-import { UserRoles } from "../../../shared/interfaces/entities.interface";
+import {
+  CategoryStatuses,
+  UserRoles,
+} from '../../../shared/interfaces/entities.interface';
 import {
   CategoryService,
   LoadCategoryResponse,
@@ -32,6 +35,7 @@ export class CategoryComponent {
   user$ = this.userService.getCurrentUser();
 
   SortBy = SortBy;
+  CategoryStatuses = CategoryStatuses;
 
   catIdSub = combineLatest([
     toObservable(this.catId),

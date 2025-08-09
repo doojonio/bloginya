@@ -1,16 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UsersComponent } from './components/users/users.component';
+import { RootComponent } from './components/root/root.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/nimda/users',
-    pathMatch: 'full',
-  },
-  {
-    path: 'users',
-    component: UsersComponent,
+    component: RootComponent,
   },
 ];
 

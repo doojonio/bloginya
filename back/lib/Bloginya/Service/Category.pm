@@ -52,7 +52,10 @@ async sub update_p ($self, $id, $vals) {
   await $self->se_shortname->set_shortname_for_category($id, $vals->{shortname});
 
   if ($fields{status} eq 'private') {
-    await $self->_make_all_category_posts_private_p($id);
+    await $self->_set_posts_status_p($id, 'pub', 'private');
+  }
+  elsif ($fields{status} eq 'pub') {
+    await $self->_set_posts_status_p($id, 'private', 'pub');
   }
 
   $tx->commit;
@@ -61,12 +64,12 @@ async sub update_p ($self, $id, $vals) {
   return $id;
 }
 
-async sub _make_all_category_posts_private_p($self, $category_id) {
-  $self->log->debug("Setting all posts in category $category_id to private status");
+async sub _set_posts_status_p($self, $category_id, $old_status, $new_status) {
+  $self->log->debug("Setting posts status from '$old_status' to '$new_status' for category $category_id");
 
-  await $self->db->update_p('posts', {status => 'private'}, {category_id => $category_id, status => 'pub'});
+  await $self->db->update_p('posts', {status => $new_status}, {category_id => $category_id, status => $old_status});
+  $self->log->info("Posts status updated for category $category_id");
 
-  $self->log->info("Successfully set all posts in category $category_id to private");
   return 1;
 }
 
@@ -103,7 +106,15 @@ async sub get_by_title_p($self, $title) {
 async sub list_all_categories_p($self) {
   die 'no rights' unless $self->se_policy->can_change_categories;
   $self->log->debug("Listing all categories");
-  my $cats = (await $self->db->select_p('categories', [qw(id title status)]))->hashes;
+  my $cats = (await $self->db->select_p(
+    [\'categories c', [-left => \'shortnames sn', 'c.id' => 'sn.category_id'],],
+    [
+      'c.id', 'c.title', 'c.status', 'sn.name', \'(
+        select coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from category_tags ct join tags t on t.id = ct.tag_id where ct.category_id = c.id
+      ) as tags'
+    ],
+  ))->hashes;
   $self->log->info("Found " . scalar(@$cats) . " categories in total");
   return $cats;
 }
@@ -166,7 +177,7 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
     die 'not found';
   }
 
-  my $status = delete($cat->{status});
+  my $status = $cat->{status};
   if (($status eq 'private') && !$self->se_policy->can_change_categories) {
     $self->log->warn("Attempted to load private category with id $id");
     die 'not found';

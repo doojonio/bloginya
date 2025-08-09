@@ -14,6 +14,10 @@ export class CategoryService {
 
   constructor(private readonly http: HttpClient) {}
 
+  getCategories() {
+    return this.http.get<GetCategoriesItem[]>('/api/categories/list');
+  }
+
   loadCategory(id: string, page?: number, sortBy?: SortBy) {
     return this.http
       .get<LoadCategoryResponse>('/api/categories/load', {
@@ -105,6 +109,7 @@ export interface LoadCategoryResponse {
   title: string;
   name: string | null;
   sort: SortBy;
+  status: CategoryStatuses;
   posts_num: number;
   page: number;
   grid_posts: PostCategoryGrid[];
@@ -120,4 +125,12 @@ export enum SortBy {
   OLDEST = 'published_at',
   NEWEST = '!published_at',
   POPULAR = '!popularity',
+}
+
+export interface GetCategoriesItem {
+  id: string;
+  title: string;
+  status: CategoryStatuses;
+  name: string | null;
+  tags: string[];
 }

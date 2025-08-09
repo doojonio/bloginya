@@ -5,7 +5,6 @@ import { NotifierService } from '../../shared/services/notifier.service';
 import {
   ApplyChangesPayload,
   GetForEditResponse,
-  GetCategoriesItem,
   UpdateDraftPayload,
 } from '../edit.interface';
 
@@ -14,14 +13,16 @@ export class EditorService {
   private readonly http = inject(HttpClient);
   private readonly notifierS = inject(NotifierService);
 
-  getCategories() {
-    return this.http.get<GetCategoriesItem[]>('/api/categories/list');
-  }
-
   getForEdit(postId: string) {
-    return this.http.get<GetForEditResponse>('/api/posts/for_edit', {
-      params: { id: postId },
-    }).pipe(catchError((err: HttpErrorResponse) => throwError(() => this.notifierS.mapError(err))));
+    return this.http
+      .get<GetForEditResponse>('/api/posts/for_edit', {
+        params: { id: postId },
+      })
+      .pipe(
+        catchError((err: HttpErrorResponse) =>
+          throwError(() => this.notifierS.mapError(err))
+        )
+      );
   }
 
   updateDraft(postId: string, fields: UpdateDraftPayload, notifyError = true) {
