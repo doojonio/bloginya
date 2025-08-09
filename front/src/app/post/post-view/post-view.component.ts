@@ -20,7 +20,10 @@ import {
   tap,
   timer,
 } from 'rxjs';
-import { UserRoles } from '../../shared/interfaces/entities.interface';
+import {
+  PostStatuses,
+  UserRoles,
+} from '../../shared/interfaces/entities.interface';
 import { AppService } from '../../shared/services/app.service';
 import { PictureService } from '../../shared/services/picture.service';
 import { SeoService } from '../../shared/services/seo.service';
@@ -45,6 +48,7 @@ export class PostViewComponent {
   private readonly statS = inject(StatService);
 
   UserRoles = UserRoles;
+  PostStatuses = PostStatuses;
 
   currentUser$ = this.usersService.getCurrentUser();
 

@@ -72,7 +72,7 @@ async sub read_p($self, $post_id) {
   my @select = (
 
     # --- Core Post Fields ---
-    qw(p.id p.title p.document p.description p.enable_likes p.enable_comments psn.name),
+    qw(p.id p.title p.document p.status p.description p.enable_likes p.enable_comments psn.name),
     [\'coalesce(p.published_at, p.created_at)', 'date'],    # Use created_at as fallback for date
     [\"p.meta->>'ttr'", 'ttr'], [\"p.meta->>'pics'", 'pics'],
 

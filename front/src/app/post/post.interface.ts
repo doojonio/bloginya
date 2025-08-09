@@ -1,9 +1,11 @@
+import { PostStatuses } from '../shared/interfaces/entities.interface';
 
 export interface ReadPostResponse {
   id: string;
   name: string | null;
   title: string;
   document: any;
+  status: PostStatuses;
   description: string;
   enable_likes: boolean;
   enable_comments: boolean;
