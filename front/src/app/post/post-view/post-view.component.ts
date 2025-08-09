@@ -61,9 +61,11 @@ export class PostViewComponent {
 
   post = model.required<ReadPostResponse>();
 
-  sendStatByIdSubs = toObservable(this.post)
+  sendStatByIdSubs = combineLatest([this.currentUser$, toObservable(this.post)])
     .pipe(
       takeUntilDestroyed(),
+      filter(([u]) => u?.role != UserRoles.OWNER),
+      map((arr) => arr[1]),
       filter(Boolean),
       switchMap((post) => {
         return this.statS
