@@ -1,4 +1,4 @@
--- 2 up
+-- 3 up
 alter type post_status
 add value 'private';
 
@@ -7,6 +7,8 @@ create type category_status as enum('pub', 'private');
 alter table categories
 add column status category_status not null default 'pub';
 
+-- 2 up
+select 'fucked up migration';
 -- 1 up
 create extension if not exists "uuid-ossp";
 
