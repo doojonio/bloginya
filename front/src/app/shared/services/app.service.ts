@@ -11,8 +11,8 @@ import {
   Subject,
 } from 'rxjs';
 import { Category } from '../../home/home.interface';
-import { PostStatuses } from '../interfaces/post-statuses.interface';
-import { UserRoles } from '../interfaces/user-roles.interface';
+import { PostStatuses } from '../interfaces/entities.interface';
+import { UserRoles } from "../interfaces/entities.interface";
 
 @Injectable({
   providedIn: 'root',

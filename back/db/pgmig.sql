@@ -1,6 +1,11 @@
 -- 2 up
+alter type post_status
+add value 'private';
 
--- 2 down
+create type category_status as enum('pub', 'private');
+
+alter table categories
+add column status category_status not null default 'pub';
 
 -- 1 up
 create extension if not exists "uuid-ossp";
@@ -232,4 +237,3 @@ create table
     );
 
 create index user_action_log_user_id_idx on user_action_log (user_id);
-

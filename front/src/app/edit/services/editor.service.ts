@@ -21,7 +21,7 @@ export class EditorService {
   getForEdit(postId: string) {
     return this.http.get<GetForEditResponse>('/api/posts/for_edit', {
       params: { id: postId },
-    });
+    }).pipe(catchError((err: HttpErrorResponse) => throwError(() => this.notifierS.mapError(err))));
   }
 
   updateDraft(postId: string, fields: UpdateDraftPayload, notifyError = true) {

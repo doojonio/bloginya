@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserRoles } from '../../../shared/interfaces/user-roles.interface';
+import { UserRoles } from "../../../shared/interfaces/entities.interface";
 import { TaggedCategoriesService } from '../../../shared/services/tagged-categories.service';
 import { UserService } from '../../../shared/services/user.service';
 import { NewDraftService } from '../../services/new-draft.service';

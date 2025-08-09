@@ -330,7 +330,7 @@ async sub _update_meta_from_content_p($self, $post_id) {
 
   my $row = (await $self->db->select_p(
     ['posts',    [-left => \'categories c', 'c.id' => 'posts.category_id']],
-    ['document', 'posts.title', ['c.title' => 'ctitle'], map {"posts.$_"} @picture_cols],
+    ['document', 'posts.title', ['c.title' => 'ctitle'], ['c.status' => 'cstatus'], map {"posts.$_"} @picture_cols],
     {'posts.id' => $post_id},
   ))->expand->hashes->first;
   die "not found post $post_id" unless $row;
@@ -377,12 +377,15 @@ async sub _update_meta_from_content_p($self, $post_id) {
     {on_conflict => [['post_id', 'lcode'] => {fts => \'EXCLUDED.fts'}]},
   );
   await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => $img_ids}});
+
+  my $category_status = $row->{cstatus};
   await $self->db->update_p(
     'posts',
     {
       meta        => {-json => {ttr => $ttr, pics => $pics_num}},
       picture_pre => $picture_pre // $row->{picture_wp},
-      description => $descr
+      description => $descr,
+      ($category_status eq 'private') ? (status => 'private') : (),
     },
     {id => $post_id}
   );
@@ -430,8 +433,8 @@ async sub list_new_posts_p($self, $limit = 8) {
       ['upre.id' => 'picture_pre'], 'p.title',
       'p.created_at',               'sn.name'
     ],
-    {'status' => POST_STATUS_PUB},
-    {order_by => \'p.published_at desc nulls last', limit => $limit}
+    {'p.status' => POST_STATUS_PUB},
+    {order_by   => \'p.published_at desc nulls last', limit => $limit}
   );
 
   return $res->hashes;

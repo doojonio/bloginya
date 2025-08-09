@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { take, tap, timer } from 'rxjs';
-import { UserRoles } from '../../shared/interfaces/user-roles.interface';
+import { UserRoles } from "../../shared/interfaces/entities.interface";
 import { UserService } from '../../shared/services/user.service';
 import { CommentsService } from '../comments.service';
 import { CommentsComponent } from '../comments/comments.component';

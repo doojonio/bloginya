@@ -13,9 +13,10 @@ use constant _Query => __PACKAGE__ . '::_Query';
 has 'db';
 has 'redis';
 has 'log';
+has 'current_user';
 
 async sub search_p ($self, $query) {
-  $query = _Query->new($query, $self->log);
+  $query = _Query->new(q => $query, log => $self->log, current_user => $self->current_user);
 
   my ($stmt, @binds) = $query->stmt;
 
@@ -31,9 +32,11 @@ package Bloginya::Service::Search::_Query {
 
   use SQL::Abstract::Pg     ();
   use Bloginya::Model::Post qw(POST_STATUS_PUB);
+  use Bloginya::Model::User qw(USER_ROLE_OWNER);
 
   has 'q';
   has 'log';
+  has 'current_user';
 
   has stmt_posts => sub {
     +{
@@ -87,7 +90,7 @@ package Bloginya::Service::Search::_Query {
         ', $_[0]->q
         ]
       ],
-      where => {-and => []},
+      where => {'c.status' => 'pub', -and => []},
       opts  => {},
 
     };
@@ -98,11 +101,6 @@ package Bloginya::Service::Search::_Query {
   has tags  => sub { my @tags  = $_[0]->q =~ /(?<!\w)#(\w{2,})/g; \@tags };
 
   has abstract => sub { SQL::Abstract::Pg->new(array_datatypes => 1, name_sep => '.', quote_char => '"') };
-
-  sub new ($class, $q, $log) {
-    die 'invalid length' if length($q) < 3;
-    $class->SUPER::new(q => $q, log => $log);
-  }
 
   sub stmt ($self) {
     $self->fill_filters;
@@ -123,6 +121,7 @@ package Bloginya::Service::Search::_Query {
 
   sub fill_filters ($self) {
     for (qw(
+      status
       words
       tags
     ))
@@ -130,6 +129,16 @@ package Bloginya::Service::Search::_Query {
       my $method = "_filter_$_";
       $self->$method();
     }
+  }
+
+  sub _filter_status ($self) {
+
+    my $current_user = $self->current_user;
+    if ($current_user->{role} eq USER_ROLE_OWNER) {
+      delete $self->stmt_posts->{where}{'p.status'};
+      delete $self->stmt_cats->{where}{'c.status'};
+    }
+
   }
 
   sub _filter_words ($self) {

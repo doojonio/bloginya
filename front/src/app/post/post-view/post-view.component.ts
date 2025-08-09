@@ -20,7 +20,7 @@ import {
   tap,
   timer,
 } from 'rxjs';
-import { UserRoles } from '../../shared/interfaces/user-roles.interface';
+import { UserRoles } from '../../shared/interfaces/entities.interface';
 import { AppService } from '../../shared/services/app.service';
 import { PictureService } from '../../shared/services/picture.service';
 import { SeoService } from '../../shared/services/seo.service';
@@ -75,8 +75,10 @@ export class PostViewComponent {
 
   viewCount$ = combineLatest([this.currentUser$, toObservable(this.post)]).pipe(
     filter(([user, _]) => user?.role == UserRoles.OWNER),
-    switchMap(([_, post]) => this.statS.getViews(post.id).pipe(catchError(() => of(null)))),
-    map(views => views ? views.short_views : 0)
+    switchMap(([_, post]) =>
+      this.statS.getViews(post.id).pipe(catchError(() => of(null)))
+    ),
+    map((views) => (views ? views.short_views : 0))
   );
 
   showAsianHelpers = false;

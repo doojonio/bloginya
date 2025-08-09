@@ -3,7 +3,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { combineLatest, filter, switchMap } from 'rxjs';
-import { UserRoles } from '../../../shared/interfaces/user-roles.interface';
+import { UserRoles } from "../../../shared/interfaces/entities.interface";
 import {
   CategoryService,
   LoadCategoryResponse,

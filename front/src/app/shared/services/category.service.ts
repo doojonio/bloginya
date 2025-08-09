@@ -1,19 +1,32 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { PostMed } from '../components/post-med/post-med.component';
+import { CategoryStatuses } from '../interfaces/entities.interface';
 import { NotifierService } from './notifier.service';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private readonly notifierS = inject(NotifierService);
+  // router
+  private readonly router = inject(Router);
 
   constructor(private readonly http: HttpClient) {}
 
   loadCategory(id: string, page?: number, sortBy?: SortBy) {
-    return this.http.get<LoadCategoryResponse>('/api/categories/load', {
-      params: { id, page: page || 0, sort: sortBy || SortBy.NEWEST },
-    });
+    return this.http
+      .get<LoadCategoryResponse>('/api/categories/load', {
+        params: { id, page: page || 0, sort: sortBy || SortBy.NEWEST },
+      })
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          if (err.status == 404) {
+            this.router.navigate(['/', 'not-found']);
+          }
+          throw err;
+        })
+      );
   }
 
   getForEdit(id: string) {
@@ -68,14 +81,7 @@ export interface GetCategoryByTitleResponse {
 
 export interface UpdateCategoryPayload {
   title: string;
-  description: string | null;
-  parent_id?: string | null;
-  priority?: number | null;
-  shortname: string | null;
-  tags: string[];
-}
-export interface CategoryPayload {
-  title: string;
+  status: CategoryStatuses;
   description: string | null;
   parent_id?: string | null;
   priority?: number | null;
@@ -89,6 +95,7 @@ export interface AddCategoryResponse {
 export interface GetForEditResponse {
   id: string;
   title: string;
+  status: CategoryStatuses;
   description: string;
   shortname: string | null;
   tags: string[];

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { UserRoles } from '../../shared/interfaces/user-roles.interface';
+import { UserRoles } from "../../shared/interfaces/entities.interface";
 
 @Injectable()
 export class UsersService {
