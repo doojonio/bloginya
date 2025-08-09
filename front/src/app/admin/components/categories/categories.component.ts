@@ -9,7 +9,7 @@ import { CategoryService } from '../../../shared/services/category.service';
 
     <div class="categories-container">
       @for (category of (categories$ | async); track category.id) {
-      <div class="category-item" [routerLink]="['/c', category.id]">
+      <div class="category-item" [routerLink]="category | maybeShortname: 'c'">
         <span
           >{{ category.title }}
 

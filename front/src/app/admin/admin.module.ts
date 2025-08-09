@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MaybeShortnamePipe } from '../shared/pipes/maybe-shortname.pipe';
 import { AdminRoutingModule } from './admin-routing.module';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { RootComponent } from './components/root/root.component';
@@ -18,6 +19,7 @@ import { UsersService } from './services/users.service';
     MatTableModule,
     DatePipe,
     MatIconModule,
+    MaybeShortnamePipe,
   ],
 })
 export class AdminModule {}
