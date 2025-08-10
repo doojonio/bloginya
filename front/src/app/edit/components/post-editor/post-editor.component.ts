@@ -294,6 +294,10 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   saveDraft(form: any) {
+    if (!this.isValidDocument(form.document)) {
+      return throwError(() => new Error('Invalid document'));
+    }
+
     return this.editS
       .updateDraft(this.postId(), {
         title: form.title,
@@ -483,5 +487,20 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     );
 
     return http$;
+  }
+
+  isValidDocument(document: any) {
+    try {
+      customSchema.nodeFromJSON(
+        JSON.parse(JSON.stringify(document))
+      ).check();
+    } catch (error) {
+      this.notifierS.notify(
+        `Bad Document! Contact Developer! (error: ${error})`
+      );
+      return null;
+    }
+
+    return true;
   }
 }
