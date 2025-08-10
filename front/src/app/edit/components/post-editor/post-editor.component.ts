@@ -62,6 +62,7 @@ import {
 import { AsianHelpersService } from '../../services/asian-helpers.service';
 import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
+import { rtSkipKey, rtSkipPlugin } from '../../prosemirror/rt-skip.plugin';
 
 @Component({
   selector: 'app-post-editor',
@@ -130,15 +131,15 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     enableComments: new FormControl(true, [Validators.required]),
   });
 
-  conf = {
+  editor = new Editor({
     plugins: [
       placeholderPlugin,
       this.asianS.getSearchPlugin(),
       helperMarkPlugin,
+      rtSkipPlugin,
     ],
     schema: customSchema,
-  };
-  editor = new Editor(this.conf);
+  });
 
   picture_wp$ = this.draft.get('picture_wp')!.valueChanges.pipe(shareReplay(1));
 
@@ -272,19 +273,21 @@ export class PostEditorComponent implements OnInit, OnDestroy {
           (c) => c.id === selectedCategoryId
         );
         const statusControl = this.meta.get('status')!;
-        if (
-          selectedCategory?.status == CategoryStatuses.Private &&
-          (statusControl.value !== PostStatuses.Private ||
-            statusControl.enabled)
-        ) {
-          statusControl.setValue(PostStatuses.Private, { emitEvent: false });
+        if (selectedCategory?.status == CategoryStatuses.Private) {
+          if (statusControl.value !== PostStatuses.Private) {
+            statusControl.setValue(PostStatuses.Private, { emitEvent: false });
+          }
+          if (statusControl.enabled) {
+          }
           statusControl.disable({ emitEvent: false });
         } else {
           if (statusControl.value === PostStatuses.Private) {
             statusControl.setValue(PostStatuses.Draft, { emitEvent: false });
           }
 
-          statusControl.enable({ emitEvent: false });
+          if (statusControl.disabled) {
+            statusControl.enable({ emitEvent: false });
+          }
         }
 
         statusControl.updateValueAndValidity({ emitEvent: false });

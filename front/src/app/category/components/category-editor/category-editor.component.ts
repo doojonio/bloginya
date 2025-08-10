@@ -134,7 +134,7 @@ export class CategoryEditorComponent implements OnInit, OnDestroy {
 
     const value = this.form.value;
 
-    if (this.data.id) {
+    if (this.data?.id) {
       this.categoriesSerivce
         .updateCategory(this.data.id, {
           title: value.title || '',
