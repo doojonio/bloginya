@@ -1,6 +1,5 @@
 import {
   Component,
-  computed,
   HostListener,
   inject,
   input,
@@ -19,6 +18,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { Editor, Validators as EditorValidators } from 'ngx-editor';
 
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { Router } from '@angular/router';
 import {
@@ -36,7 +36,6 @@ import {
   filter,
   finalize,
   map,
-  share,
   shareReplay,
   skip,
   switchMap,
@@ -95,8 +94,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   attachmentLoading = false;
 
   postId = input.required<string>();
-  savedPost$ = computed(() =>
-    this.editS.getForEdit(this.postId()).pipe(share())
+  savedPost$ = toObservable(this.postId).pipe(
+    switchMap((postId) => this.editS.getForEdit(this.postId())),
+    shareReplay(1)
   );
 
   updateCategories$ = new BehaviorSubject(1);
@@ -193,26 +193,24 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
 
-    this.savedPost$()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((post) => {
-        this.draft.setValue({
-          title: post.title || '',
-          document: post.document,
-          picture_wp: this.picS.variant(post.picture_wp, 'medium'),
-        });
-
-        this.tags.set(post.tags);
-        this.meta.setValue({
-          tags: post.tags,
-          status: post.status,
-          category_id: post.category_id || null,
-          // TODO
-          shortname: post.shortname,
-          enableLikes: post.enable_likes,
-          enableComments: post.enable_comments,
-        });
+    this.savedPost$.pipe(takeUntil(this.destroy$)).subscribe((post) => {
+      this.draft.setValue({
+        title: post.title || '',
+        document: post.document,
+        picture_wp: this.picS.variant(post.picture_wp, 'medium'),
       });
+
+      this.tags.set(post.tags);
+      this.meta.setValue({
+        tags: post.tags,
+        status: post.status,
+        category_id: post.category_id || null,
+        // TODO
+        shortname: post.shortname,
+        enableLikes: post.enable_likes,
+        enableComments: post.enable_comments,
+      });
+    });
 
     merge(this.draft.get('document')!.valueChanges, this.asianHelperClicked)
       .pipe(
@@ -491,9 +489,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   isValidDocument(document: any) {
     try {
-      customSchema.nodeFromJSON(
-        JSON.parse(JSON.stringify(document))
-      ).check();
+      customSchema.nodeFromJSON(JSON.parse(JSON.stringify(document))).check();
     } catch (error) {
       this.notifierS.notify(
         `Bad Document! Contact Developer! (error: ${error})`
