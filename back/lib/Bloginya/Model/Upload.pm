@@ -17,8 +17,9 @@ use constant SIZES => {
   'pre140'    => {size => 140,  square  => 1, gifable => 1, quality => 60},
   'pre280'    => {size => 280,  square  => 1, gifable => 1, quality => 60},
   'pre450'    => {size => 450,  square  => 1, gifable => 1, quality => 60},
-  'medium'    => {size => 880,  gifable => 1, quality => 80},
-  'large'     => {size => 1600, gifable => 1, quality => 90}
+  'pre450_95' => {size => 450,  square  => 1, gifable => 1, quality => 95},
+  'medium'    => {size => 880,  gifable => 1, quality => 95},
+  'large'     => {size => 1600, gifable => 1, quality => 95}
 };
 
 

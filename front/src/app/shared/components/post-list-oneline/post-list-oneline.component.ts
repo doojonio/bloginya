@@ -54,7 +54,7 @@ export class PostListOnelineComponent {
 
   private readonly picS = inject(PictureService);
   getPostPreStyle(post: PostOneLinePost) {
-    return { background: this.picS.picStyle(post.picture_pre, 'pre280') };
+    return { background: this.picS.picStyle(post.picture_pre, 'pre450_95') };
   }
 
   /* DEKSTOP
