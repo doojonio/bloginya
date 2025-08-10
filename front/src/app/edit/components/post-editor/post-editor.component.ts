@@ -62,7 +62,6 @@ import {
 import { AsianHelpersService } from '../../services/asian-helpers.service';
 import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
-import { rtSkipKey, rtSkipPlugin } from '../../prosemirror/rt-skip.plugin';
 
 @Component({
   selector: 'app-post-editor',
@@ -136,7 +135,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       placeholderPlugin,
       this.asianS.getSearchPlugin(),
       helperMarkPlugin,
-      rtSkipPlugin,
+      // rtSkipPlugin,
     ],
     schema: customSchema,
   });
