@@ -26,6 +26,7 @@ export type VARIANT =
   | 'pre140'
   | 'pre280'
   | 'pre450'
+  | 'pre450_95'
   | 'medium'
   | 'large'
   | 'original';

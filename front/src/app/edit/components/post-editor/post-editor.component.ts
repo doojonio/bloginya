@@ -1,6 +1,5 @@
 import {
   Component,
-  computed,
   HostListener,
   inject,
   input,
@@ -19,27 +18,38 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { Editor, Validators as EditorValidators } from 'ngx-editor';
 
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { Router } from '@angular/router';
-import { BehaviorSubject, concat, merge, of, Subject, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  concat,
+  merge,
+  of,
+  Subject,
+  throwError,
+} from 'rxjs';
 import {
   catchError,
   debounceTime,
   filter,
   finalize,
   map,
-  share,
   shareReplay,
   skip,
   switchMap,
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { NewCategoryDialogComponent } from '../../../category/category.module';
+import { CategoryEditorComponent } from '../../../category/components/category-editor/category-editor.component';
 import { customSchema } from '../../../prosemirror/schema';
-import { PostStatuses } from '../../../shared/interfaces/post-statuses.interface';
+import {
+  CategoryStatuses,
+  PostStatuses,
+} from '../../../shared/interfaces/entities.interface';
 import { AppService } from '../../../shared/services/app.service';
+import { CategoryService } from '../../../shared/services/category.service';
 import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
@@ -67,12 +77,14 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly picS = inject(PictureService);
   private readonly asianS = inject(AsianHelpersService);
+  private readonly categoriesS = inject(CategoryService);
 
   readonly dialog = inject(MatDialog);
 
   private destroy$ = new Subject<void>();
   STATUSES = [
     { name: $localize`Public`, value: PostStatuses.Pub },
+    { name: $localize`Private`, value: PostStatuses.Private },
     { name: $localize`Draft`, value: PostStatuses.Draft },
     { name: $localize`Del`, value: PostStatuses.Del },
   ];
@@ -82,13 +94,14 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   attachmentLoading = false;
 
   postId = input.required<string>();
-  savedPost$ = computed(() =>
-    this.editS.getForEdit(this.postId()).pipe(share())
+  savedPost$ = toObservable(this.postId).pipe(
+    switchMap((postId) => this.editS.getForEdit(this.postId())),
+    shareReplay(1)
   );
 
   updateCategories$ = new BehaviorSubject(1);
   categories$ = this.updateCategories$.pipe(
-    switchMap((_) => this.editS.getCategories())
+    switchMap((_) => this.categoriesS.getCategories())
   );
 
   tags = signal<string[]>([]);
@@ -117,15 +130,15 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     enableComments: new FormControl(true, [Validators.required]),
   });
 
-  conf = {
+  editor = new Editor({
     plugins: [
       placeholderPlugin,
       this.asianS.getSearchPlugin(),
       helperMarkPlugin,
+      // rtSkipPlugin,
     ],
     schema: customSchema,
-  };
-  editor = new Editor(this.conf);
+  });
 
   picture_wp$ = this.draft.get('picture_wp')!.valueChanges.pipe(shareReplay(1));
 
@@ -144,31 +157,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         : {}
     )
   );
-
-  titleControlSubs = this.draft
-    .get('title')!
-    .valueChanges.pipe(filter(Boolean))
-    .subscribe((title) => {
-      const lines = title.split('\n');
-      if (lines.length > 2) {
-        this.draft
-          .get('title')
-          ?.setValue(lines[0] + '\n' + lines.slice(1).join(''));
-      }
-    });
-
-  statusControlSubs = this.meta
-    .get('status')!
-    .valueChanges.pipe(takeUntilDestroyed())
-    .subscribe((status) => {
-      if (status == PostStatuses.Pub) {
-        this.meta.get('category_id')!.setValidators([Validators.required]);
-        this.meta.get('category_id')!.updateValueAndValidity();
-      } else {
-        this.meta.get('category_id')!.clearValidators();
-        this.meta.get('category_id')!.updateValueAndValidity();
-      }
-    });
 
   separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   isApplyDisabled = false;
@@ -189,7 +177,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   addNewCategory() {
-    const dialogRef = this.dialog.open(NewCategoryDialogComponent, {
+    const dialogRef = this.dialog.open(CategoryEditorComponent, {
       restoreFocus: false,
     });
     dialogRef.afterClosed().subscribe((resp) => {
@@ -205,26 +193,24 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
 
-    this.savedPost$()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((post) => {
-        this.draft.setValue({
-          title: post.title || '',
-          document: post.document,
-          picture_wp: this.picS.variant(post.picture_wp, 'medium'),
-        });
-
-        this.tags.set(post.tags);
-        this.meta.setValue({
-          tags: post.tags,
-          status: post.status,
-          category_id: post.category_id || null,
-          // TODO
-          shortname: post.shortname,
-          enableLikes: post.enable_likes,
-          enableComments: post.enable_comments,
-        });
+    this.savedPost$.pipe(takeUntil(this.destroy$)).subscribe((post) => {
+      this.draft.setValue({
+        title: post.title || '',
+        document: post.document,
+        picture_wp: this.picS.variant(post.picture_wp, 'medium'),
       });
+
+      this.tags.set(post.tags);
+      this.meta.setValue({
+        tags: post.tags,
+        status: post.status,
+        category_id: post.category_id || null,
+        // TODO
+        shortname: post.shortname,
+        enableLikes: post.enable_likes,
+        enableComments: post.enable_comments,
+      });
+    });
 
     merge(this.draft.get('document')!.valueChanges, this.asianHelperClicked)
       .pipe(
@@ -250,9 +236,66 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         )
       )
       .subscribe(() => {});
+
+    this.draft
+      .get('title')!
+      .valueChanges.pipe(filter(Boolean))
+      .subscribe((title) => {
+        const lines = title.split('\n');
+        if (lines.length > 2) {
+          this.draft
+            .get('title')
+            ?.setValue(lines[0] + '\n' + lines.slice(1).join(''));
+        }
+      });
+
+    combineLatest([this.categories$, this.meta.valueChanges])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([categories, meta]) => {
+        const status = meta.status;
+
+        const categoryIdControl = this.meta.get('category_id')!;
+        if (status == PostStatuses.Pub) {
+          categoryIdControl.setValidators([Validators.required]);
+        } else {
+          categoryIdControl.clearValidators();
+        }
+
+        categoryIdControl.updateValueAndValidity({ emitEvent: false });
+
+        if (!categories.length) return;
+
+        const selectedCategoryId = meta.category_id;
+        const selectedCategory = categories.find(
+          (c) => c.id === selectedCategoryId
+        );
+        const statusControl = this.meta.get('status')!;
+        if (selectedCategory?.status == CategoryStatuses.Private) {
+          if (statusControl.value !== PostStatuses.Private) {
+            statusControl.setValue(PostStatuses.Private, { emitEvent: false });
+          }
+          if (statusControl.enabled) {
+          }
+          statusControl.disable({ emitEvent: false });
+        } else {
+          if (statusControl.value === PostStatuses.Private) {
+            statusControl.setValue(PostStatuses.Draft, { emitEvent: false });
+          }
+
+          if (statusControl.disabled) {
+            statusControl.enable({ emitEvent: false });
+          }
+        }
+
+        statusControl.updateValueAndValidity({ emitEvent: false });
+      });
   }
 
   saveDraft(form: any) {
+    if (!this.isValidDocument(form.document)) {
+      return throwError(() => new Error('Invalid document'));
+    }
+
     return this.editS
       .updateDraft(this.postId(), {
         title: form.title,
@@ -442,5 +485,18 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     );
 
     return http$;
+  }
+
+  isValidDocument(document: any) {
+    try {
+      customSchema.nodeFromJSON(JSON.parse(JSON.stringify(document))).check();
+    } catch (error) {
+      this.notifierS.notify(
+        `Bad Document! Contact Developer! (error: ${error})`
+      );
+      return null;
+    }
+
+    return true;
   }
 }

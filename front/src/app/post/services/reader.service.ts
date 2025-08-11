@@ -1,5 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError } from 'rxjs';
 import { PostMed } from '../../shared/components/post-med/post-med.component';
 import { ReadPostResponse } from '../post.interface';
 
@@ -7,6 +9,8 @@ import { ReadPostResponse } from '../post.interface';
   providedIn: 'root',
 })
 export class ReaderService {
+  private readonly router = inject(Router);
+
   getLikedUsers(postId: string) {
     return this.http.get<GetLikedUsersItem[]>('/api/posts/liked_users', {
       params: { id: postId },
@@ -21,7 +25,17 @@ export class ReaderService {
   }
 
   readPost(id: string) {
-    return this.http.get<ReadPostResponse>('/api/posts', { params: { id } });
+    return this.http
+      .get<ReadPostResponse>('/api/posts', { params: { id } })
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          if (err.status == 404) {
+            this.router.navigate(['/', 'not-found']);
+          }
+
+          throw err;
+        })
+      );
   }
 }
 

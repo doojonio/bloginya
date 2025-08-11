@@ -1,4 +1,7 @@
-import { PostStatuses } from '../shared/interfaces/post-statuses.interface';
+import {
+  CategoryStatuses,
+  PostStatuses,
+} from '../shared/interfaces/entities.interface';
 
 export interface GetForEditResponse {
   user_id: string;
@@ -29,7 +32,3 @@ export interface UpdateDraftPayload {
   picture_pre?: string | null;
 }
 
-export interface GetCategoriesItem {
-  id: string;
-  title: string;
-}

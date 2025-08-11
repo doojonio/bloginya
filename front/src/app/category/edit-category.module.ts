@@ -1,6 +1,7 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -9,17 +10,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
-import { CategoryRoutingModule } from './category-routing.module';
-import { CategoryComponent } from './components/category/category.component';
-import { EditCategoryModule } from './edit-category.module';
+import { CategoryEditorComponent } from './components/category-editor/category-editor.component';
 
 @NgModule({
-  declarations: [CategoryComponent],
-  exports: [CategoryComponent],
+  declarations: [CategoryEditorComponent],
+  exports: [CategoryEditorComponent],
   imports: [
     MatDialogModule,
+    MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
@@ -32,8 +33,7 @@ import { EditCategoryModule } from './edit-category.module';
     MatIconModule,
     MatMenuModule,
     AsyncPipe,
-    EditCategoryModule,
-    CategoryRoutingModule,
+    MatAutocompleteModule,
   ],
 })
-export class CategoryModule {}
+export class EditCategoryModule {}

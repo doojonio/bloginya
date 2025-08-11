@@ -7,6 +7,7 @@ use Bloginya::Model::Post qw(
   POST_STATUS_DRAFT
   POST_STATUS_PUB
   POST_STATUS_DEL
+  POST_STATUS_PRIVATE
 );
 
 # schema tag => sub { defined($_[0]) && (2 <= length($_[0]) <= 16) };
@@ -14,7 +15,7 @@ use Bloginya::Model::Post qw(
 # schema title => sub { defined($_[0]) && (3 <= length($_[0]) <= 200) };
 
 schema post_status => sub {
-  $_[0] && any { $_ eq $_[0] } (POST_STATUS_DRAFT, POST_STATUS_PUB, POST_STATUS_DEL);
+  $_[0] && any { $_ eq $_[0] } (POST_STATUS_DRAFT, POST_STATUS_PUB, POST_STATUS_DEL, POST_STATUS_PRIVATE);
 };
 
 schema sname => sub {

@@ -15,25 +15,20 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { RouterModule } from '@angular/router';
 import { NgxEditorModule } from 'ngx-editor';
-import { NewCategoryDialogComponent } from '../category/category.module';
+import { EditCategoryModule } from '../category/edit-category.module';
 import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 import { MenuComponent } from './components/menu/menu.component';
 import { PostEditorComponent } from './components/post-editor/post-editor.component';
-import { routes } from './edit.routes';
+import { EditRoutingModule } from './edit-routing.module';
 import { AsianHelpersService } from './services/asian-helpers.service';
 import { CoolAsiaService } from './services/cool-asia.service';
 import { DriveService } from './services/drive.service';
 import { EditorService } from './services/editor.service';
 
 @NgModule({
-  declarations: [
-    PostEditorComponent,
-    NewCategoryDialogComponent,
-    MenuComponent,
-  ],
+  declarations: [PostEditorComponent, MenuComponent],
   providers: [
     EditorService,
     DriveService,
@@ -41,8 +36,9 @@ import { EditorService } from './services/editor.service';
     CoolAsiaService,
   ],
   imports: [
-    RouterModule.forChild(routes),
     CommonModule,
+    EditRoutingModule,
+    EditCategoryModule,
     MatButtonToggleModule,
     MatProgressSpinnerModule,
     NgxEditorModule,

@@ -17,6 +17,7 @@ import {
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { catchError, map, of, Subject, takeUntil } from 'rxjs';
+import { CategoryStatuses } from '../../../shared/interfaces/entities.interface';
 import { CategoryService } from '../../../shared/services/category.service';
 import { ShortnamesService } from '../../../shared/services/shortnames.service';
 
@@ -28,13 +29,21 @@ import { ShortnamesService } from '../../../shared/services/shortnames.service';
 })
 export class CategoryEditorComponent implements OnInit, OnDestroy {
   readonly dialogRef = inject(MatDialogRef<CategoryEditorComponent>);
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { id: string }) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { id?: string }) {}
 
   private readonly categoriesSerivce = inject(CategoryService);
   private readonly shortnamesService = inject(ShortnamesService);
 
+  STATUSES = [
+    { name: $localize`Public`, value: CategoryStatuses.Pub },
+    { name: $localize`Private`, value: CategoryStatuses.Private },
+  ];
+
   ngOnInit(): void {
+    if (!this.data?.id) {
+      return;
+    }
+
     this.categoriesSerivce
       .getForEdit(this.data?.id)
       .pipe(takeUntil(this.destroy$))
@@ -42,6 +51,7 @@ export class CategoryEditorComponent implements OnInit, OnDestroy {
         this.tags.set(cat.tags);
         this.form.setValue({
           title: cat.title,
+          status: cat.status,
           description: cat.description,
           tags: cat.tags,
           shortname: cat.shortname,
@@ -89,6 +99,7 @@ export class CategoryEditorComponent implements OnInit, OnDestroy {
       this.validateUniqueTitle.bind(this)
     ),
     description: new FormControl(''),
+    status: new FormControl(CategoryStatuses.Pub, Validators.required),
     tags: new FormControl<string[]>([]),
     shortname: new FormControl<null | string>(
       null,
@@ -122,17 +133,34 @@ export class CategoryEditorComponent implements OnInit, OnDestroy {
     }
 
     const value = this.form.value;
-    this.categoriesSerivce
-      .updateCategory(this.data.id, {
-        title: value.title || '',
-        description: value.description || null,
-        tags: value.tags || [],
-        shortname: value.shortname || null,
-      })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((resp) => {
-        this.dialogRef.close({ id: resp.id, ...value });
-      });
+
+    if (this.data?.id) {
+      this.categoriesSerivce
+        .updateCategory(this.data.id, {
+          title: value.title || '',
+          description: value.description || null,
+          tags: value.tags || [],
+          shortname: value.shortname || null,
+          status: value.status || CategoryStatuses.Pub,
+        })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((resp) => {
+          this.dialogRef.close({ id: resp.id, ...value });
+        });
+    } else {
+      this.categoriesSerivce
+        .addCategory({
+          title: value.title || '',
+          description: value.description || null,
+          tags: value.tags || [],
+          shortname: value.shortname || null,
+          status: value.status || CategoryStatuses.Pub,
+        })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((resp) => {
+          this.dialogRef.close({ id: resp.id, ...value });
+        });
+    }
   }
 
   validateUniqueTitle(control: AbstractControl) {

@@ -18,8 +18,8 @@ import { CommentsModule } from '../comments/comments.module';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 import { VisibilityDirective } from '../shared/directives/visibility.directive';
 import { DocumentDomComponent } from './document-dom/document-dom.component';
+import { PostRoutingModule } from './post-routing.module';
 import { PostViewComponent } from './post-view/post-view.component';
-import { routes } from './post.routes';
 import { LikerService } from './services/liker.service';
 import { ReaderService } from './services/reader.service';
 import { StatService } from './services/stat.service';
@@ -28,6 +28,7 @@ import { StatService } from './services/stat.service';
   declarations: [PostViewComponent, DocumentDomComponent],
   exports: [PostViewComponent],
   imports: [
+    PostRoutingModule,
     AsyncPipe,
     CommentsModule,
     CommonModule,
@@ -40,7 +41,6 @@ import { StatService } from './services/stat.service';
     MatProgressSpinnerModule,
     PostListMedComponent,
     RouterModule,
-    RouterModule.forChild(routes),
     VisibilityDirective,
     MatTooltipModule,
     MatSlideToggleModule,

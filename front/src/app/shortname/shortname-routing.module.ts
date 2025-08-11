@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { RootComponent } from './components/root/root.component';
+import { ShortnameComponent } from './shortname/shortname.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: RootComponent,
+    component: ShortnameComponent,
   },
 ];
 
@@ -13,4 +13,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class AdminRoutingModule {}
+export class ShortnameRoutingModule {}

@@ -17,7 +17,6 @@ sub startup ($self) {
     }
   );
 
-  # Default helpers
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::Log4perl');
   $self->plugin('Bloginya::Plugin::WebHelpers');

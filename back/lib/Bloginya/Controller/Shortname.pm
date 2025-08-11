@@ -31,7 +31,7 @@ async sub get_item_by_name($self) {
   }
   catch ($e) {
 
-    if ($e =~ /no right/) {
+    if ($e =~ /no right|not found/) {
       return $self->msg('Not Found', 404);
     }
     else {

@@ -14,7 +14,16 @@
   <div class="content-container">
     <div class="title">
       @for (line of p.title.split("\n"); track line) {
-      {{ line }}<br />
+      {{ line }}
+
+      @if ($last) { @if (p.status == PostStatuses.Draft) {
+      <mat-icon inline title="draft" i18n-title>edit</mat-icon>
+
+      } @if (p.status == PostStatuses.Private) {
+      <mat-icon inline title="private" i18n-title>lock</mat-icon>
+      } }
+
+      <br />
       }
     </div>
     @if (hasRt()) {
@@ -93,7 +102,7 @@
       <div class="post-add-info">
         @if (currentUser$ | async; as user) { @if(user.role == UserRoles.OWNER)
         {
-          <mat-icon>visibility</mat-icon>
+        <mat-icon>visibility</mat-icon>
         {{ viewCount$ | async }} · } }
         {{ p.date | date : "yyyy.MM.dd" }}
       </div>

@@ -3,7 +3,7 @@ use Mojo::Base -base, -signatures, -async_await;
 
 use List::Util qw(any);
 
-use Bloginya::Model::Post qw(POST_STATUS_PUB);
+use Bloginya::Model::Post qw(POST_STATUS_PUB POST_STATUS_PRIVATE);
 
 has 'db';
 has 'redis';
@@ -19,7 +19,7 @@ async sub create_p ($self, $vals) {
   $self->log->debug("Creating new category: '$vals->{title}'");
   my %fields = map { $_ => $vals->{$_} } grep {
     my $a = $_;
-    any { $_ eq $a } qw (title parent_id description priority)
+    any { $_ eq $a } qw (title parent_id description priority status)
   } keys %$vals;
 
   $self->log->trace("Category fields to insert: " . join(', ', keys %fields));
@@ -43,7 +43,7 @@ async sub update_p ($self, $id, $vals) {
   $self->log->debug("Updating category $id with title '$vals->{title}'");
   my %fields = map { $_ => $vals->{$_} } grep {
     my $a = $_;
-    any { $_ eq $a } qw (title parent_id description priority)
+    any { $_ eq $a } qw (title parent_id description priority status)
   } keys %$vals;
 
   my $tx = $self->db->begin;
@@ -51,10 +51,26 @@ async sub update_p ($self, $id, $vals) {
   await $self->se_tags->apply_tags_cat_p($id, $vals->{tags});
   await $self->se_shortname->set_shortname_for_category($id, $vals->{shortname});
 
+  if ($fields{status} eq 'private') {
+    await $self->_set_posts_status_p($id, 'pub', 'private');
+  }
+  elsif ($fields{status} eq 'pub') {
+    await $self->_set_posts_status_p($id, 'private', 'pub');
+  }
+
   $tx->commit;
 
   $self->log->info("Successfully updated category $id");
   return $id;
+}
+
+async sub _set_posts_status_p($self, $category_id, $old_status, $new_status) {
+  $self->log->debug("Setting posts status from '$old_status' to '$new_status' for category $category_id");
+
+  await $self->db->update_p('posts', {status => $new_status}, {category_id => $category_id, status => $old_status});
+  $self->log->info("Posts status updated for category $category_id");
+
+  return 1;
 }
 
 async sub get_for_edit_p ($self, $id) {
@@ -64,7 +80,7 @@ async sub get_for_edit_p ($self, $id) {
   my $cat = (await $self->db->select_p(
     [\'categories c', [-left => \'shortnames csn', 'csn.category_id' => 'c.id']],
     [
-      'c.id', 'c.title', 'c.description', ['csn.name' => 'shortname'], \'(
+      'c.id', 'c.title', 'c.description', 'c.status', ['csn.name' => 'shortname'], \'(
         select
           coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
         from category_tags ct join tags t on t.id = ct.tag_id
@@ -79,6 +95,7 @@ async sub get_for_edit_p ($self, $id) {
 }
 
 async sub get_by_title_p($self, $title) {
+  die 'no rights' unless $self->se_policy->can_change_categories;
   $self->log->debug("Getting category by title: '$title'");
   my $cat
     = (await $self->db->select_p('categories', [qw(title id priority description)], {title => $title}))->hashes->first;
@@ -87,8 +104,17 @@ async sub get_by_title_p($self, $title) {
 }
 
 async sub list_all_categories_p($self) {
+  die 'no rights' unless $self->se_policy->can_change_categories;
   $self->log->debug("Listing all categories");
-  my $cats = (await $self->db->select_p('categories', [qw(id title)]))->hashes;
+  my $cats = (await $self->db->select_p(
+    [\'categories c', [-left => \'shortnames sn', 'c.id' => 'sn.category_id'],],
+    [
+      'c.id', 'c.title', 'c.status', 'sn.name', \'(
+        select coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from category_tags ct join tags t on t.id = ct.tag_id where ct.category_id = c.id
+      ) as tags'
+    ],
+  ))->hashes;
   $self->log->info("Found " . scalar(@$cats) . " categories in total");
   return $cats;
 }
@@ -102,7 +128,8 @@ async sub list_site_categories_by_tag_p($self, $tag) {
       parent_id => undef,
       'c.id'    => {
         -in => \['(select category_id from category_tags ct join tags t on t.id = ct.tag_id where t.name = (?))', $tag]
-      }
+      },
+      'c.status' => 'pub',
     },
     {order_by => [\'priority asc nulls last', {-asc => 'created_at'}]}
 
@@ -137,14 +164,22 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
       qw(
         title
         id
+        c.status
         csn.name
-      ), \['(select count(*) from posts where category_id = c.id and status = (?)) as posts_num', POST_STATUS_PUB],
+      ),
+      \['(select count(*) from posts where category_id = c.id and posts.status = (?)) as posts_num', POST_STATUS_PUB],
     ],
     {id => $id}
   ))->hashes->first;
 
   unless ($cat) {
     $self->log->warn("Attempted to load non-existent category with id $id");
+    die 'not found';
+  }
+
+  my $status = $cat->{status};
+  if (($status eq 'private') && !$self->se_policy->can_change_categories) {
+    $self->log->warn("Attempted to load private category with id $id");
     die 'not found';
   }
 
@@ -179,7 +214,10 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
         where pt.post_id = p.id
       ) as tags', @add_select,
     ],
-    {'p.category_id' => $id, 'p.status' => POST_STATUS_PUB},
+    {
+      'p.category_id' => $id,
+      'p.status'      => {-in => [$status eq 'private' ? (POST_STATUS_PRIVATE, POST_STATUS_PUB) : POST_STATUS_PUB]}
+    },
     {order_by => $self->_map_cat_sort($sort), limit => PER_PAGE, offset => PER_PAGE * ($page // 0)}
   );
 

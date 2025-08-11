@@ -15,7 +15,14 @@
       <mat-error i18n>Title is already taken</mat-error>
       }
     </mat-form-field>
-    <br />
+    <mat-form-field>
+      <mat-label i18n>Status</mat-label>
+      <mat-select formControlName="status">
+        @for (status of STATUSES; track status.value ) {
+        <mat-option [value]="status.value">{{ status.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
     <mat-form-field>
       <mat-label>Description</mat-label>
       <textarea matInput formControlName="description"></textarea>
