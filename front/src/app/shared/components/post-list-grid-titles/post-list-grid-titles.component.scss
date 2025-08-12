@@ -1,23 +1,30 @@
 @use "mixins" as mixs;
 
-.item {
+.post-list-container {
   display: flex;
-  flex-flow: column;
-  height: 100%;
-  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-evenly;
 }
 
-.image {
-  background-size: cover;
-  background-position: center;
-  border-radius: 8px;
-  flex-grow: 1;
-  cursor: pointer;
+.post-item {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+
+  width: 200px;
+  @include mixs.handset {
+    width: 120px;
+  }
+
+  img {
+    object-fit: cover;
+    border-radius: 8px;
+  }
 }
 
 .title {
   color: var(--mat-sys-primary);
-  flex-shrink: 0;
   margin: 0.5rem 0 0 0;
 
   @include mixs.line_clamp(1);

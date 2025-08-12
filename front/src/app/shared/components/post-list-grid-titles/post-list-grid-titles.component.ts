@@ -1,7 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { AppService } from '../../services/app.service';
@@ -9,13 +8,7 @@ import { PictureService } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-list-grid-titles',
-  imports: [
-    MatGridListModule,
-    MatIconModule,
-    MatButtonModule,
-    RouterModule,
-    AsyncPipe,
-  ],
+  imports: [MatIconModule, MatButtonModule, RouterModule, AsyncPipe],
   templateUrl: './post-list-grid-titles.component.html',
   styleUrl: './post-list-grid-titles.component.scss',
 })
@@ -34,8 +27,8 @@ export class PostListGridTitlesComponent {
   isHandset$ = this.appService.isHandset();
 
   private readonly picS = inject(PictureService);
-  getPostPreStyle(post: Post) {
-    return this.picS.picStyle(post.picture_pre, 'pre280');
+  getImageUrl(post: Post) {
+    return this.picS.variant(post.picture_pre, 'pre140');
   }
 }
 export interface Post {
