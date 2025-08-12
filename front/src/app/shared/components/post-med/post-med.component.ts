@@ -1,11 +1,11 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { PictureService } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-med',
-  imports: [RouterModule, NgTemplateOutlet],
+  imports: [RouterModule, NgTemplateOutlet, NgOptimizedImage],
   templateUrl: './post-med.component.html',
   styleUrl: './post-med.component.scss',
 })
@@ -18,9 +18,6 @@ export class PostMedComponent {
   }
 
   private readonly picS = inject(PictureService);
-  getPicVariant(post: PostMed) {
-    return this.picS.variant(post.picture_pre, 'pre140');
-  }
 }
 
 export interface PostMed {

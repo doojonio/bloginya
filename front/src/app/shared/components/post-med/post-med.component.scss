@@ -1,4 +1,6 @@
 @use "mixins" as mixs;
+@use "theme-colors" as c;
+@use "sass:map";
 
 :host {
   display: flex;
@@ -13,6 +15,13 @@
     img {
       object-fit: cover;
       border-radius: 1rem;
+    }
+
+    div.post-pic-placeholder {
+      width: 120px;
+      height: 120px;
+      border-radius: 1rem;
+      border: 2px dashed map.get(c.$primary-palette, 90);
     }
   }
 }

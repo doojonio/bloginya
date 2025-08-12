@@ -10,7 +10,17 @@
       <a
         class="post-pre"
         routerLink="/{{ item.name ? item.name : 'p/' + item.id }}"
-        ><img [src]="getImageUrl(item)" width="280px" height="280px" />
+      >
+        @if (item.picture_pre) {
+        <img
+          [ngSrc]="item.picture_pre"
+          width="280"
+          height="280"
+          [priority]="isLCP()"
+        />
+        } @else {
+        <div class="post-pre-placeholder"></div>
+        }
       </a>
       <div class="post-descr">
         <p #postTitle class="post-title" [style.minHeight]="minHeight()">
