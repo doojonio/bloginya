@@ -2,7 +2,7 @@
 <ng-template #image>
   <a class="post-pic" routerLink="{{ linkForPost(post) }}">
     @if (post.picture_pre) {
-    <img width="120" height="120" [ngSrc]="post.picture_pre" placeholder/>
+    <img width="120" height="120" [ngSrc]="post.picture_pre" placeholder />
     } @else {
     <div class="post-pic-placeholder"></div>
     }

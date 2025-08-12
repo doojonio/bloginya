@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgOptimizedImage } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +8,13 @@ import { PictureService } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-list-grid-titles',
-  imports: [MatIconModule, MatButtonModule, RouterModule, AsyncPipe],
+  imports: [
+    MatIconModule,
+    MatButtonModule,
+    RouterModule,
+    AsyncPipe,
+    NgOptimizedImage,
+  ],
   templateUrl: './post-list-grid-titles.component.html',
   styleUrl: './post-list-grid-titles.component.scss',
 })
@@ -20,6 +26,8 @@ export class PostListGridTitlesComponent {
 
     return item.name ? item.name : 'p/' + item.id;
   }
+
+  isLCP = input(true);
   posts = input.required<Post[]>();
   forEdit = input(false);
 

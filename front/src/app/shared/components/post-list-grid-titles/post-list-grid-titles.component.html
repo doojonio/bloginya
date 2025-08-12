@@ -2,10 +2,25 @@
   @for (item of ( posts() ) ; track item.id; let idx = $index; let count =
   $count ) {
   <a class="post-item" routerLink="/{{ getLink(item) }}">
-    @if (isHandset$ | async) {
-    <img width="120px" height="120px" [src]="getImageUrl(item)" />
+    @if (item.picture_pre) { @if (isHandset$ | async) {
+    <img
+      width="120"
+      height="120"
+      [ngSrc]="item.picture_pre"
+      [priority]="isLCP()"
+      placeholder
+    />
     } @else {
-    <img width="200px" height="200px" [src]="getImageUrl(item)" />
+    <img
+      width="200"
+      height="200"
+      [ngSrc]="item.picture_pre"
+      [priority]="isLCP()"
+      placeholder
+    />
+    } } @else {
+
+    <div class="pre-placeholder"></div>
     }
     <p class="title">{{ item.title }}</p>
   </a>

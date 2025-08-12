@@ -35,6 +35,7 @@ export const appConfig: ApplicationConfig = {
           }
         }
 
+        // console.log(config);
         // console.log(dim, config.src + '?d=' + dim);
 
         return config.src + '?d=' + dim;
