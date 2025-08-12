@@ -1,10 +1,8 @@
 @if (post(); as post) {
 <ng-template #image>
-  <a
-    class="post-pic"
-    [style.background]="getPostPreStyle(post)"
-    routerLink="{{ linkForPost(post) }}"
-  ></a>
+  <a class="post-pic" routerLink="{{ linkForPost(post) }}"
+    ><img width="120px" height="120px" [src]="getPicVariant(post)"
+  /></a>
 </ng-template>
 
 @if(imageFirst()) {

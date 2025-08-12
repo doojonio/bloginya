@@ -28,7 +28,7 @@ export class PostListCategoryComponent {
 
   private readonly picS = inject(PictureService);
   imageUrl(post: PostDescribed) {
-    return this.picS.picStyle(post.picture_pre, 'pre280');
+    return this.picS.variant(post.picture_pre, 'pre280');
   }
   onChangeTab($event: MatTabChangeEvent) {
     let cats = this.cats();

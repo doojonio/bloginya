@@ -15,11 +15,12 @@
 
 .post-pre {
   display: block;
-  width: 280px;
-  height: 250px;
-  border-radius: 16px;
-
   cursor: pointer;
+
+  img {
+    object-fit: cover;
+    border-radius: 16px;
+  }
 }
 
 .posts {
@@ -69,7 +70,6 @@ button.btn {
 
   opacity: 0.5;
 
-
   &.btn-prev {
     position: absolute;
     left: 0;
@@ -81,7 +81,6 @@ button.btn {
     top: 125px;
   }
 }
-
 
 .posts-wrapper {
   position: relative;
