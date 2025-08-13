@@ -14,6 +14,15 @@
   flex-direction: column;
   gap: 10px;
 }
+.post-unload-pre-placeholder {
+  min-height: 280px;
+  min-width: 280px;
+  border-radius: 1rem;
+}
+.post-unload-descr-placeholder {
+  min-height: 2rem;
+  width: 100%;
+}
 
 .post-pre {
   display: block;

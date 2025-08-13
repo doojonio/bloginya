@@ -5,7 +5,14 @@
 
 <div class="posts-wrapper">
   <div class="posts noscrollbar" #postsContainer>
-    @for (item of posts(); track item.id) {
+    <!-- 3 placeholders for post -->
+
+    @if (posts().length == 0) { @for (item of [1, 2, 3]; track item) {
+    <div class="post">
+      <div class="post-unload-pre-placeholder app-placeholder"></div>
+      <div class="post-unload-descr-placeholder app-placeholder"></div>
+    </div>
+    } } @for (item of posts(); track item.id) {
     <div class="post">
       <a
         class="post-pre"
