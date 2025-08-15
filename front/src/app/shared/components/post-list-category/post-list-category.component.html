@@ -41,18 +41,23 @@
       <div class="desktop-row">
         @for (post of third3(); track post.id) {
         <a class="row-post" [routerLink]="linkForPost(post)">
-          <div class="row-post-img"><img [src]="imageUrl(post)" /></div>
+          @if (post.picture_pre) {
+          <img
+            class="row-post-img"
+            [ngSrc]="post.picture_pre"
+            height="265"
+            width="265"
+          />
+          }
           <div class="row-post-info">
             <p class="row-post-title">{{ post.title }}</p>
             <p class="row-post-descr">{{ post.description }}</p>
           </div>
         </a>
-
         }
       </div>
     </ng-template>
   </mat-tab>
   }
 </mat-tab-group>
-
 }

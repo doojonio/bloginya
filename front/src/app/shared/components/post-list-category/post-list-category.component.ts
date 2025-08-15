@@ -1,4 +1,4 @@
-import { UpperCasePipe } from '@angular/common';
+import { NgOptimizedImage, UpperCasePipe } from '@angular/common';
 import { Component, computed, inject, input, model } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
@@ -17,6 +17,7 @@ import { PostListMedComponent } from '../post-list-med/post-list-med.component';
     RouterModule,
     PostListMedComponent,
     MatTabsModule,
+    NgOptimizedImage,
   ],
   templateUrl: './post-list-category.component.html',
   styleUrl: './post-list-category.component.scss',

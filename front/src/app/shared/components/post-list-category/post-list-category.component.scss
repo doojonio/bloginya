@@ -42,26 +42,19 @@
   flex-flow: row nowrap;
   gap: 2rem;
   margin-top: 2rem;
+
+  justify-content: space-around;
 }
 
 .row-post {
   all: unset;
   display: block;
   cursor: pointer;
-  flex-basis: 33%;
 }
 
 .row-post-img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
   border-radius: 1rem;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 1rem;
-  }
+  object-fit: cover;
 }
 
 .row-post-title {
