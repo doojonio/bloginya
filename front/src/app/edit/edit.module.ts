@@ -1,4 +1,4 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule, NgOptimizedImage } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +21,7 @@ import { PostListGridTitlesComponent } from '../shared/components/post-list-grid
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 import { MenuComponent } from './components/menu/menu.component';
 import { PostEditorComponent } from './components/post-editor/post-editor.component';
+import { ThumbnailChooserComponent } from './components/thumbnail-chooser/thumbnail-chooser.component';
 import { EditRoutingModule } from './edit-routing.module';
 import { AsianHelpersService } from './services/asian-helpers.service';
 import { CoolAsiaService } from './services/cool-asia.service';
@@ -28,7 +29,7 @@ import { DriveService } from './services/drive.service';
 import { EditorService } from './services/editor.service';
 
 @NgModule({
-  declarations: [PostEditorComponent, MenuComponent],
+  declarations: [PostEditorComponent, MenuComponent, ThumbnailChooserComponent],
   providers: [
     EditorService,
     DriveService,
@@ -36,6 +37,7 @@ import { EditorService } from './services/editor.service';
     CoolAsiaService,
   ],
   imports: [
+    NgOptimizedImage,
     CommonModule,
     EditRoutingModule,
     EditCategoryModule,

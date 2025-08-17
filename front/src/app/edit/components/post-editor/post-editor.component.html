@@ -135,6 +135,16 @@
         </div>
       </div>
       <div class="opt-row">
+        <div class="opt-title"><p i18n>Thumbnail</p></div>
+        <div class="opt-value">
+          <app-thumbnail-chooser
+            #thumbChooser
+            [postId]="postId()"
+            [(selectedImage)]="selectedImage"
+          ></app-thumbnail-chooser>
+        </div>
+      </div>
+      <div class="opt-row">
         <div class="opt-title"><p i18n>Society</p></div>
         <div class="opt-value">
           <div class="opt-toggles">

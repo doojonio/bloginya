@@ -161,5 +161,20 @@ async sub apply_changes ($self) {
   return $self->msg('OK');
 }
 
+async sub get_all_post_images($self) {
+  my $post_id = $self->i(post_id => 'cool_id');
+  my $images;
+  try {
+    $images = await $self->service('post')->get_all_post_images_p($post_id);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      return $self->msg('NORIGHT', 403);
+    }
+    die $e;
+  }
+  return $self->render(json => $images);
+}
+
 
 1

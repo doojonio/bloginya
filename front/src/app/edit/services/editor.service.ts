@@ -25,6 +25,16 @@ export class EditorService {
       );
   }
 
+  getPostImages(postId: string) {
+    return this.http
+      .get<string[]>(`/api/posts/images`, { params: { post_id: postId } })
+      .pipe(
+        catchError((err: HttpErrorResponse) =>
+          throwError(() => this.notifierS.mapError(err))
+        )
+      );
+  }
+
   updateDraft(postId: string, fields: UpdateDraftPayload, notifyError = true) {
     return this.http
       .put('/api/posts/draft', fields, {
