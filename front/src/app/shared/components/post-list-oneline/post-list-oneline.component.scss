@@ -1,5 +1,7 @@
 @use "@angular/material" as mat;
 @use "mixins" as mixs;
+@use "theme-colors" as c;
+@use "sass:map";
 
 .title {
   color: var(--mat-sys-primary);
@@ -12,14 +14,31 @@
   flex-direction: column;
   gap: 10px;
 }
+.post-unload-pre-placeholder {
+  min-height: 280px;
+  min-width: 280px;
+  border-radius: 1rem;
+}
+.post-unload-descr-placeholder {
+  min-height: 2rem;
+  width: 100%;
+}
 
 .post-pre {
   display: block;
-  width: 280px;
-  height: 250px;
-  border-radius: 16px;
-
   cursor: pointer;
+
+  img {
+    object-fit: cover;
+    border-radius: 16px;
+  }
+
+  div.post-pre-placeholder {
+    width: 280px;
+    height: 280px;
+    border-radius: 1rem;
+    border: 2px dashed map.get(c.$primary-palette, 90);
+  }
 }
 
 .posts {
@@ -69,7 +88,6 @@ button.btn {
 
   opacity: 0.5;
 
-
   &.btn-prev {
     position: absolute;
     left: 0;
@@ -81,7 +99,6 @@ button.btn {
     top: 125px;
   }
 }
-
 
 .posts-wrapper {
   position: relative;

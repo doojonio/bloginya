@@ -23,11 +23,21 @@ export const appConfig: ApplicationConfig = {
     {
       provide: IMAGE_LOADER,
       useValue: (config: ImageLoaderConfig) => {
-        let dim = BreakpointMap[140];
+        const width = config.width;
 
-        if (config.width && config.width in BreakpointMap) {
-          dim = BreakpointMap[config.width];
+        let dim = BreakpointMap[40];
+        for (const breakpoint of Object.keys(BreakpointMap)
+          .map(Number)
+          .sort((a, b) => a - b)) {
+          if (width && width <= breakpoint) {
+            dim = BreakpointMap[breakpoint];
+            break;
+          }
         }
+
+        // console.log(config);
+        // console.log(dim, config.src + '?d=' + dim);
+
         return config.src + '?d=' + dim;
       },
     },
@@ -35,6 +45,7 @@ export const appConfig: ApplicationConfig = {
       provide: IMAGE_CONFIG,
       useValue: {
         breakpoints: [Object.keys(BreakpointMap).sort()],
+        placeholderResolution: 40,
       },
     },
   ],

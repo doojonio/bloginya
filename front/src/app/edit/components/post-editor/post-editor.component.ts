@@ -6,6 +6,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
+  ViewChild,
 } from '@angular/core';
 
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
@@ -18,7 +19,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { Editor, Validators as EditorValidators } from 'ngx-editor';
 
-import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { Router } from '@angular/router';
 import {
@@ -61,6 +62,7 @@ import {
 import { AsianHelpersService } from '../../services/asian-helpers.service';
 import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
+import { ThumbnailChooserComponent } from '../thumbnail-chooser/thumbnail-chooser.component';
 
 @Component({
   selector: 'app-post-editor',
@@ -112,6 +114,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       EditorValidators.required(customSchema),
     ]),
     picture_wp: new FormControl<string | null>(null),
+    picture_pre: new FormControl<string | null>(null),
   });
   meta = new FormGroup({
     tags: new FormControl<string[]>([]),
@@ -162,6 +165,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   isApplyDisabled = false;
   hasUnsavedChanges = false;
 
+  @ViewChild('thumbChooser')
+  thumbChooser!: ThumbnailChooserComponent;
+
   validateUniqueShortname(control: AbstractControl) {
     const { value } = control;
     if (value == null || value.length < 3) {
@@ -190,14 +196,23 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   asianHelperClicked = new Subject<void>();
 
+  selectedImage = signal<string | null>(null);
+  _ = toObservable(this.selectedImage)
+    .pipe(takeUntilDestroyed())
+    .subscribe((image) => {
+      this.draft.get('picture_pre')?.setValue(image);
+    });
+
   ngOnInit(): void {
     this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
 
     this.savedPost$.pipe(takeUntil(this.destroy$)).subscribe((post) => {
+      this.selectedImage.set(post.picture_pre);
       this.draft.setValue({
         title: post.title || '',
         document: post.document,
         picture_wp: this.picS.variant(post.picture_wp, 'medium'),
+        picture_pre: post.picture_pre,
       });
 
       this.tags.set(post.tags);
@@ -301,6 +316,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         title: form.title,
         document: form.document,
         picture_wp: form.picture_wp,
+        picture_pre: form.picture_pre,
       })
       .pipe(tap(() => (this.hasUnsavedChanges = false)));
   }
@@ -362,11 +378,12 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         finalize(() => (this.wpLoading = false)),
         takeUntil(this.destroy$)
       )
-      .subscribe((resp) =>
+      .subscribe((resp) => {
         this.draft
           .get('picture_wp')!
-          .setValue(this.picS.variant(resp.id, 'medium'))
-      );
+          .setValue(this.picS.variant(resp.id, 'medium'));
+        this.thumbChooser.updateImages();
+      });
   }
 
   applyChanges() {
@@ -456,6 +473,8 @@ export class PostEditorComponent implements OnInit, OnDestroy {
             )
             .setMeta(placeholderPlugin, { remove: { id: result.id } })
         );
+
+        this.thumbChooser.updateImages();
       });
   }
 

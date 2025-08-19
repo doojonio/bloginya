@@ -1,4 +1,4 @@
-import { AsyncPipe, UpperCasePipe } from '@angular/common';
+import { AsyncPipe, NgOptimizedImage, UpperCasePipe } from '@angular/common';
 import {
   Component,
   computed,
@@ -24,6 +24,7 @@ import { PictureService } from '../../services/picture.service';
     AsyncPipe,
     MatButtonModule,
     MatIconModule,
+    NgOptimizedImage,
   ],
   templateUrl: './post-list-oneline.component.html',
   styleUrl: './post-list-oneline.component.scss',
@@ -36,6 +37,8 @@ export class PostListOnelineComponent {
 
   private readonly appService = inject(AppService);
   isHandset$ = this.appService.isHandset();
+
+  isLCP = input(true);
 
   minHeight = signal('0px');
 
@@ -53,8 +56,8 @@ export class PostListOnelineComponent {
   });
 
   private readonly picS = inject(PictureService);
-  getPostPreStyle(post: PostOneLinePost) {
-    return { background: this.picS.picStyle(post.picture_pre, 'pre450_95') };
+  getImageUrl(post: PostOneLinePost) {
+    return this.picS.variant(post.picture_pre, 'pre450_95');
   }
 
   /* DEKSTOP

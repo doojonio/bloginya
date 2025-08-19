@@ -19,23 +19,18 @@
   ></app-post-list-oneline>
   @if (isHandset()) {
   <mat-divider></mat-divider>
-  }
-  @else {
-    <div class="divider"></div>
+  } @else {
+  <div class="divider"></div>
   }
   <app-post-list-category
     class="content-block"
     title="5 LANGUAGES"
     i18n-title
-    [(selectedCat)]="selectedLang"
-    [cats]="(langs$ | async) || []"
-    [posts]="(langPosts$() | async) || []"
   ></app-post-list-category>
   @if (isHandset()) {
   <mat-divider></mat-divider>
-  }
-  @else {
-    <div class="divider"></div>
+  } @else {
+  <div class="divider"></div>
   }
   <app-post-list-grid
     class="content-block"
@@ -46,8 +41,7 @@
 
   @if (isHandset()) {
   <mat-divider class="divider-footer"></mat-divider>
-  }
-  @else {
-    <div class="divider"></div>
+  } @else {
+  <div class="divider"></div>
   }
 </div>

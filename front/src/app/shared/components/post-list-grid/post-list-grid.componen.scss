@@ -16,10 +16,15 @@ mat-grid-list {
 }
 
 .image {
-  background-size: cover;
-  background-position: center;
   border-radius: 8px;
   cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
 }
 
 .actions {
@@ -54,10 +59,4 @@ mat-grid-list {
       width: 40ch;
     }
   }
-}
-
-
-.anim {
-  // opacity animation
-
 }

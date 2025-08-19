@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +12,13 @@ import { PictureService } from '../../services/picture.service';
 
 @Component({
   selector: 'app-post-list-grid',
-  imports: [MatGridListModule, MatIconModule, MatButtonModule, RouterModule],
+  imports: [
+    MatGridListModule,
+    MatIconModule,
+    MatButtonModule,
+    RouterModule,
+    NgOptimizedImage,
+  ],
   templateUrl: './post-list-grid.componen.html',
   styleUrl: './post-list-grid.componen.scss',
 })
@@ -77,7 +84,8 @@ export class PostListGridComponent {
   }
 
   private readonly picS = inject(PictureService);
-  getPostPreStyle(post: PostPictured) {
-    return this.picS.picStyle(post.picture_pre, 'pre450');
+
+  getImageUrl(post: PostPictured) {
+    return this.picS.variant(post.picture_pre, 'pre450');
   }
 }

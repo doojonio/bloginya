@@ -1,17 +1,28 @@
-<mat-grid-list
-  [gutterSize]="(isHandset$ | async) ? '0.5rem' : '2rem'"
-  cols="3"
-  rowHeight="10rem"
->
+<div class="post-list-container">
   @for (item of ( posts() ) ; track item.id; let idx = $index; let count =
   $count ) {
-  <a routerLink="/{{ getLink(item) }}">
-    <mat-grid-tile>
-      <div class="item">
-        <div class="image" [style.background]="getPostPreStyle(item)"></div>
-        <p class="title">{{ item.title }}</p>
-      </div>
-    </mat-grid-tile>
+  <a class="post-item" routerLink="/{{ getLink(item) }}">
+    @if (item.picture_pre) { @if (isHandset$ | async) {
+    <img
+      width="120"
+      height="120"
+      [ngSrc]="item.picture_pre"
+      [priority]="isLCP()"
+      placeholder
+    />
+    } @else {
+    <img
+      width="200"
+      height="200"
+      [ngSrc]="item.picture_pre"
+      [priority]="isLCP()"
+      placeholder
+    />
+    } } @else {
+
+    <div class="pre-placeholder"></div>
+    }
+    <p class="title">{{ item.title }}</p>
   </a>
   }
-</mat-grid-list>
+</div>

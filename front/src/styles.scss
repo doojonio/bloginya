@@ -81,6 +81,20 @@ app-category {
   }
 }
 
+.app-placeholder {
+  animation: shining 1.5s infinite;
+  background: linear-gradient(to right, #333 8%, #444 18%, #333 33%);
+  background-size: 800px 104px;
+
+  @keyframes shining {
+    0% {
+      background-position: -468px 0;
+    }
+    100% {
+      background-position: 468px 0;
+    }
+  }
+}
 
 // .ProseMirror-search-match {
 //   background-color: #ffff0054;

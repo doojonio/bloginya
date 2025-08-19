@@ -234,11 +234,9 @@ async sub get_for_edit_p($self, $post_id) {
   );
 
   # draft
-  push @tables, [-left => \'post_drafts pd', 'pd.post_id' => 'p.id'],
-    [-left => \'uploads uwp', 'uwp.id' => 'pd.picture_wp'], [-left => \'uploads upre', 'upre.id' => 'pd.picture_pre'];
-
-  push @select, ['pd.title' => 'title'], ['pd.document' => 'document',],
-    ['uwp.id' => 'picture_wp', ['upre.id' => 'picture_pre']];
+  push @tables, [-left => \'post_drafts pd', 'pd.post_id' => 'p.id'];
+  push @select, ['pd.title' => 'title'], ['pd.document' => 'document',], ['pd.picture_pre' => 'picture_pre'],
+    ['pd.picture_wp' => 'picture_wp'];
 
   # shortname
   push @tables, [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
@@ -267,15 +265,12 @@ async sub update_draft_p ($self, $post_id, $fields) {
     any { $_ eq $a } qw(title document picture_wp picture_pre)
   } keys %$fields;
 
-
   my $it_img_ids = $self->se_prose_mirror->it_img_ids;
   my $iterator   = igrep { is_image($_) } $self->se_prose_mirror->iterate($$fields{document});
   while (my $el = <$iterator>) {
     $it_img_ids->($el);
   }
   my $img_ids = $it_img_ids->();
-  my ($picture_pre) = @$img_ids;
-  $fields{picture_pre} = $picture_pre;
 
   # $fields{title} =~ s/(\s)\s+/\1/;
   $fields{document} = {-json => $fields{document}} if exists $fields{document};
@@ -357,7 +352,6 @@ async sub _update_meta_from_content_p($self, $post_id) {
   $text = $row->{title} . ' ' . $text;
 
   my $pics_num = @$img_ids;
-  my ($picture_pre) = @$img_ids;
 
   for (@picture_cols) {
     push @$img_ids, $row->{$_} if $row->{$_};
@@ -383,7 +377,6 @@ async sub _update_meta_from_content_p($self, $post_id) {
     'posts',
     {
       meta        => {-json => {ttr => $ttr, pics => $pics_num}},
-      picture_pre => $picture_pre // $row->{picture_wp},
       description => $descr,
       ($category_status eq 'private') ? (status => 'private') : (),
     },
@@ -503,5 +496,12 @@ async sub liked_users_p ($self, $post_id) {
 
   return $res->hashes;
 }
+
+async sub get_all_post_images_p($self, $post_id) {
+  die 'no rights to read post' unless await $self->se_policy->can_read_post_p($post_id);
+  my $res = await $self->db->select_p('post_uploads', ['upload_id'], {post_id => $post_id},);
+  return $res->hashes->map(sub { $_->{upload_id} });
+}
+
 
 1;
