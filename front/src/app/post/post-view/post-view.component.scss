@@ -21,7 +21,7 @@
   font: var(--mat-sys-headline-large);
   font-weight: bold;
   padding: 0 1rem;
-  margin: 2rem 0;
+  margin-bottom: 2rem;
   text-wrap: wrap;
   text-align: center;
 }
@@ -183,5 +183,6 @@ mat-divider {
   justify-content: right;
   // margin-top: 2rem;
   margin-bottom: 2rem;
+  margin-top: 2rem;
   width: 100%;
 }
