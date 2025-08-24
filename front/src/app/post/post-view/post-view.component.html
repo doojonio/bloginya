@@ -12,6 +12,13 @@
     </p>
   </div>
   <div class="content-container">
+    @if (hasRt()) {
+    <div class="pinyin-hiragana-wrapper">
+      <mat-slide-toggle [(ngModel)]="showAsianHelpers" i18n
+        >P/F</mat-slide-toggle
+      >
+    </div>
+    }
     <div class="title">
       @for (line of p.title.split("\n"); track line) {
       {{ line }}
@@ -26,13 +33,6 @@
       <br />
       }
     </div>
-    @if (hasRt()) {
-    <div class="pinyin-hiragana-wrapper">
-      <mat-slide-toggle [(ngModel)]="showAsianHelpers" i18n
-        >P/F</mat-slide-toggle
-      >
-    </div>
-    }
     <app-document-dom
       class="content"
       [document]="p.document"
