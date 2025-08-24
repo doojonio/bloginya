@@ -21,6 +21,7 @@
   font: var(--mat-sys-headline-large);
   font-weight: bold;
   padding: 0 1rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   text-wrap: wrap;
   text-align: center;
@@ -181,8 +182,6 @@ mat-divider {
 .pinyin-hiragana-wrapper {
   display: flex;
   justify-content: right;
-  // margin-top: 2rem;
-  margin-bottom: 2rem;
   margin-top: 2rem;
   width: 100%;
 }
