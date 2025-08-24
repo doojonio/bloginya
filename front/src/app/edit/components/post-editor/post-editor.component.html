@@ -41,22 +41,32 @@
           ></app-menu>
         </ng-template>
       </div>
-      <ngx-editor [editor]="editor" formControlName="document"></ngx-editor>
-      <div class="editor-acts">
-        <button class="attachment-btn" matIconButton (click)="atInput.click()">
-          <mat-icon>attachment</mat-icon>
-        </button>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          #atInput
-          (change)="onAttachmentsSelected($event)"
-          style="display: none"
-        />
-      </div>
+      <ngx-editor
+        [editor]="editor"
+        formControlName="document"
+        [class.app-rt-disabled]="!showAsianHelpers"
+      ></ngx-editor>
     </div>
   </form>
+  <div class="editor-acts">
+    <button class="attachment-btn" matIconButton (click)="atInput.click()">
+      <mat-icon>attachment</mat-icon>
+    </button>
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      #atInput
+      (change)="onAttachmentsSelected($event)"
+      style="display: none"
+    />
+
+    <div class="pinyin-hiragana-wrapper">
+      <mat-slide-toggle [(ngModel)]="showAsianHelpers" i18n
+        >Show P/F</mat-slide-toggle
+      >
+    </div>
+  </div>
   @if (attachmentLoading || wpLoading) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   } @else {

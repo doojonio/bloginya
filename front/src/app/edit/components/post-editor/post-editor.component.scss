@@ -106,6 +106,10 @@
 }
 
 .editor-acts {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1rem;
+
   .attachment-btn {
     @include mat.icon-overrides(
       (

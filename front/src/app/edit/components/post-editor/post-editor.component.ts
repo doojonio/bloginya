@@ -168,6 +168,8 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   @ViewChild('thumbChooser')
   thumbChooser!: ThumbnailChooserComponent;
 
+  showAsianHelpers = false;
+
   validateUniqueShortname(control: AbstractControl) {
     const { value } = control;
     if (value == null || value.length < 3) {

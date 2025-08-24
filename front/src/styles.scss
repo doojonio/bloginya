@@ -96,6 +96,12 @@ app-category {
   }
 }
 
+.app-rt-disabled {
+  rt {
+    display: none;
+  }
+}
+
 // .ProseMirror-search-match {
 //   background-color: #ffff0054;
 // }
