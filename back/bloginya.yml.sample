@@ -4,8 +4,8 @@ secrets:
   - REPLACE_ME
 test: true
 db:
-  pg_dsn: postgresql://postgres:postgres@db:5432/postgres
-  redis_dsn: redis://redis
+  pg_dsn: postgresql://user:password@db:5432/bloginya
+  redis_dsn: redis://redis:6379
 
 sessions:
   name: sid
@@ -13,11 +13,19 @@ sessions:
   secure: 1
   max_age: 604800 # one week
 
+# You can get your Google OAuth credentials from the Google Cloud Console: https://console.cloud.google.com/
 google_oauth:
-  redirect_uri: "https://hpotato.io/api/oauth/from_google"
+  # This should be the URL to your backend's OAuth callback endpoint.
+  # For local development, this would be http://localhost:8080/api/oauth/from_google
+  redirect_uri: "https://polyine.com/api/oauth/from_google"
+
+  # The client ID and secret can be found in the "Credentials" section of the Google Cloud Console.
   client_id: REPLACE_ME
+  client_secret: REPLACE_ME
+
+  # The project ID can be found in the "Dashboard" section of the Google Cloud Console.
   project_id: REPLACE_ME
+
   auth_uri: https://accounts.google.com/o/oauth2/auth
   token_uri: https://oauth2.googleapis.com/token
   auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
-  client_secret: REPLACE_ME
