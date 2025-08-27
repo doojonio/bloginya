@@ -1,0 +1,17 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Audio Uploader</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <app-audio-uploader (fileUploaded)="onFileUploaded($event)"></app-audio-uploader>
+  </mat-card-content>
+</mat-card>
+
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Audio Player</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <app-audio-player [filename]="uploadedFilename"></app-audio-player>
+  </mat-card-content>
+</mat-card>
