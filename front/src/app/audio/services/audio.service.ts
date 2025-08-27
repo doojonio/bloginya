@@ -23,6 +23,12 @@ export class AudioService {
     return this.http.request(req);
   }
 
+  uploadAudioBlob(audioBlob: Blob): Observable<any> {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.wav');
+    return this.http.post(`${this.apiUrl}/upload`, formData, { responseType: 'text' });
+  }
+
   getAudioUrl(filename: string): string {
     return `${this.apiUrl}/stream/${filename}`;
   }
