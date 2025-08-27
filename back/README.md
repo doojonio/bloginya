@@ -53,6 +53,10 @@ The API provides endpoints for managing posts, categories, comments, users, and 
 
 All API routes are prefixed with `/api`. Some routes require authentication.
 
+## Plugins
+
+For more information about the custom Mojolicious plugins used in this project, please see the [plugins documentation](docs/plugins.md).
+
 ## Database
 
 The application uses PostgreSQL for its primary database. The database schema is managed with `pgmig.sql` in the `db` directory.
