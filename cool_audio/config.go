@@ -11,6 +11,8 @@ type Config struct {
 	MinFileSize       int64    `json:"min_file_size"`
 	AllowedMediaTypes []string `json:"allowed_media_types"`
 	UploadDir         string   `json:"upload_dir"`
+	PolicyServiceURL      string   `json:"policy_service_url"`
+	PolicyServiceEndpoint string   `json:"policy_service_endpoint"`
 }
 
 // LoadConfig loads the configuration from a file

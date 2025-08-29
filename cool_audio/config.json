@@ -7,5 +7,6 @@
     "audio/ogg",
     "audio/webm"
   ],
-  "upload_dir": "uploads"
+  "upload_dir": "uploads",
+  "policy_service_url": "http://localhost:3000/api/policy"
 }

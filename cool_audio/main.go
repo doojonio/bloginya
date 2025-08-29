@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -33,6 +34,25 @@ func uploadHandler(config *Config) http.HandlerFunc {
 		if r.Method != http.MethodPost {
 			log.Printf("Method not allowed: %s", r.Method)
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		sidCookie, err := r.Cookie("sid")
+		if err != nil {
+			log.Printf("Failed to get sid cookie: %v", err)
+			http.Error(w, "Failed to get sid cookie", http.StatusBadRequest)
+			return
+		}
+
+		allowedToUpload, err := isAllowedToUpload(config.PolicyServiceURL, sidCookie.Value)
+		if err != nil {
+			log.Printf("Failed to check policy: %v", err)
+			http.Error(w, "Failed to check policy", http.StatusInternalServerError)
+			return
+		}
+		if !allowedToUpload {
+			log.Printf("Upload not allowed by policy")
+			http.Error(w, "Upload not allowed by policy", http.StatusForbidden)
 			return
 		}
 
@@ -116,4 +136,31 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received request for %s", r.URL.Path)
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "OK")
+}
+
+func isAllowedToUpload(policyURL, sid string) (bool, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", policyURL+"/can_upload_audio", nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "sid", Value: sid})
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("failed to get policy: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("policy service returned non-200 status code: %d", resp.StatusCode)
+	}
+
+	var result = struct { Authorized int `json:"authorized"` }{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return false, fmt.Errorf("failed to decode policy response: %w", err)
+	}
+
+	return result.Authorized == 1, nil
 }
