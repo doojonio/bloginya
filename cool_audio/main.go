@@ -23,56 +23,56 @@ func main() {
 	http.HandleFunc("/health", healthHandler)
 
 	log.Println("Server starting on port 8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8080", accessLogMiddleware(http.DefaultServeMux)); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
+}
+
+func accessLogMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("access log: %s %s %s", r.RemoteAddr, r.Method, r.URL)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func uploadHandler(config *Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Received request for %s", r.URL.Path)
 		if r.Method != http.MethodPost {
-			log.Printf("Method not allowed: %s", r.Method)
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			httpError(w, nil, http.StatusMethodNotAllowed, "Method not allowed")
 			return
 		}
 
 		sidCookie, err := r.Cookie("sid")
 		if err != nil {
-			log.Printf("Failed to get sid cookie: %v", err)
-			http.Error(w, "Failed to get sid cookie", http.StatusBadRequest)
+			httpError(w, err, http.StatusBadRequest, "Failed to get sid cookie")
 			return
 		}
 
 		allowedToUpload, err := isAllowedToUpload(config.PolicyServiceURL, sidCookie.Value)
 		if err != nil {
-			log.Printf("Failed to check policy: %v", err)
-			http.Error(w, "Failed to check policy", http.StatusInternalServerError)
+			httpError(w, err, http.StatusInternalServerError, "Failed to check policy")
 			return
 		}
 		if !allowedToUpload {
-			log.Printf("Upload not allowed by policy")
-			http.Error(w, "Upload not allowed by policy", http.StatusForbidden)
+			httpError(w, nil, http.StatusForbidden, "Upload not allowed by policy")
 			return
 		}
 
 		file, header, err := r.FormFile("audio")
 		if err != nil {
-			log.Printf("Failed to get file from form: %v", err)
-			http.Error(w, "Failed to get file from form", http.StatusBadRequest)
+			httpError(w, err, http.StatusBadRequest, "Failed to get file from form")
 			return
 		}
 		defer file.Close()
 
 		if header.Size < config.MinFileSize {
-			log.Printf("File size is too small: %d bytes", header.Size)
-			http.Error(w, fmt.Sprintf("File size is too small. Minimum size is %d bytes", config.MinFileSize), http.StatusBadRequest)
+			httpError(w, nil, http.StatusBadRequest, fmt.Sprintf("File size is too small. Minimum size is %d bytes", config.MinFileSize))
 			return
 		}
 
 		if header.Size > config.MaxFileSize {
-			log.Printf("File size is too large: %d bytes", header.Size)
-			http.Error(w, fmt.Sprintf("File size is too large. Maximum size is %d bytes", config.MaxFileSize), http.StatusBadRequest)
+			httpError(w, nil, http.StatusBadRequest, fmt.Sprintf("File size is too large. Maximum size is %d bytes", config.MaxFileSize))
 			return
 		}
 
@@ -86,8 +86,7 @@ func uploadHandler(config *Config) http.HandlerFunc {
 		}
 
 		if !allowed {
-			log.Printf("Media type not allowed: %s", contentType)
-			http.Error(w, fmt.Sprintf("Media type '%s' not allowed", contentType), http.StatusUnsupportedMediaType)
+			httpError(w, nil, http.StatusUnsupportedMediaType, fmt.Sprintf("Media type '%s' not allowed", contentType))
 			return
 		}
 
@@ -95,24 +94,21 @@ func uploadHandler(config *Config) http.HandlerFunc {
 		randomBytes := make([]byte, 16)
 		_, err = rand.Read(randomBytes)
 		if err != nil {
-			log.Printf("Failed to generate random bytes for filename: %v", err)
-			http.Error(w, "Failed to generate unique filename", http.StatusInternalServerError)
+			httpError(w, err, http.StatusInternalServerError, "Failed to generate unique filename")
 			return
 		}
 		filename := hex.EncodeToString(randomBytes) + ext
 
 		f, err := os.Create(filepath.Join(config.UploadDir, filename))
 		if err != nil {
-			log.Printf("Failed to save file: %v", err)
-			http.Error(w, "Failed to save file", http.StatusInternalServerError)
+			httpError(w, err, http.StatusInternalServerError, "Failed to save file")
 			return
 		}
 		defer f.Close()
 
 		_, err = io.Copy(f, file)
 		if err != nil {
-			log.Printf("Failed to save file: %v", err)
-			http.Error(w, "Failed to save file", http.StatusInternalServerError)
+			httpError(w, err, http.StatusInternalServerError, "Failed to save file")
 			return
 		}
 
@@ -156,11 +152,20 @@ func isAllowedToUpload(policyURL, sid string) (bool, error) {
 		return false, fmt.Errorf("policy service returned non-200 status code: %d", resp.StatusCode)
 	}
 
-	var result = struct { Authorized int `json:"authorized"` }{}
+	var result = struct {
+		Authorized int `json:"authorized"`
+	}{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return false, fmt.Errorf("failed to decode policy response: %w", err)
 	}
 
 	return result.Authorized == 1, nil
+}
+
+func httpError(w http.ResponseWriter, err error, statusCode int, message string) {
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
+	http.Error(w, message, statusCode)
 }

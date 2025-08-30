@@ -7,10 +7,10 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	MaxFileSize       int64    `json:"max_file_size"`
-	MinFileSize       int64    `json:"min_file_size"`
-	AllowedMediaTypes []string `json:"allowed_media_types"`
-	UploadDir         string   `json:"upload_dir"`
+	MaxFileSize           int64    `json:"max_file_size"`
+	MinFileSize           int64    `json:"min_file_size"`
+	AllowedMediaTypes     []string `json:"allowed_media_types"`
+	UploadDir             string   `json:"upload_dir"`
 	PolicyServiceURL      string   `json:"policy_service_url"`
 	PolicyServiceEndpoint string   `json:"policy_service_endpoint"`
 }

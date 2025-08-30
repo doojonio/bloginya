@@ -5,7 +5,8 @@ use warnings;
 
 use experimental qw(signatures);
 
-use Exporter qw(import);
+use Exporter  qw(import);
+use Ref::Util qw(is_hashref);
 
 our @EXPORT_OK = qw(
   is_image
@@ -13,11 +14,11 @@ our @EXPORT_OK = qw(
 );
 
 sub is_image($el) {
-  $el && $el->{type} eq 'image';
+  is_hashref($el) && $el->{type} eq 'image';
 }
 
 sub is_text($el) {
-  $el && $el->{type} eq 'text' && defined($el->{text});
+  is_hashref($el) && $el->{type} eq 'text' && defined($el->{text});
 }
 
 1;
