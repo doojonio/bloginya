@@ -32,3 +32,6 @@ jobs:
           cache-to: type=gha,mode=max
           push: true
           tags: cr.selcloud.ru/registry-12/bloginya_back:develop
+      - name: tests
+        run: |
+          docker run --rm cr.selcloud.ru/registry-12/bloginya_back:develop carmel exec prove -lv
