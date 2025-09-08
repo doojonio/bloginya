@@ -1,3 +1,38 @@
+-- 4 up | add post_audios table, add column service to uploads
+create type service_type as enum('back', 'cool_audio');
+
+alter table uploads
+add column service service_type default 'back';
+
+create table
+    post_audios (
+        post_id cool_id not null references posts (id),
+        audio_id text not null references uploads (id),
+        primary key (post_id, audio_id)
+    );
+
+create index post_audios_post_id_idx on post_audios (post_id);
+
+create table
+    post_draft_audios (
+        post_id cool_id not null references posts (id),
+        audio_id text not null references uploads (id),
+        primary key (post_id, audio_id)
+    );
+
+-- index by post id
+create index post_draft_audios_post_id_idx on post_draft_audios (post_id);
+
+-- 4 down
+alter table uploads
+drop column service;
+
+drop type service_type;
+
+drop table post_audios;
+
+drop table post_draft_audios;
+
 -- 3 up
 alter type post_status
 add value 'private';
@@ -8,7 +43,9 @@ alter table categories
 add column status category_status not null default 'pub';
 
 -- 2 up
-select 'fucked up migration';
+select
+    'fucked up migration';
+
 -- 1 up
 create extension if not exists "uuid-ossp";
 

@@ -1,9 +1,5 @@
-<div class="audio-player-container">
-  @if (audioUrl()) {
-    <audio controls [src]="audioUrl()">
-      Your browser does not support the audio element.
-    </audio>
-  } @else {
-    <p>No audio selected for playback.</p>
-  }
-</div>
+@if (audioUrl()) {
+<audio [src]="audioUrl()" controls i18n>
+  Your browser does not support the audio element.
+</audio>
+}

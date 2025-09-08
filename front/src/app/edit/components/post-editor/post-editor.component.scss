@@ -195,3 +195,11 @@ mat-divider {
   display: flex;
   justify-content: center;
 }
+
+
+.audio-container {
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  gap: 1rem;
+}

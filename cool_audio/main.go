@@ -113,7 +113,12 @@ func uploadHandler(config *Config) http.HandlerFunc {
 		}
 
 		log.Printf("File '%s' uploaded successfully as '%s'", header.Filename, filename)
-		fmt.Fprintf(w, "File '%s' uploaded successfully as '%s'", header.Filename, filename)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"message":  fmt.Sprintf("File '%s' uploaded successfully", header.Filename),
+			"file_id":  filenamE,
+			"filename": header.Filename,
+		})
 	}
 }
 

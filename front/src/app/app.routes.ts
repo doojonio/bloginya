@@ -63,14 +63,6 @@ export const routes: Routes = [
     title: 'POLYINE | Profile Settings',
   },
   {
-    path: 'audio',
-    loadComponent: () =>
-      import('./audio/components/audio-container/audio-container.component').then(
-        (c) => c.AudioContainerComponent
-      ),
-    title: 'POLYINE | Audio',
-  },
-  {
     path: 'not-found',
     loadComponent: () =>
       import('./page-not-found/page-not-found.component').then(
