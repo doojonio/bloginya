@@ -116,7 +116,7 @@ func uploadHandler(config *Config) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{
 			"message":  fmt.Sprintf("File '%s' uploaded successfully", header.Filename),
-			"file_id":  filenamE,
+			"file_id":  filename,
 			"filename": header.Filename,
 		})
 	}

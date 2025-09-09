@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { AudioService } from '../../services/audio.service';
 
 @Component({
@@ -16,5 +16,36 @@ export class AudioPlayerComponent {
       : null;
   });
 
+  isPlaying = signal(false);
+  currentTime = signal(0);
+  duration = signal(0);
+
   constructor(private audioService: AudioService) {}
+
+  togglePlayPause(audioPlayer: HTMLAudioElement): void {
+    if (this.isPlaying()) {
+      audioPlayer.pause();
+    } else {
+      audioPlayer.play();
+    }
+    this.isPlaying.set(!this.isPlaying());
+  }
+
+  onTimeUpdate(audioPlayer: HTMLAudioElement): void {
+    this.currentTime.set(audioPlayer.currentTime);
+  }
+
+  onLoadedMetadata(audioPlayer: HTMLAudioElement): void {
+    this.duration.set(audioPlayer.duration);
+  }
+
+  onEnded(): void {
+    this.isPlaying.set(false);
+  }
+
+  onSeek(event: Event, audioPlayer: HTMLAudioElement): void {
+    const value = (event.target as HTMLInputElement).value;
+    audioPlayer.currentTime = +value;
+    this.currentTime.set(+value);
+  }
 }
