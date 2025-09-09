@@ -1,11 +1,11 @@
-name: Build Front Dev
+name: Build CoolAudio Dev
 
 on:
   push:
     branches:
       - develop
     paths:
-      - "front/**"
+      - "cool_audio/**"
 
 jobs:
   build_push:
@@ -27,6 +27,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./front
+          context: ./cool_audio
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           push: true
-          tags: cr.selcloud.ru/registry-12/bloginya_front:develop
+          tags: cr.selcloud.ru/registry-12/cool_audio:develop

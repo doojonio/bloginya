@@ -41,6 +41,17 @@
           ></app-menu>
         </ng-template>
       </div>
+      <div class="audio-container">
+        @for (audioId of audio_ids(); track audioId) {
+        <div class="single-audio-container">
+          <button matIconButton (click)="removeAudio(audioId)">
+            <mat-icon>clear</mat-icon>
+          </button>
+          <app-audio-player [filename]="audioId"></app-audio-player>
+        </div>
+        }
+        <!-- } -->
+      </div>
       <ngx-editor
         [editor]="editor"
         formControlName="document"
@@ -54,7 +65,7 @@
     </button>
     <input
       type="file"
-      accept="image/*"
+      accept="image/*,audio/*"
       multiple
       #atInput
       (change)="onAttachmentsSelected($event)"

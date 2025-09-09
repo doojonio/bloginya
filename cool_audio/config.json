@@ -1,0 +1,13 @@
+{
+  "max_file_size": 10485760,
+  "min_file_size": 1024,
+  "allowed_media_types": [
+    "audio/mpeg",
+    "audio/wav",
+    "audio/ogg",
+    "audio/webm",
+    "audio/vnd.wave"
+  ],
+  "upload_dir": "uploads",
+  "policy_service_url": "http://localhost:3000/api/policy"
+}

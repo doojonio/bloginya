@@ -1,0 +1,7 @@
+# Binaries
+cool_audio
+*.exe
+*.exe~
+
+# Uploads
+uploads/

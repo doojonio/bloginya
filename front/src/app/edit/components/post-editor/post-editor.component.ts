@@ -25,8 +25,9 @@ import { Router } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
-  concat,
+  EMPTY,
   merge,
+  Observable,
   of,
   Subject,
   throwError,
@@ -43,6 +44,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
+import { AudioService } from '../../../audio/services/audio.service';
 import { CategoryEditorComponent } from '../../../category/components/category-editor/category-editor.component';
 import { customSchema } from '../../../prosemirror/schema';
 import {
@@ -80,6 +82,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly picS = inject(PictureService);
   private readonly asianS = inject(AsianHelpersService);
   private readonly categoriesS = inject(CategoryService);
+  private readonly audioS = inject(AudioService);
 
   readonly dialog = inject(MatDialog);
 
@@ -107,6 +110,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   );
 
   tags = signal<string[]>([]);
+  audio_ids = signal<string[]>([]);
 
   draft = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -216,6 +220,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         picture_wp: this.picS.variant(post.picture_wp, 'medium'),
         picture_pre: post.picture_pre,
       });
+      this.audio_ids.set(post.audio_ids);
 
       this.tags.set(post.tags);
       this.meta.setValue({
@@ -319,6 +324,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         document: form.document,
         picture_wp: form.picture_wp,
         picture_pre: form.picture_pre,
+        audio_ids: this.audio_ids(),
       })
       .pipe(tap(() => (this.hasUnsavedChanges = false)));
   }
@@ -427,60 +433,93 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     this.saveDraft(this.draft.value).pipe(takeUntil(this.destroy$)).subscribe();
   }
 
+  uploadPostAudio(file: File) {
+    return this.audioS.upload(file).pipe(
+      catchError((err) => {
+        this.notifierS.notify('An error occurred while uploading audio', 'OK');
+        return EMPTY;
+      }),
+      tap((res) => {
+        this.audio_ids.set([...this.audio_ids(), res.file_id]);
+      })
+    );
+  }
+
+  removeAudio(audioId: string) {
+    this.audio_ids.update((audio_ids) => {
+      const idx = audio_ids.indexOf(audioId);
+      if (idx < 0) {
+        return audio_ids;
+      }
+
+      audio_ids.splice(idx, 1);
+      return [...audio_ids];
+    });
+  }
+
   onAttachmentsSelected(event: Event) {
     const target = event.target as HTMLInputElement;
-    if (!target.files) {
+    if (!target.files?.length) {
       return;
     }
-    const files: FileList = target.files;
-    if (
-      !this.editor.view.state.selection.$from.parent.inlineContent ||
-      !files.length
-    ) {
+    const files = Array.from(target.files);
+
+    const uploadOps$: Observable<any>[] = [];
+
+    for (const file of files) {
+      if (
+        file.type.startsWith('image') &&
+        this.editor.view.state.selection.$from.parent.inlineContent
+      ) {
+        uploadOps$.push(
+          this.uploadPostImage(file).pipe(
+            tap((result) => {
+              const schema = this.editor.schema;
+              const view = this.editor.view;
+              const pos = findPlaceholder(view.state, result.id);
+
+              if (pos == null) {
+                return;
+              }
+
+              view.dispatch(
+                view.state.tr
+                  .replaceWith(
+                    pos,
+                    pos,
+                    schema.nodes['image'].create({
+                      src: result.path,
+                    })
+                  )
+                  .setMeta(placeholderPlugin, { remove: { id: result.id } })
+              );
+
+              this.thumbChooser.updateImages();
+            })
+          )
+        );
+      } else if (file.type.startsWith('audio')) {
+        uploadOps$.push(this.uploadPostAudio(file));
+      }
+    }
+
+    if (uploadOps$.length === 0) {
       return;
     }
 
     this.attachmentLoading = true;
-    const obs$ = [];
-    for (const file of files) {
-      obs$.push(this.uploadFile(file));
-    }
 
-    concat(...obs$)
+    merge(...uploadOps$)
       .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          this.notifierS.notify('An error occurred when uploading', 'OK');
-          return throwError(() => err);
+        finalize(() => {
+          this.attachmentLoading = false;
         }),
-        finalize(() => (this.attachmentLoading = false))
+        takeUntil(this.destroy$)
       )
-      .subscribe((result) => {
-        const schema = this.editor.schema;
-        const view = this.editor.view;
-        const pos = findPlaceholder(view.state, result.id);
-
-        if (pos == null) {
-          return;
-        }
-
-        view.dispatch(
-          view.state.tr
-            .replaceWith(
-              pos,
-              pos,
-              schema.nodes['image'].create({
-                src: result.path,
-              })
-            )
-            .setMeta(placeholderPlugin, { remove: { id: result.id } })
-        );
-
-        this.thumbChooser.updateImages();
-      });
+      .subscribe();
   }
 
-  private uploadFile(file: File) {
+  private uploadPostImage(file: File) {
     const pholdId = {};
     const view = this.editor.view;
     const tr = view.state.tr;
@@ -498,7 +537,9 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         view.dispatch(
           tr.setMeta(placeholderPlugin, { remove: { id: pholdId } })
         );
-        return throwError(() => err);
+        this.notifierS.notify('An error occurred when uploading', 'OK');
+        // Return EMPTY to complete this stream without emitting anything and allow other uploads to continue.
+        return EMPTY;
       }),
       map((res) => {
         return { id: pholdId, path: this.picS.variant(res.id, 'medium') };

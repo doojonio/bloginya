@@ -30,6 +30,9 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
         libzstd-dev \
         pkg-config \
         postgresql-server-dev-all
+        # npm
+
+# RUN sudo npm install -g @google/gemini-cli
 
 RUN git clone https://github.com/ImageMagick/ImageMagick.git /opt/ImageMagick --branch 7.1.1-47 && \
 	cd /opt/ImageMagick && ./configure --with-perl && make && make install && ldconfig /usr/local/lib && \

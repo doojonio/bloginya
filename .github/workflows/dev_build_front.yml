@@ -1,11 +1,11 @@
-name: Build Back Dev
+name: Build Front Dev
 
 on:
   push:
     branches:
       - develop
     paths:
-      - "back/**"
+      - "front/**"
 
 jobs:
   build_push:
@@ -27,8 +27,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./back
+          context: ./front
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: true
-          tags: cr.selcloud.ru/registry-12/bloginya_back:develop
+          tags: cr.selcloud.ru/registry-12/bloginya_front:develop

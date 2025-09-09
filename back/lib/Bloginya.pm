@@ -158,6 +158,9 @@ sub _setup_routes($self) {
   # Stat
   $api_U->post('/stat')->to('Stat#add_stat');
   $api_A->get('/stat')->to('Stat#get_view_count');
+
+  # Policy
+  $api_A->get('/policy/can_upload_audio')->to('Policy#can_upload_audio');
 }
 
 

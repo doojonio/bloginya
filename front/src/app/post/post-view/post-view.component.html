@@ -18,6 +18,12 @@
         >P/F</mat-slide-toggle
       >
     </div>
+    } @if (post().audio_ids.length) {
+    <div class="audio-container">
+      @for (audioId of post().audio_ids; track audioId) {
+      <app-audio-player [filename]="audioId"></app-audio-player>
+      }
+    </div>
     }
     <div class="title">
       @for (line of p.title.split("\n"); track line) {

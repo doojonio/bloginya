@@ -195,3 +195,20 @@ mat-divider {
   display: flex;
   justify-content: center;
 }
+
+.audio-container {
+  display: flex;
+  flex-flow: column wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.single-audio-container {
+  // max-width: 20rem;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}

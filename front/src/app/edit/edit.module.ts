@@ -16,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { NgxEditorModule } from 'ngx-editor';
+import { AudioModule } from '../audio/audio.module';
 import { EditCategoryModule } from '../category/edit-category.module';
 import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
@@ -37,6 +38,7 @@ import { EditorService } from './services/editor.service';
     CoolAsiaService,
   ],
   imports: [
+    AudioModule,
     NgOptimizedImage,
     CommonModule,
     EditRoutingModule,

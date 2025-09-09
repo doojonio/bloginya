@@ -21,4 +21,3 @@ requires 'Log::Log4perl';
 on 'develop' => sub {
   requires 'DDP';
 }
-

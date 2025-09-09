@@ -1,0 +1,21 @@
+<div class="container">
+  @if (!isRecording()) {
+    <button mat-fab color="primary" (click)="startRecording()" [disabled]="isRecording()">
+      <mat-icon>mic</mat-icon>
+    </button>
+  } @else {
+    <button mat-fab color="warn" (click)="stopRecording()" [disabled]="!isRecording()">
+      <mat-icon>stop</mat-icon>
+    </button>
+  }
+
+  @if (audioUrl()) {
+    <button mat-icon-button color="primary" (click)="playRecording()" [disabled]="!audioUrl()">
+      <mat-icon>play_arrow</mat-icon>
+    </button>
+    <button mat-icon-button color="primary" (click)="uploadRecording()" [disabled]="!audioUrl()">
+      <mat-icon>cloud_upload</mat-icon>
+    </button>
+    <audio [src]="audioUrl()" controls></audio>
+  }
+</div>

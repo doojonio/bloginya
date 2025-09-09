@@ -1,0 +1,39 @@
+<div class="audio-player-container">
+  @if (audioUrl()) {
+  <audio
+    #audioPlayer
+    [src]="audioUrl()"
+    (timeupdate)="onTimeUpdate(audioPlayer)"
+    (loadedmetadata)="onLoadedMetadata(audioPlayer)"
+    (ended)="onEnded()"
+  ></audio>
+
+  <button mat-icon-button (click)="togglePlayPause(audioPlayer)">
+    <mat-icon>{{ isPlaying() ? "pause" : "play_arrow" }}</mat-icon>
+  </button>
+
+  <div class="progress-container">
+    <mat-progress-bar
+      mode="determinate"
+      [value]="(currentTime() / duration()) * 100"
+    ></mat-progress-bar>
+    <input
+      type="range"
+      class="seek-slider"
+      [max]="duration()"
+      [value]="currentTime()"
+      (input)="onSeek($event, audioPlayer)"
+    />
+  </div>
+
+  <div class="time-display">
+    <span>
+      {{ currentTime() * 1000 | date : "mm:ss" : "UTC" }}
+    </span>
+    <span>/</span>
+    <span>
+      {{ duration() * 1000 | date : "mm:ss" : "UTC" }}
+    </span>
+  </div>
+  }
+</div>
