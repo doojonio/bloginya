@@ -190,6 +190,7 @@ mat-divider {
   margin-top: 1rem;
   display: flex;
   flex-flow: column wrap;
-  align-items: center;
+  align-items: flex-end;
   gap: 1rem;
+  width: 100%;
 }

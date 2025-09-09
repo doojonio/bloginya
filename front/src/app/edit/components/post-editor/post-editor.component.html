@@ -43,11 +43,11 @@
       </div>
       <div class="audio-container">
         @for (audioId of audio_ids(); track audioId) {
-        <div>
-          <app-audio-player [filename]="audioId"></app-audio-player>
+        <div class="single-audio-container">
           <button matIconButton (click)="removeAudio(audioId)">
-            <mat-icon>delete</mat-icon>
+            <mat-icon>clear</mat-icon>
           </button>
+          <app-audio-player [filename]="audioId"></app-audio-player>
         </div>
         }
         <!-- } -->

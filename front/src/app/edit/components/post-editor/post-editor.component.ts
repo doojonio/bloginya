@@ -435,6 +435,10 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
   uploadPostAudio(file: File) {
     return this.audioS.upload(file).pipe(
+      catchError((err) => {
+        this.notifierS.notify('An error occurred while uploading audio', 'OK');
+        return EMPTY;
+      }),
       tap((res) => {
         this.audio_ids.set([...this.audio_ids(), res.file_id]);
       })
@@ -495,13 +499,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
           )
         );
       } else if (file.type.startsWith('audio')) {
-        uploadOps$.push(
-          this.uploadPostAudio(file).pipe(
-            tap((result) => {
-              console.log(result);
-            })
-          )
-        );
+        uploadOps$.push(this.uploadPostAudio(file));
       }
     }
 
