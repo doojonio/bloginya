@@ -17,7 +17,6 @@ WORKDIR /root/
 
 COPY --from=builder /app/cool_audio .
 COPY --from=builder /app/config.json .
-COPY --from=builder /app/uploads ./uploads
 
 EXPOSE 8080
 
