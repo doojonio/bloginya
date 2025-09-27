@@ -3,28 +3,15 @@
 } @else {
 <div class="container">
   <form [formGroup]="draft">
-    <div
-      class="title"
-      [class]="title_class$ | async"
-      [style]="title_style$ | async"
-    >
-      <textarea
-        type="text"
-        matInput
-        formControlName="title"
-        placeholder="Title..."
-      ></textarea>
-      <button matIconButton (click)="wpInput.click()">
-        <mat-icon>image</mat-icon>
-      </button>
-      <input
-        type="file"
-        accept="image/*"
-        #wpInput
-        (change)="onWpSelected($event)"
-        style="display: none"
-      />
-    </div>
+    @if (postId(); as id) {
+    <app-wallpaper-chooser
+      class="wallpaper-chooser"
+      [isWallpaperLoading]="isWallpaperLoading"
+      [formGroup]="draft"
+      [postId]="id"
+    ></app-wallpaper-chooser>
+    }
+    <app-title-input class="title-editor" [formGroup]="draft"></app-title-input>
     <div class="editor">
       <div class="menu-container">
         <ngx-editor-menu
@@ -40,17 +27,6 @@
             (asianHelperClicked)="asianHelperClicked.next()"
           ></app-menu>
         </ng-template>
-      </div>
-      <div class="audio-container">
-        @for (audioId of audio_ids(); track audioId) {
-        <div class="single-audio-container">
-          <button matIconButton (click)="removeAudio(audioId)">
-            <mat-icon>clear</mat-icon>
-          </button>
-          <app-audio-player [filename]="audioId"></app-audio-player>
-        </div>
-        }
-        <!-- } -->
       </div>
       <ngx-editor
         [editor]="editor"
@@ -78,117 +54,16 @@
       >
     </div>
   </div>
-  @if (attachmentLoading || wpLoading) {
+  @if (isAttachmentLoading || isWallpaperLoading) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   } @else {
   <mat-divider [class.unsaved]="hasUnsavedChanges"></mat-divider>
   }
-  <form class="meta-editor" [formGroup]="meta">
-    <div class="opts">
-      <div class="opt-row">
-        <div class="opt-title"><p i18n>Tags</p></div>
-        <div class="opt-value">
-          <mat-form-field class="tags-field">
-            <mat-chip-grid #chipGrid formControlName="tags">
-              @for (tag of tags(); track tag) {
-              <mat-chip-row (removed)="removeTag(tag)">
-                {{ tag }}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip-row>
-              }
-              <input
-                placeholder="New tag..."
-                [matChipInputFor]="chipGrid"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                (matChipInputTokenEnd)="addTag($event)"
-              />
-            </mat-chip-grid>
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="opt-row">
-        <div class="opt-title"><p i18n>Settings</p></div>
-        <div class="opt-value">
-          <mat-form-field appearance="outline">
-            <mat-label i18n>Status</mat-label>
-            <mat-select formControlName="status">
-              @for (status of STATUSES; track status.value ) {
-              <mat-option [value]="status.value">{{ status.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label i18n>Category</mat-label>
-            <mat-select formControlName="category_id">
-              <mat-option (click)="addNewCategory()"
-                ><mat-icon>add</mat-icon>Create new</mat-option
-              >
-              <mat-option [value]="null">-</mat-option>
-              @for (category of (categories$ |async); track category.id ) {
-              <mat-option [value]="category.id">{{
-                category.title
-              }}</mat-option>
-              }
-            </mat-select>
-            @if (this.meta.getError('required', 'category_id')) {
-            <mat-error i18n>Category is required for public posts</mat-error>
-            }
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label i18n>Shortname</mat-label>
-            <input
-              matInput
-              formControlName="shortname"
-              placeholder="Shortname"
-            />
-            @if (this.meta.getError('minlength', 'shortname')) {
-            <mat-error i18n>Too short</mat-error>
-            } @else if (this.meta.getError('maxlength', 'shortname')) {
-            <mat-error i18n>Too long</mat-error>
-            } @else if (this.meta.getError('pattern', 'shortname')) {
-            <mat-error i18n>Invalid characters</mat-error>
-            } @else if (this.meta.getError('taken', 'shortname')) {
-            <mat-error i18n>This shortname is already taken</mat-error>
-            }
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="opt-row">
-        <div class="opt-title"><p i18n>Thumbnail</p></div>
-        <div class="opt-value">
-          <app-thumbnail-chooser
-            #thumbChooser
-            [postId]="postId()"
-            [(selectedImage)]="selectedImage"
-          ></app-thumbnail-chooser>
-        </div>
-      </div>
-      <div class="opt-row">
-        <div class="opt-title"><p i18n>Society</p></div>
-        <div class="opt-value">
-          <div class="opt-toggles">
-            <mat-slide-toggle formControlName="enableLikes" i18n
-              >Enable likes</mat-slide-toggle
-            >
-            <mat-slide-toggle formControlName="enableComments" i18n
-              >Enable comments</mat-slide-toggle
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="general-actions">
-      <button
-        matButton="filled"
-        (click)="applyChanges()"
-        [disabled]="isApplyDisabled"
-        i18n
-      >
-        Apply
-      </button>
-    </div>
-  </form>
+  <app-meta-editor
+    [postId]="postId()"
+    [isApplyDisabled]="isApplyDisabled"
+    [valueSubject$]="metaValueSubject$"
+    (onApply)="onMetaApply($event)"
+  ></app-meta-editor>
 </div>
 }

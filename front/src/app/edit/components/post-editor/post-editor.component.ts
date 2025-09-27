@@ -6,29 +6,20 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
 } from '@angular/core';
 
-import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Editor, Validators as EditorValidators } from 'ngx-editor';
 
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { MatChipInputEvent } from '@angular/material/chips';
 import { Router } from '@angular/router';
 import {
-  BehaviorSubject,
-  combineLatest,
   EMPTY,
   merge,
   Observable,
   of,
+  ReplaySubject,
   Subject,
   throwError,
 } from 'rxjs';
@@ -44,19 +35,13 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { AudioService } from '../../../audio/services/audio.service';
-import { CategoryEditorComponent } from '../../../category/components/category-editor/category-editor.component';
 import { customSchema } from '../../../prosemirror/schema';
-import {
-  CategoryStatuses,
-  PostStatuses,
-} from '../../../shared/interfaces/entities.interface';
+import { PostStatuses } from '../../../shared/interfaces/entities.interface';
 import { AppService } from '../../../shared/services/app.service';
-import { CategoryService } from '../../../shared/services/category.service';
 import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
-import { ShortnamesService } from '../../../shared/services/shortnames.service';
 import { helperMarkPlugin } from '../../prosemirror/helper-mark.plugin';
+import { pictureSrcsPlugin } from '../../prosemirror/picture-srcs.plugin';
 import {
   findPlaceholder,
   placeholderPlugin,
@@ -64,7 +49,7 @@ import {
 import { AsianHelpersService } from '../../services/asian-helpers.service';
 import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
-import { ThumbnailChooserComponent } from '../thumbnail-chooser/thumbnail-chooser.component';
+import { MetaValue } from '../meta-editor/meta-editor.component';
 
 @Component({
   selector: 'app-post-editor',
@@ -77,26 +62,17 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly notifierS = inject(NotifierService);
   private readonly driveS = inject(DriveService);
   private readonly editS = inject(EditorService);
-  private readonly shortnamesS = inject(ShortnamesService);
   private readonly router = inject(Router);
   private readonly picS = inject(PictureService);
   private readonly asianS = inject(AsianHelpersService);
-  private readonly categoriesS = inject(CategoryService);
-  private readonly audioS = inject(AudioService);
-
-  readonly dialog = inject(MatDialog);
 
   private destroy$ = new Subject<void>();
-  STATUSES = [
-    { name: $localize`Public`, value: PostStatuses.Pub },
-    { name: $localize`Private`, value: PostStatuses.Private },
-    { name: $localize`Draft`, value: PostStatuses.Draft },
-    { name: $localize`Del`, value: PostStatuses.Del },
-  ];
 
   toolbar$ = this.appS.getEditorToolbar();
   colorPresets$ = this.appS.getEditorColorPallete();
-  attachmentLoading = false;
+
+  isWallpaperLoading = false;
+  isAttachmentLoading = false;
 
   postId = input.required<string>();
   savedPost$ = toObservable(this.postId).pipe(
@@ -104,13 +80,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     shareReplay(1)
   );
 
-  updateCategories$ = new BehaviorSubject(1);
-  categories$ = this.updateCategories$.pipe(
-    switchMap((_) => this.categoriesS.getCategories())
-  );
-
-  tags = signal<string[]>([]);
-  audio_ids = signal<string[]>([]);
+  metaValueSubject$ = new ReplaySubject<MetaValue>(1);
 
   draft = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -120,85 +90,18 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     picture_wp: new FormControl<string | null>(null),
     picture_pre: new FormControl<string | null>(null),
   });
-  meta = new FormGroup({
-    tags: new FormControl<string[]>([]),
-    status: new FormControl(PostStatuses.Draft, [Validators.required]),
-    category_id: new FormControl<string | null>(null),
-    shortname: new FormControl<null | string>(
-      null,
-      [
-        Validators.minLength(3),
-        Validators.maxLength(16),
-        Validators.pattern(/^\w+$/),
-      ],
-      this.validateUniqueShortname.bind(this)
-    ),
-    enableLikes: new FormControl(true, [Validators.required]),
-    enableComments: new FormControl(true, [Validators.required]),
-  });
-
   editor = new Editor({
     plugins: [
       placeholderPlugin,
       this.asianS.getSearchPlugin(),
       helperMarkPlugin,
-      // rtSkipPlugin,
     ],
     schema: customSchema,
   });
 
-  picture_wp$ = this.draft.get('picture_wp')!.valueChanges.pipe(shareReplay(1));
-
-  title_class$ = this.picture_wp$.pipe(
-    map((url) => (url ? 'title-imaged' : 'title-bordered'))
-  );
-  title_style$ = this.picture_wp$.pipe(
-    map((url) =>
-      url
-        ? {
-            background: [
-              'linear-gradient(to right, rgba(0,0,0, 0.4))',
-              `url(${url}) no-repeat center / cover`,
-            ].join(', '),
-          }
-        : {}
-    )
-  );
-
-  separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   isApplyDisabled = false;
   hasUnsavedChanges = false;
-
-  @ViewChild('thumbChooser')
-  thumbChooser!: ThumbnailChooserComponent;
-
   showAsianHelpers = false;
-
-  validateUniqueShortname(control: AbstractControl) {
-    const { value } = control;
-    if (value == null || value.length < 3) {
-      return of(null);
-    }
-    return this.shortnamesS
-      .getShortname(value)
-      .pipe(
-        map((sn) =>
-          sn && sn.post_id !== this.postId() ? { taken: true } : null
-        )
-      );
-  }
-
-  addNewCategory() {
-    const dialogRef = this.dialog.open(CategoryEditorComponent, {
-      restoreFocus: false,
-    });
-    dialogRef.afterClosed().subscribe((resp) => {
-      if (!resp) {
-        return;
-      }
-      this.updateCategories$.next(1);
-    });
-  }
 
   asianHelperClicked = new Subject<void>();
 
@@ -210,8 +113,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     });
 
   ngOnInit(): void {
-    this.picture_wp$.pipe(takeUntil(this.destroy$)).subscribe();
-
     this.savedPost$.pipe(takeUntil(this.destroy$)).subscribe((post) => {
       this.selectedImage.set(post.picture_pre);
       this.draft.setValue({
@@ -220,18 +121,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         picture_wp: this.picS.variant(post.picture_wp, 'medium'),
         picture_pre: post.picture_pre,
       });
-      this.audio_ids.set(post.audio_ids);
-
-      this.tags.set(post.tags);
-      this.meta.setValue({
-        tags: post.tags,
-        status: post.status,
-        category_id: post.category_id || null,
-        // TODO
-        shortname: post.shortname,
-        enableLikes: post.enable_likes,
-        enableComments: post.enable_comments,
-      });
+      this.metaValueSubject$.next(post);
     });
 
     merge(this.draft.get('document')!.valueChanges, this.asianHelperClicked)
@@ -258,59 +148,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         )
       )
       .subscribe(() => {});
-
-    this.draft
-      .get('title')!
-      .valueChanges.pipe(filter(Boolean))
-      .subscribe((title) => {
-        const lines = title.split('\n');
-        if (lines.length > 2) {
-          this.draft
-            .get('title')
-            ?.setValue(lines[0] + '\n' + lines.slice(1).join(''));
-        }
-      });
-
-    combineLatest([this.categories$, this.meta.valueChanges])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([categories, meta]) => {
-        const status = meta.status;
-
-        const categoryIdControl = this.meta.get('category_id')!;
-        if (status == PostStatuses.Pub) {
-          categoryIdControl.setValidators([Validators.required]);
-        } else {
-          categoryIdControl.clearValidators();
-        }
-
-        categoryIdControl.updateValueAndValidity({ emitEvent: false });
-
-        if (!categories.length) return;
-
-        const selectedCategoryId = meta.category_id;
-        const selectedCategory = categories.find(
-          (c) => c.id === selectedCategoryId
-        );
-        const statusControl = this.meta.get('status')!;
-        if (selectedCategory?.status == CategoryStatuses.Private) {
-          if (statusControl.value !== PostStatuses.Private) {
-            statusControl.setValue(PostStatuses.Private, { emitEvent: false });
-          }
-          if (statusControl.enabled) {
-          }
-          statusControl.disable({ emitEvent: false });
-        } else {
-          if (statusControl.value === PostStatuses.Private) {
-            statusControl.setValue(PostStatuses.Draft, { emitEvent: false });
-          }
-
-          if (statusControl.disabled) {
-            statusControl.enable({ emitEvent: false });
-          }
-        }
-
-        statusControl.updateValueAndValidity({ emitEvent: false });
-      });
   }
 
   saveDraft(form: any) {
@@ -324,36 +161,8 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         document: form.document,
         picture_wp: form.picture_wp,
         picture_pre: form.picture_pre,
-        audio_ids: this.audio_ids(),
       })
       .pipe(tap(() => (this.hasUnsavedChanges = false)));
-  }
-
-  removeTag(tag: string) {
-    this.tags.update((tags) => {
-      const idx = tags.indexOf(tag);
-      if (idx < 0) {
-        return tags;
-      }
-
-      tags.splice(idx, 1);
-      return [...tags];
-    });
-  }
-
-  addTag(event: MatChipInputEvent) {
-    const tag = (event.value || '').trim();
-    if (tag.length < 3) {
-      return;
-    }
-
-    this.tags.update((tags) => {
-      if (tags.indexOf(tag) >= 0) {
-        return tags;
-      }
-      return [...tags, tag];
-    });
-    event.chipInput.clear();
   }
 
   ngOnDestroy(): void {
@@ -362,68 +171,27 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     this.editor?.destroy();
   }
 
-  wpLoading = false;
-  onWpSelected(event: Event) {
-    const postId = this.postId();
-
-    if (!postId) {
-      return;
-    }
-
-    const target = event.target as HTMLInputElement;
-    if (!target.files) {
-      return;
-    }
-    const files: FileList = target.files;
-    if (!files.length) {
-      return;
-    }
-
-    this.wpLoading = true;
-    this.driveS
-      .putFile(postId, files[0])
-      .pipe(
-        finalize(() => (this.wpLoading = false)),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((resp) => {
-        this.draft
-          .get('picture_wp')!
-          .setValue(this.picS.variant(resp.id, 'medium'));
-        this.thumbChooser.updateImages();
-      });
-  }
-
-  applyChanges() {
-    if (this.meta.invalid) {
-      return;
-    }
-
+  onMetaApply(meta: MetaValue) {
     this.isApplyDisabled = true;
     this.saveDraft(this.draft.value)
       .pipe(
         finalize(() => (this.isApplyDisabled = false)),
-        switchMap((res) => {
-          const meta = this.meta.value;
+        switchMap((_) => {
           return this.editS.applyChanges(this.postId(), {
             tags: meta.tags || [],
             status: meta.status || PostStatuses.Draft,
             category_id: meta.category_id || null,
             shortname: meta.shortname || null,
-            enable_likes: meta.enableLikes || false,
-            enable_comments: meta.enableComments || false,
+            enable_likes: meta.enable_likes || false,
+            enable_comments: meta.enable_comments || false,
           });
         }),
         catchError((err) => throwError(() => {})),
         takeUntil(this.destroy$)
       )
       .subscribe((_) => {
-        const shortname = this.meta.get('shortname');
-        this.router.navigate(
-          shortname?.value && shortname?.valid
-            ? [shortname.value]
-            : ['/p/', this.postId()]
-        );
+        const shortname = meta.shortname;
+        this.router.navigate(shortname ? [shortname] : ['/p/', this.postId()]);
       });
   }
 
@@ -431,30 +199,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   ctrlSHandler(event: KeyboardEvent) {
     event.preventDefault();
     this.saveDraft(this.draft.value).pipe(takeUntil(this.destroy$)).subscribe();
-  }
-
-  uploadPostAudio(file: File) {
-    return this.audioS.upload(file).pipe(
-      catchError((err) => {
-        this.notifierS.notify('An error occurred while uploading audio', 'OK');
-        return EMPTY;
-      }),
-      tap((res) => {
-        this.audio_ids.set([...this.audio_ids(), res.file_id]);
-      })
-    );
-  }
-
-  removeAudio(audioId: string) {
-    this.audio_ids.update((audio_ids) => {
-      const idx = audio_ids.indexOf(audioId);
-      if (idx < 0) {
-        return audio_ids;
-      }
-
-      audio_ids.splice(idx, 1);
-      return [...audio_ids];
-    });
   }
 
   onAttachmentsSelected(event: Event) {
@@ -493,13 +237,11 @@ export class PostEditorComponent implements OnInit, OnDestroy {
                   )
                   .setMeta(placeholderPlugin, { remove: { id: result.id } })
               );
-
-              this.thumbChooser.updateImages();
             })
           )
         );
       } else if (file.type.startsWith('audio')) {
-        uploadOps$.push(this.uploadPostAudio(file));
+        // uploadOps$.push(this.uploadPostAudio(file));
       }
     }
 
@@ -507,12 +249,12 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.attachmentLoading = true;
+    this.isAttachmentLoading = true;
 
     merge(...uploadOps$)
       .pipe(
         finalize(() => {
-          this.attachmentLoading = false;
+          this.isAttachmentLoading = false;
         }),
         takeUntil(this.destroy$)
       )
@@ -560,5 +302,48 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     }
 
     return true;
+  }
+}
+
+class PhotoManagerAdapter {
+  static plugin = pictureSrcsPlugin;
+
+  images: string[] = [];
+
+  constructor(private editor: Editor) {}
+
+  updateImages() {
+    this.images = PhotoManagerAdapter.plugin.getState(this.editor.view.state)!;
+  }
+
+  getImages() {
+    this.updateImages();
+    return this.images;
+  }
+
+  onReorder($event: { was: number; now: number }) {
+    moveItemInArray(this.images, $event.was, $event.now);
+    this.syncImages();
+  }
+
+  syncImages() {
+    const images = this.images;
+    const { view } = this.editor;
+    const { state } = view;
+
+    const tr = state.tr;
+
+    let index = 0;
+    tr.doc.descendants((node, pos) => {
+      if (node.type.name == 'image') {
+        if (index < images.length) {
+          tr.setNodeAttribute(pos, 'src', images[index] + '?d=medium');
+        }
+        index++;
+      }
+      return true;
+    });
+
+    view.dispatch(tr);
   }
 }

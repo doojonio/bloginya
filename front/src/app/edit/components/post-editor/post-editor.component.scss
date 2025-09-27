@@ -38,6 +38,11 @@
   justify-content: center;
 }
 
+.wallpaper-chooser {
+  width: 100%;
+}
+
+
 .spin-container {
   height: 100%;
   mat-spinner {
@@ -54,50 +59,9 @@
   }
 }
 
-.title-bordered {
-  border: 1px dashed var(--mat-sys-outline-variant);
-}
-.title-imaged {
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.title {
-  position: relative;
-  height: 20rem;
+.title-editor {
+  margin-top: 2rem;
   margin-bottom: 2rem;
-
-  display: flex;
-
-  border-radius: 1rem;
-
-  justify-content: center;
-  align-items: center;
-
-  textarea {
-    all: unset;
-    color: var(--mat-sys-primary);
-    font: var(--mat-sys-display-medium);
-    text-align: center;
-    text-wrap: wrap;
-    width: 80%;
-    max-width: 80%;
-    overflow: hidden;
-    resize: none;
-    font-weight: bold;
-  }
-
-  button {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-
-    @include mat.icon-overrides(
-      (
-        color: var(--mat-sys-outline),
-      )
-    );
-  }
 }
 
 .menu-container {
@@ -149,66 +113,4 @@ mat-divider {
       )
     );
   }
-}
-
-.opt-row {
-  @include m.for-size(desktop) {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    padding: 0.5rem 0;
-  }
-}
-.opt-title {
-  font: var(--mat-sys-title-medium);
-  min-width: 15rem;
-}
-.opt-value {
-  display: flex;
-
-  @include m.for-size(handset) {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  @include m.for-size(desktop) {
-    flex: 1;
-    justify-content: space-between;
-  }
-}
-
-.opt-toggles {
-  display: flex;
-  flex-flow: column;
-
-  mat-slide-toggle {
-    margin: 0.5rem 0;
-  }
-}
-
-.tags-field {
-  width: 100%;
-}
-
-.general-actions {
-  margin: 1rem;
-  display: flex;
-  justify-content: center;
-}
-
-.audio-container {
-  display: flex;
-  flex-flow: column wrap;
-  align-items: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-.single-audio-container {
-  // max-width: 20rem;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
 }

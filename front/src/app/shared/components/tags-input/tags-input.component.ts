@@ -14,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule,
   ],
   template: `
-    <mat-form-field class="tags-field">
+    <mat-form-field>
       <mat-chip-grid #chipGrid [formControl]="control()">
         @for (tag of tags(); track tag) {
         <mat-chip-row (removed)="removeTag(tag)">
@@ -36,6 +36,10 @@ import { MatIconModule } from '@angular/material/icon';
   styles: `
     :host {
       display: block;
+    }
+
+    mat-form-field {
+      width: 100%;
     }
   `,
 })
