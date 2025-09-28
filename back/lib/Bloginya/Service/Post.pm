@@ -285,7 +285,7 @@ async sub _ensure_draft_p($self, $post_id) {
 async sub update_draft_p ($self, $post_id, $fields) {
   die "no rights" unless (await $self->se_policy->can_update_post_p($post_id));
 
-  my $audio_ids = $fields->{audio_ids};
+  my $audio_ids = $fields->{audio_ids} // [];
 
   my %fields = map { $_ => $fields->{$_} } grep {
     my $a = $_;

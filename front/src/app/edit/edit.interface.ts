@@ -31,6 +31,5 @@ export interface UpdateDraftPayload {
   document?: any;
   picture_wp?: string | null;
   picture_pre?: string | null;
-  audio_ids: string[],
 }
 

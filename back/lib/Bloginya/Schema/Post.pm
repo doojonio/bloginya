@@ -27,7 +27,6 @@ schema UpdateDraftPayload => {
   document    => {type => 'str', content => 'arrayref'},
   picture_wp  => 'str|undef',
   picture_pre => 'str|undef',
-  audio_ids   => ['str'],
 };
 
 schema ApplyChangesPayload => {
