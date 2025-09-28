@@ -29,6 +29,12 @@
     }
   </form>
   <div class="editor-acts">
+    @if (isShowPhotoManager) {
+    <button (click)="applyPhotoManager()" matButton="outlined">
+      <mat-icon>edit_document</mat-icon>Editor
+    </button>
+
+    } @else {
     <button class="attachment-btn" matIconButton (click)="atInput.click()">
       <mat-icon>attachment</mat-icon>
     </button>
@@ -41,23 +47,16 @@
       style="display: none"
     />
 
-    @if (isShowPhotoManager) {
-    <button (click)="applyPhotoManager()" matButton="outlined">
-      <mat-icon>edit_document</mat-icon>Editor
-    </button>
-
-    } @else {
-
     <button (click)="openPhotoManager()" matButton="outlined">
       <mat-icon>camera</mat-icon>Photo Manager
     </button>
-    }
 
     <div class="pinyin-hiragana-wrapper">
       <mat-slide-toggle [(ngModel)]="showAsianHelpers" i18n
         >Show P/F</mat-slide-toggle
       >
     </div>
+    }
   </div>
   @if (isAttachmentLoading || isWallpaperLoading) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -66,7 +65,7 @@
   }
   <app-meta-editor
     [postId]="postId()"
-    [isApplyDisabled]="isApplyDisabled"
+    [isApplyDisabled]="isApplyDisabled || isShowPhotoManager"
     [valueSubject$]="metaValueSubject$"
     (onApply)="onMetaApply($event)"
   ></app-meta-editor>
