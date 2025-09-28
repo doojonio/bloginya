@@ -12,28 +12,21 @@
     ></app-wallpaper-chooser>
     }
     <app-title-input class="title-editor" [formGroup]="draft"></app-title-input>
-    <div class="editor">
-      <div class="menu-container">
-        <ngx-editor-menu
-          [editor]="editor"
-          [toolbar]="(toolbar$ | async)!"
-          [colorPresets]="(colorPresets$ | async) || []"
-          [customMenuRef]="customMenu"
-        ></ngx-editor-menu>
 
-        <ng-template #customMenu>
-          <app-menu
-            [editor]="editor"
-            (asianHelperClicked)="asianHelperClicked.next()"
-          ></app-menu>
-        </ng-template>
-      </div>
-      <ngx-editor
-        [editor]="editor"
-        formControlName="document"
-        [class.app-rt-disabled]="!showAsianHelpers"
-      ></ngx-editor>
-    </div>
+    @if (isShowPhotoManager) {
+    <app-photo-manager
+      #photoManager
+      [previewControl]="previewControl()"
+      [wallpaperControl]="wallpaperControl()"
+      [documentControl]="documentControl()"
+    ></app-photo-manager>
+    } @else {
+    <app-post-editor-root
+      [editor]="editor"
+      [documentControl]="documentControl()"
+      [(showAsianHelpers)]="showAsianHelpers"
+    ></app-post-editor-root>
+    }
   </form>
   <div class="editor-acts">
     <button class="attachment-btn" matIconButton (click)="atInput.click()">
@@ -47,6 +40,18 @@
       (change)="onAttachmentsSelected($event)"
       style="display: none"
     />
+
+    @if (isShowPhotoManager) {
+    <button (click)="applyPhotoManager()" matButton="outlined">
+      <mat-icon>edit_document</mat-icon>Editor
+    </button>
+
+    } @else {
+
+    <button (click)="openPhotoManager()" matButton="outlined">
+      <mat-icon>camera</mat-icon>Photo Manager
+    </button>
+    }
 
     <div class="pinyin-hiragana-wrapper">
       <mat-slide-toggle [(ngModel)]="showAsianHelpers" i18n

@@ -74,6 +74,8 @@
   flex-flow: row wrap;
   gap: 1rem;
 
+  align-items: center;
+
   .attachment-btn {
     @include mat.icon-overrides(
       (

@@ -1,11 +1,13 @@
 import {
   Component,
+  computed,
   HostListener,
   inject,
   input,
   OnDestroy,
   OnInit,
   signal,
+  ViewChild,
 } from '@angular/core';
 
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -13,7 +15,7 @@ import { Editor, Validators as EditorValidators } from 'ngx-editor';
 
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   EMPTY,
   merge,
@@ -37,11 +39,9 @@ import {
 } from 'rxjs/operators';
 import { customSchema } from '../../../prosemirror/schema';
 import { PostStatuses } from '../../../shared/interfaces/entities.interface';
-import { AppService } from '../../../shared/services/app.service';
 import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { helperMarkPlugin } from '../../prosemirror/helper-mark.plugin';
-import { pictureSrcsPlugin } from '../../prosemirror/picture-srcs.plugin';
 import {
   findPlaceholder,
   placeholderPlugin,
@@ -50,6 +50,7 @@ import { AsianHelpersService } from '../../services/asian-helpers.service';
 import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
 import { MetaValue } from '../meta-editor/meta-editor.component';
+import { PhotoManagerComponent } from '../photo-manager/photo-manager.component';
 
 @Component({
   selector: 'app-post-editor',
@@ -58,21 +59,22 @@ import { MetaValue } from '../meta-editor/meta-editor.component';
   styleUrl: './post-editor.component.scss',
 })
 export class PostEditorComponent implements OnInit, OnDestroy {
-  private readonly appS = inject(AppService);
   private readonly notifierS = inject(NotifierService);
   private readonly driveS = inject(DriveService);
   private readonly editS = inject(EditorService);
   private readonly router = inject(Router);
   private readonly picS = inject(PictureService);
   private readonly asianS = inject(AsianHelpersService);
+  private readonly route = inject(ActivatedRoute);
 
   private destroy$ = new Subject<void>();
 
-  toolbar$ = this.appS.getEditorToolbar();
-  colorPresets$ = this.appS.getEditorColorPallete();
-
   isWallpaperLoading = false;
   isAttachmentLoading = false;
+  isShowPhotoManager = false;
+  isApplyDisabled = false;
+  hasUnsavedChanges = false;
+  showAsianHelpers = true;
 
   postId = input.required<string>();
   savedPost$ = toObservable(this.postId).pipe(
@@ -99,11 +101,16 @@ export class PostEditorComponent implements OnInit, OnDestroy {
     schema: customSchema,
   });
 
-  isApplyDisabled = false;
-  hasUnsavedChanges = false;
-  showAsianHelpers = false;
+  @ViewChild('photoManager')
+  photoManager?: PhotoManagerComponent;
 
-  asianHelperClicked = new Subject<void>();
+  documentControl = computed(() => this.draft.get('document')! as FormControl);
+  previewControl = computed(
+    () => this.draft.get('picture_pre')! as FormControl
+  );
+  wallpaperControl = computed(
+    () => this.draft.get('picture_wp')! as FormControl
+  );
 
   selectedImage = signal<string | null>(null);
   _ = toObservable(this.selectedImage)
@@ -123,18 +130,6 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       });
       this.metaValueSubject$.next(post);
     });
-
-    merge(this.draft.get('document')!.valueChanges, this.asianHelperClicked)
-      .pipe(
-        takeUntil(this.destroy$),
-        debounceTime(400),
-        switchMap((_) =>
-          this.asianS
-            .updateHelpers(this.editor)
-            .pipe(catchError((_) => of(null)))
-        )
-      )
-      .subscribe(() => {});
 
     this.draft.valueChanges
       .pipe(
@@ -303,47 +298,13 @@ export class PostEditorComponent implements OnInit, OnDestroy {
 
     return true;
   }
-}
 
-class PhotoManagerAdapter {
-  static plugin = pictureSrcsPlugin;
-
-  images: string[] = [];
-
-  constructor(private editor: Editor) {}
-
-  updateImages() {
-    this.images = PhotoManagerAdapter.plugin.getState(this.editor.view.state)!;
+  openPhotoManager() {
+    this.isShowPhotoManager = true;
   }
 
-  getImages() {
-    this.updateImages();
-    return this.images;
-  }
-
-  onReorder($event: { was: number; now: number }) {
-    moveItemInArray(this.images, $event.was, $event.now);
-    this.syncImages();
-  }
-
-  syncImages() {
-    const images = this.images;
-    const { view } = this.editor;
-    const { state } = view;
-
-    const tr = state.tr;
-
-    let index = 0;
-    tr.doc.descendants((node, pos) => {
-      if (node.type.name == 'image') {
-        if (index < images.length) {
-          tr.setNodeAttribute(pos, 'src', images[index] + '?d=medium');
-        }
-        index++;
-      }
-      return true;
-    });
-
-    view.dispatch(tr);
+  applyPhotoManager() {
+    this.photoManager?.applyChanges();
+    this.isShowPhotoManager = false;
   }
 }

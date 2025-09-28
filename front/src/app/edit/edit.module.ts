@@ -22,9 +22,11 @@ import { EditCategoryModule } from '../category/edit-category.module';
 import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 import { TagsInputComponent } from '../shared/components/tags-input/tags-input.component';
+import { UploadIdPipe } from '../shared/pipes/upload-id.pipe';
 import { MenuComponent } from './components/menu/menu.component';
 import { MetaEditorComponent } from './components/meta-editor/meta-editor.component';
 import { PhotoManagerComponent } from './components/photo-manager/photo-manager.component';
+import { PostEditorRootComponent } from './components/post-editor-root/post-editor-root.component';
 import { PostEditorComponent } from './components/post-editor/post-editor.component';
 import { TitleInputComponent } from './components/title-input/title-input.component';
 import { WallpaperChooserComponent } from './components/wallpaper-chooser/wallpaper-chooser.component';
@@ -42,6 +44,7 @@ import { EditorService } from './services/editor.service';
     WallpaperChooserComponent,
     TitleInputComponent,
     MetaEditorComponent,
+    PostEditorRootComponent,
   ],
   providers: [
     EditorService,
@@ -50,6 +53,7 @@ import { EditorService } from './services/editor.service';
     CoolAsiaService,
   ],
   imports: [
+    UploadIdPipe,
     DragDropModule,
     AudioModule,
     NgOptimizedImage,
