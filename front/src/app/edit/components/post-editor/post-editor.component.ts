@@ -13,7 +13,6 @@ import {
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Editor, Validators as EditorValidators } from 'ngx-editor';
 
-import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {

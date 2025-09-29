@@ -62,7 +62,7 @@ export class TagsInputComponent {
 
   addTag(event: MatChipInputEvent) {
     const tag = (event.value || '').trim();
-    if (tag.length < 3) {
+    if (tag.length < 1 ) {
       return;
     }
 

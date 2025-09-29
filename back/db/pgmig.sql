@@ -1,3 +1,10 @@
+-- 5 up | allow 1 char tags
+alter table tags
+drop constraint tags_name_check;
+
+alter table tags
+add check (length(name) > 0);
+
 -- 4 up | add post_audios table, add column service to uploads
 create type service_type as enum('back', 'cool_audio');
 

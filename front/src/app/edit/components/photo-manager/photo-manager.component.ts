@@ -25,19 +25,23 @@ export interface DialogData {
     <img [ngSrc]="preview | uploadId" width="200" height="200" />
     } @if (images.length) {
     <h3>Post Images</h3>
-    <div class="images" cdkDropList (cdkDropListDropped)="onDropped($event)">
-      @for (img of images; track img) {
-      <img
-        [class.selected]="img === preview"
-        [ngSrc]="img | uploadId"
-        width="100"
-        height="100"
-        (contextmenu)="selectPreview($event, img)"
-        cdkDrag
-      />
+    <div cdkDropListGroup>
+      <div class="images" cdkDropList cdkDropListOrientation="mixed" (cdkDropListDropped)="onDropped($event)">
+        @for (img of images; track img) {
+        <img
+          [class.selected]="img === preview"
+          [ngSrc]="img | uploadId"
+          width="100"
+          height="100"
+          (contextmenu)="selectPreview($event, img)"
+          cdkDrag
+          cdkDragBoundary=".images"
+        />
 
-      }
+        }
+      </div>
     </div>
+
     }
   `,
   styles: `
@@ -47,16 +51,15 @@ export interface DialogData {
       padding: 1rem;
     }
 
-    // flex container
     .images {
       display: flex;
       flex-flow: row wrap;
+      gap: 0.5rem;
     }
 
     img {
       border: 2px solid rgba(0,0,0,0);
       border-radius: 1rem;
-      cursor: pointer;
       object-fit: cover;
 
       &.selected {

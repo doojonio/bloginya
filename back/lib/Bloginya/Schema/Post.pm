@@ -30,7 +30,7 @@ schema UpdateDraftPayload => {
 };
 
 schema ApplyChangesPayload => {
-  tags            => ['str[2,16]'],
+  tags            => ['str[1,16]'],
   status          => 'post_status',
   category_id     => 'cool_id|undef',
   shortname       => 'sname|undef',

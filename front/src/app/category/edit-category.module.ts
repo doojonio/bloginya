@@ -13,6 +13,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { PostListGridTitlesComponent } from '../shared/components/post-list-grid-titles/post-list-grid-titles.component';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
+import { TagsInputComponent } from '../shared/components/tags-input/tags-input.component';
 import { CategoryEditorComponent } from './components/category-editor/category-editor.component';
 
 @NgModule({
@@ -34,6 +35,7 @@ import { CategoryEditorComponent } from './components/category-editor/category-e
     MatMenuModule,
     AsyncPipe,
     MatAutocompleteModule,
+    TagsInputComponent,
   ],
 })
 export class EditCategoryModule {}
