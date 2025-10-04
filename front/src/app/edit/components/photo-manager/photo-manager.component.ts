@@ -25,26 +25,48 @@ export interface DialogData {
     <img [ngSrc]="preview | uploadId" width="200" height="200" />
     } @if (images.length) {
     <h3>Post Images</h3>
-    <div cdkDropListGroup>
-      <div class="images" cdkDropList cdkDropListOrientation="mixed" (cdkDropListDropped)="onDropped($event)">
-        @for (img of images; track img) {
-        <img
-          [class.selected]="img === preview"
-          [ngSrc]="img | uploadId"
-          width="100"
-          height="100"
-          (contextmenu)="selectPreview($event, img)"
-          cdkDrag
-          cdkDragBoundary=".images"
-        />
+    <div class="actions">
+      <button
+        matButton="outlined"
+        (click)="selectPreview()"
+        [disabled]="selectedImages.size != 1"
+      ><mat-icon>photo</mat-icon>Preview</button>
+      <button
+        matButton="outlined"
+        (click)="deleteSelected()"
+        [disabled]="selectedImages.size == 0"
+      ><mat-icon>delete</mat-icon>Delete</button>
+    </div>
+    <div
+      class="images"
+      cdkDropList
+      cdkDropListOrientation="mixed"
+      (cdkDropListDropped)="onDropped($event)"
+    >
+      @for (img of images; track img) {
+      <img
+        [class.selected]="selectedImages.has(img)"
+        [ngSrc]="img | uploadId"
+        width="100"
+        height="100"
+        (click)="toggleSelectImage(img)"
+        cdkDrag
+        cdkDragBoundary=".images"
+      />
 
-        }
-      </div>
+      }
     </div>
 
     }
   `,
   styles: `
+    @use '@angular/material' as mat;
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
 
     :host {
       display: block;
@@ -102,6 +124,8 @@ export class PhotoManagerComponent implements OnInit {
 
   images!: string[];
 
+  selectedImages = new Set<string>();
+
   ngOnInit() {
     const doc = this.documentControl().value;
     try {
@@ -112,9 +136,43 @@ export class PhotoManagerComponent implements OnInit {
     }
   }
 
-  selectPreview(event$: Event, picture: string) {
-    event$.preventDefault();
-    this.previewControl().setValue(picture);
+  toggleSelectImage(img: string) {
+    if (this.selectedImages.has(img)) {
+      this.selectedImages.delete(img);
+    } else {
+      this.selectedImages.add(img);
+    }
+  }
+
+  selectPreview() {
+    this.previewControl().setValue(this.selectedImages.values().next().value);
+    this.selectedImages.clear();
+  }
+
+  deleteSelected() {
+    let doc = this.documentControl().value;
+    let node;
+    try {
+      node = customSchema.nodeFromJSON(doc);
+    } catch {
+      return;
+    }
+
+    let tr = new Transform(node);
+    node.descendants((node, pos) => {
+      if (node.type.name == 'image') {
+        const src = node.attrs['src'].split('?')[0];
+        if (this.selectedImages.has(src)) {
+          tr.delete(tr.mapping.map(pos), tr.mapping.map(pos + node.nodeSize));
+        }
+      }
+      return true;
+    });
+
+    const updatedNode = tr.doc;
+    this.documentControl().setValue(updatedNode.toJSON());
+    this.updateImages(updatedNode);
+    this.selectedImages.clear();
   }
 
   updateImages(node: Node) {
