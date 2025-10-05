@@ -10,7 +10,7 @@ schema CategorySavePayload => {
   description => 'str[0,500]|undef',
   priority    => 'num|undef',
   status      => 'category_status',
-  tags        => ['str[2,16]'],
+  tags        => ['str[1,16]'],
 };
 
 schema 'cat_sort' => sub {

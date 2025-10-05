@@ -23,11 +23,13 @@ import { PostViewComponent } from './post-view/post-view.component';
 import { LikerService } from './services/liker.service';
 import { ReaderService } from './services/reader.service';
 import { StatService } from './services/stat.service';
+import { AudioModule } from '../audio/audio.module';
 
 @NgModule({
   declarations: [PostViewComponent, DocumentDomComponent],
   exports: [PostViewComponent],
   imports: [
+    AudioModule,
     PostRoutingModule,
     AsyncPipe,
     CommentsModule,

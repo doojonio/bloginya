@@ -143,4 +143,16 @@ async sub put($self, $file_path, $extname) {
   return $id;
 }
 
+async sub register_external_upload_p($self, $external_id, $mtype, $service) {
+  die 'no rights'
+    unless $self->current_user && ($self->current_user->{role} eq 'owner' || $self->current_user->{role} eq 'creator');
+
+  my $existing = (await $self->db->select_p('uploads', ['id'], {id => $external_id}))->hashes->first;
+  if (!$existing) {
+    await $self->db->insert_p('uploads',
+      {id => $external_id, user_id => $self->current_user->{id}, mtype => $mtype, service => $service});
+  }
+  return $external_id;
+}
+
 1;

@@ -54,4 +54,10 @@ sub can_change_categories($self) {
 }
 
 
+sub can_upload_audio ($self) {
+  my $user = $self->current_user;
+  return $user && ($user->{role} eq USER_ROLE_OWNER || $user->{role} eq USER_ROLE_CREATOR);
+}
+
+
 1;

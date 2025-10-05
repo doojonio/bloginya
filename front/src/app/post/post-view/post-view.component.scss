@@ -185,3 +185,12 @@ mat-divider {
   margin-top: 2rem;
   width: 100%;
 }
+
+.audio-container {
+  margin-top: 1rem;
+  display: flex;
+  flex-flow: column wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  width: 100%;
+}

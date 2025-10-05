@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   Inject,
   inject,
   OnDestroy,
@@ -111,6 +112,9 @@ export class CategoryEditorComponent implements OnInit, OnDestroy {
       this.validateUniqueShortname.bind(this)
     ),
   });
+
+  tagsControl = this.form.get('tags')! as FormControl;
+
   validateUniqueShortname(control: AbstractControl) {
     const { value } = control;
     if (value == null || value.length < 3) {

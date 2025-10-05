@@ -40,25 +40,8 @@
       <mat-error i18n>This shortname is already taken</mat-error>
       }
     </mat-form-field>
-    <mat-form-field>
-      <mat-label>Tags</mat-label>
-      <mat-chip-grid #chipGrid formControlName="tags">
-        @for (tag of tags(); track tag) {
-        <mat-chip-row (removed)="removeTag(tag)">
-          {{ tag }}
-          <button matChipRemove>
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </mat-chip-row>
-        }
-        <input
-          placeholder="New tag..."
-          [matChipInputFor]="chipGrid"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          (matChipInputTokenEnd)="addTag($event)"
-        />
-      </mat-chip-grid>
-    </mat-form-field>
+
+    <app-tags-input [tags]="tags()" [control]="tagsControl"></app-tags-input>
   </mat-dialog-content>
   <mat-dialog-actions>
     <button matButton mat-dialog-close>Back</button>

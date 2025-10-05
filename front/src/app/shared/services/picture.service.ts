@@ -19,6 +19,10 @@ export class PictureService {
     }
     return driveId + '?d=' + variant;
   }
+
+  extractId(variant: string) {
+    return variant.split('?')[0];
+  }
 }
 
 export type VARIANT =

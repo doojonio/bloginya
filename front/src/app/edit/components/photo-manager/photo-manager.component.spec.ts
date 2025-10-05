@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ThumbnailChooserComponent } from './thumbnail-chooser.component';
+import { PhotoManagerComponent } from './photo-manager.component';
 
 describe('ThumbnailChooserComponent', () => {
-  let component: ThumbnailChooserComponent;
-  let fixture: ComponentFixture<ThumbnailChooserComponent>;
+  let component: PhotoManagerComponent;
+  let fixture: ComponentFixture<PhotoManagerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ThumbnailChooserComponent]
+      imports: [PhotoManagerComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ThumbnailChooserComponent);
+    fixture = TestBed.createComponent(PhotoManagerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

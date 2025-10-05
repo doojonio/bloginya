@@ -26,11 +26,11 @@ schema UpdateDraftPayload => {
   title       => 'str[3,200]',
   document    => {type => 'str', content => 'arrayref'},
   picture_wp  => 'str|undef',
-  picture_pre => 'str|undef'
+  picture_pre => 'str|undef',
 };
 
 schema ApplyChangesPayload => {
-  tags            => ['str[2,16]'],
+  tags            => ['str[1,16]'],
   status          => 'post_status',
   category_id     => 'cool_id|undef',
   shortname       => 'sname|undef',

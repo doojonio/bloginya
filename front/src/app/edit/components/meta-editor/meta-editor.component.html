@@ -1,0 +1,78 @@
+<form class="meta-editor" [formGroup]="meta">
+  <div class="opts">
+    <div class="opt-row">
+      <div class="opt-title"><p i18n>Tags</p></div>
+      <div class="opt-value">
+        <app-tags-input
+          class="tags-field"
+          [control]="tagsControl()"
+          [tags]="tags()"
+        ></app-tags-input>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-title"><p i18n>Settings</p></div>
+      <div class="opt-value">
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Status</mat-label>
+          <mat-select formControlName="status">
+            @for (status of STATUSES; track status.value ) {
+            <mat-option [value]="status.value">{{ status.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Category</mat-label>
+          <mat-select formControlName="category_id">
+            <mat-option (click)="addNewCategory()"
+              ><mat-icon>add</mat-icon>Create new</mat-option
+            >
+            <mat-option [value]="null">-</mat-option>
+            @for (category of (categories$ |async); track category.id ) {
+            <mat-option [value]="category.id">{{ category.title }}</mat-option>
+            }
+          </mat-select>
+          @if (this.meta.getError('required', 'category_id')) {
+          <mat-error i18n>Category is required for public posts</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label i18n>Shortname</mat-label>
+          <input matInput formControlName="shortname" placeholder="Shortname" />
+          @if (this.meta.getError('minlength', 'shortname')) {
+          <mat-error i18n>Too short</mat-error>
+          } @else if (this.meta.getError('maxlength', 'shortname')) {
+          <mat-error i18n>Too long</mat-error>
+          } @else if (this.meta.getError('pattern', 'shortname')) {
+          <mat-error i18n>Invalid characters</mat-error>
+          } @else if (this.meta.getError('taken', 'shortname')) {
+          <mat-error i18n>This shortname is already taken</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-title"><p i18n>Society</p></div>
+      <div class="opt-value">
+        <div class="opt-toggles">
+          <mat-slide-toggle formControlName="enable_likes" i18n
+            >Enable likes</mat-slide-toggle
+          >
+          <mat-slide-toggle formControlName="enable_comments" i18n
+            >Enable comments</mat-slide-toggle
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="general-actions">
+    <button
+      matButton="filled"
+      (click)="applyChanges()"
+      [disabled]="isApplyDisabled()"
+      i18n
+    >
+      Apply
+    </button>
+  </div>
+</form>

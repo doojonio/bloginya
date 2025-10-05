@@ -1,11 +1,7 @@
 name: Deploy
 
 on:
-  workflow_run:
-    workflows: [Build Front, Build Back, Build CoolAsia]
-    types: [completed]
-    branches:
-      - master
+  workflow_dispatch:
 
 jobs:
   deploy:

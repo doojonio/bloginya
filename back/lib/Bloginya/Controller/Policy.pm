@@ -1,0 +1,11 @@
+package Bloginya::Controller::Policy;
+use Mojo::Base 'Mojolicious::Controller', -signatures, -async_await;
+
+async sub can_upload_audio($self) {
+  my $user       = await $self->current_user_p;
+  my $authorized = $self->service('policy')->can_upload_audio();
+
+  $self->render(json => {authorized => $authorized ? 1 : 0});
+}
+
+1;

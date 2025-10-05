@@ -20,6 +20,7 @@ has 'se_policy';
 has 'se_prose_mirror';
 has 'se_drive';
 has 'se_language';
+has 'se_post_audio';
 has 'log';
 
 async sub get_drafts_p ($self) {
@@ -66,6 +67,7 @@ async sub read_p($self, $post_id) {
     [-left => \'shortnames csn', 'c.id'          => 'csn.category_id'],
     [-left => \'uploads uwp',    'uwp.id'        => 'p.picture_wp'],
     [-left => \'uploads upre',   'upre.id'       => 'p.picture_pre'],
+    [-left => \'post_audios pa', 'pa.post_id'    => 'p.id'],
   );
 
   # Define columns to select
@@ -90,8 +92,13 @@ async sub read_p($self, $post_id) {
         where pt.post_id = p.id
       )' => 'tags'
     ],
+    [
+      \'(select coalesce(array_remove(array_agg(pa.audio_id), NULL), ARRAY[]::text[]) from post_audios pa where pa.post_id = p.id)'
+        => 'audio_ids'
+    ],
     [\"(select count(*) from comments where post_id = p.id and status = 'ok')" => 'comments'],
     [\'(select count(*) from post_likes where post_id = p.id)'                 => 'likes'],
+
   );
 
   my $user = $self->current_user;
@@ -230,13 +237,24 @@ async sub get_for_edit_p($self, $post_id) {
     [
       \'( select coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[]) from post_tags pt join tags t on pt.tag_id = t.id where pt.post_id = p.id )'
         => 'tags'
-    ]
+    ],
   );
 
   # draft
   push @tables, [-left => \'post_drafts pd', 'pd.post_id' => 'p.id'];
   push @select, ['pd.title' => 'title'], ['pd.document' => 'document',], ['pd.picture_pre' => 'picture_pre'],
     ['pd.picture_wp' => 'picture_wp'];
+
+  # audio_ids from post_draft_audios
+  push @tables, [-left => \'post_audios pa', 'pa.post_id' => 'p.id'];
+  push @select, [
+    \'(
+      select coalesce(array_remove(array_agg(pa.audio_id), NULL), ARRAY[]::text[])
+      from post_draft_audios pa
+      where pa.post_id = p.id
+    )' => 'audio_ids'
+  ];
+
 
   # shortname
   push @tables, [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
@@ -248,17 +266,26 @@ async sub get_for_edit_p($self, $post_id) {
 }
 
 async sub _ensure_draft_p($self, $post_id) {
+  my $exists = (await $self->db->select_p('post_drafts', 'post_id', {post_id => $post_id}))->hashes->first;
+
   my $f = join(',', qw(title document picture_wp picture_pre));
+
   await $self->db->query_p(
     qq~
       insert into post_drafts (post_id, $f)
       select id, $f from posts where id = (?)
       on conflict do nothing~, $post_id
   );
+
+  if (!$exists) {
+    await $self->se_post_audio->copy_post_audio_to_draft_p($post_id);
+  }
 }
 
 async sub update_draft_p ($self, $post_id, $fields) {
   die "no rights" unless (await $self->se_policy->can_update_post_p($post_id));
+
+  my $audio_ids = $fields->{audio_ids} // [];
 
   my %fields = map { $_ => $fields->{$_} } grep {
     my $a = $_;
@@ -266,7 +293,7 @@ async sub update_draft_p ($self, $post_id, $fields) {
   } keys %$fields;
 
   my $it_img_ids = $self->se_prose_mirror->it_img_ids;
-  my $iterator   = igrep { is_image($_) } $self->se_prose_mirror->iterate($$fields{document});
+  my $iterator   = igrep { is_image($_) } $self->se_prose_mirror->iterate($fields{document});
   while (my $el = <$iterator>) {
     $it_img_ids->($el);
   }
@@ -279,7 +306,15 @@ async sub update_draft_p ($self, $post_id, $fields) {
     $fields{$_} = upload_id($fields{$_});
   }
 
+  my $tx = $self->db->begin;
+
   await $self->db->update_p('post_drafts', \%fields, {post_id => $post_id});
+  for my $audio_id (@$audio_ids) {
+    await $self->se_drive->register_external_upload_p($audio_id, 'audio/wav', 'cool_audio');
+  }
+  await $self->se_post_audio->apply_post_draft_audios_p($post_id, $audio_ids);
+
+  $tx->commit;
 }
 
 async sub apply_changes_p ($self, $post_id, $meta) {
@@ -305,6 +340,7 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   my $tx = $self->db->begin;
 
   await $self->db->update_p('posts', \%post_values, {id => $post_id});
+  await $self->se_post_audio->apply_post_audios_p($post_id);
   await $self->db->delete_p('post_drafts', {post_id => $post_id});
 
   await $self->se_tags->apply_tags_p($post_id, $meta->{tags});
