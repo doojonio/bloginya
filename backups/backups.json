@@ -3,5 +3,6 @@
     "/home/person/IT/projects/mine/bloginya/back/public/drive",
     "/home/person/IT/projects/mine/bloginya/cool_audio/uploads"
   ],
-  "pgDumpCommand": ""
+  "policyUrl": "http://localhost:3000/api/policy",
+  "databaseContainer": "back_devcontainer-db-1"
 }

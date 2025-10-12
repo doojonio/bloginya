@@ -161,6 +161,7 @@ sub _setup_routes($self) {
 
   # Policy
   $api_A->get('/policy/can_upload_audio')->to('Policy#can_upload_audio');
+  $api_A->get('/policy/can_backup')->to('Policy#can_backup');
 }
 
 

@@ -19,8 +19,9 @@ import (
 )
 
 var config struct {
-	Paths []string `json:"paths"`
-	// pgDumpCommand string
+	Paths     []string `json:"paths"`
+	PolicyUrl string   `json:"policyUrl"`
+	Container string   `json:"databaseContainer"`
 }
 
 func main() {
@@ -57,6 +58,27 @@ func loadConfig() {
 }
 
 func createAndGetBackup(c *gin.Context) {
+	sid, err := c.Cookie("sid")
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	if sid == "" {
+		c.Status(http.StatusUnauthorized)
+		return
+	}
+
+	isAllowed, err := isAllowedToBackup(sid)
+	if err != nil {
+		log.Error(err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if !isAllowed {
+		c.Status(http.StatusForbidden)
+		return
+	}
 
 	archFile, err := os.CreateTemp("", "*.zip")
 	if err != nil {
@@ -195,9 +217,7 @@ func createDatabaseDump() (string, error) {
 		return "", err
 	}
 
-	// res, err := apiClient.ContainerList(context.Background(), client.ContainerListOptions{All: true})
-	// fmt.Println(res)
-	// return "", nil
+	defer apiClient.Close()
 
 	cmd := []string{"pg_dump", "-U", "postgres"}
 	opts := container.ExecOptions{
@@ -208,7 +228,7 @@ func createDatabaseDump() (string, error) {
 	}
 	ctx := context.Background()
 
-	resp, err := apiClient.ContainerExecCreate(ctx, "back_devcontainer-db-1", opts)
+	resp, err := apiClient.ContainerExecCreate(ctx, config.Container, opts)
 	if err != nil {
 		return "", err
 	}
@@ -235,7 +255,34 @@ func createDatabaseDump() (string, error) {
 	}
 	log.Infof("Exit code: %d", inspectResp.ExitCode)
 
-	file.Close()
-
 	return file.Name(), nil
+}
+
+func isAllowedToBackup(sid string) (bool, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", config.PolicyUrl+"/can_backup", nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "sid", Value: sid})
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("failed to get policy: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("policy service returned non-200 status code: %d", resp.StatusCode)
+	}
+
+	var result = struct {
+		Authorized int `json:"authorized"`
+	}{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return false, fmt.Errorf("failed to decode policy response: %w", err)
+	}
+
+	return result.Authorized == 1, nil
 }
