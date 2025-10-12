@@ -1,7 +1,11 @@
 name: Build Back Dev
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - "back/**"
 
 jobs:
   build_push:
