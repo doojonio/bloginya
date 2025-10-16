@@ -8,4 +8,12 @@ async sub can_upload_audio($self) {
   $self->render(json => {authorized => $authorized ? 1 : 0});
 }
 
+async sub can_backup($self) {
+  my $user       = await $self->current_user_p;
+  my $authorized = $self->service('policy')->can_backup();
+
+  $self->render(json => {authorized => $authorized ? 1 : 0});
+}
+
+
 1;

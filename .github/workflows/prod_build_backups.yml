@@ -1,16 +1,16 @@
-name: Build Back Dev
+name: Build CoolAudio
 
 on:
   push:
     branches:
-      - develop
+      - master
     paths:
-      - "back/**"
+      - "backups/**"
 
 jobs:
   build_push:
     runs-on: ubuntu-latest
-    environment: hpotato
+    environment: polyine
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,11 +27,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./back
+          context: ./backups
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: true
-          tags: cr.selcloud.ru/registry-12/bloginya_back:develop
-      # - name: tests
-      #   run: |
-      #     docker run --rm cr.selcloud.ru/registry-12/bloginya_back:develop carmel exec prove -lv
+          tags: cr.selcloud.ru/registry-12/backups:latest

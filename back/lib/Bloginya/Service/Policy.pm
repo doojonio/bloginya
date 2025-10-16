@@ -59,5 +59,10 @@ sub can_upload_audio ($self) {
   return $user && ($user->{role} eq USER_ROLE_OWNER || $user->{role} eq USER_ROLE_CREATOR);
 }
 
+sub can_backup ($self) {
+  my $user = $self->current_user;
+  return $user && ($user->{role} eq USER_ROLE_OWNER);
+}
+
 
 1;
