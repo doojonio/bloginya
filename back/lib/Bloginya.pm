@@ -39,6 +39,8 @@ sub startup ($self) {
   # for files 100mb
   $self->max_request_size(100_000_000);
 
+  $self->helper('drive_path', sub { $_[0]->app->home->child('public', 'drive') });
+
   $self->_setup_routes;
   $self->_setup_commands;
 

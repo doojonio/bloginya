@@ -28,6 +28,6 @@ sub run ($self, @args) {
 
 =head1 SYNOPSIS
 
-  Usage: saram remigrate
+  Usage: bloginya remigrate
 
 =cut
