@@ -35,6 +35,8 @@ import { AsianHelpersService } from './services/asian-helpers.service';
 import { CoolAsiaService } from './services/cool-asia.service';
 import { DriveService } from './services/drive.service';
 import { EditorService } from './services/editor.service';
+import { MenuAsianHelpersComponent } from './components/menu-asian-helpers/menu-asian-helpers.component';
+import { MenuFontComponent } from './components/menu-font/menu-font.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +47,8 @@ import { EditorService } from './services/editor.service';
     TitleInputComponent,
     MetaEditorComponent,
     PostEditorRootComponent,
+    MenuAsianHelpersComponent,
+    MenuFontComponent,
   ],
   providers: [
     EditorService,

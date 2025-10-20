@@ -78,7 +78,7 @@ async sub delete_p($self, $comment_id) {
   die 'no rights' unless my $u = $self->current_user;
 
   my $com = (await $self->db->select_p('comments', ['user_id'], {id => $comment_id}))->hashes->first;
-  die 'no rights' if $com->{user_id} ne $u->{id} || $u->{role} ne 'owner';
+  die 'no rights' if $com->{user_id} ne $u->{id} && $u->{role} ne 'owner';
 
   my $tx = $self->db->begin;
   await $self->db->update_p('comments', {status => 'deleted'},

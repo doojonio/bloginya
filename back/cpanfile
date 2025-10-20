@@ -7,16 +7,13 @@ requires 'UUID', '0.37';
 requires 'Time::Piece';
 requires 'MIME::Types';
 requires 'Carp::Always';
-
 requires 'Ref::Util';
 requires 'Ref::Util::XS';
-
 requires 'Role::Tiny';
 requires 'Iterator::Simple';
-
 requires 'Image::Magick';
-
 requires 'Log::Log4perl';
+requires 'DateTime';
 
 on 'develop' => sub {
   requires 'DDP';

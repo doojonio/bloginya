@@ -24,7 +24,7 @@ has 'mt' => sub { MIME::Types->new };
 
 async sub get_or_create_variant_p($self, $upload_id, $dimension) {
   $self->log->trace("Looking in dir public/drive/$upload_id");
-  my $dir = $self->app->home->child('public', 'drive', $upload_id);
+  my $dir = $self->app->drive_path->child($upload_id);
 
   my $file = $dir->list->first(qr/original/);
   die 'not found' unless defined $file && -e $file;

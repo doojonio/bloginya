@@ -8,11 +8,10 @@
 }
 
 .slogan {
-  height: 12rem;
-
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  padding-top: 7rem;
+  padding-bottom: 3.5rem;
   align-items: center;
 
   box-shadow: var(--mat-sys-level0);
@@ -33,7 +32,7 @@
     &::before {
       content: "";
       position: absolute;
-      top: 250%;
+      top: 180%;
       left: -45%;
       height: 100%;
       width: 200%;
@@ -41,6 +40,11 @@
       transform: perspective(10px) rotateX(10deg) scale(1, 0.2);
       filter: blur(1em);
       opacity: 0.5;
+
+      @include mixs.for-size(desktop) {
+        width: 300%;
+        left: -95%;
+      }
     }
   }
 
@@ -49,9 +53,6 @@
     opacity: 0.5;
   }
 
-  @include mixs.for-size(desktop) {
-    height: 15rem;
-  }
 }
 
 .content-block {

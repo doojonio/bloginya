@@ -1,4 +1,4 @@
-name: Build CoolAudio
+name: Build Backups
 
 on:
   push:
