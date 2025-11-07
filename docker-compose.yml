@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   traefik:
     image: traefik:v2.5
@@ -7,6 +5,7 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--log.level=TRACE"
       - "--entrypoints.web.address=:80"
     ports:
       - "80:80"
@@ -19,56 +18,50 @@ services:
       context: ./back
       dockerfile: Dockerfile
     volumes:
-      - ./back:/app
+      - ./back/bloginya.yml:/app/bloginya.yml
     depends_on:
       - db
       - redis
-    environment:
-      - MOJO_CONFIG=/app/bloginya.yml
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.middlewares=backend-strip"
-      - "traefik.http.middlewares.backend-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
 
   frontend:
     build:
       context: ./front
       dockerfile: Dockerfile
-    volumes:
-      - ./front:/app
     depends_on:
       - backend
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=8080"
 
   cool_asia:
     build:
       context: ./cool_asia
       dockerfile: Dockerfile
-    volumes:
-      - ./cool_asia:/app
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.cool_asia.rule=Host(`localhost`) && PathPrefix(`/api/cool_asia`)"
-      - "traefik.http.routers.cool_asia.middlewares=cool-asia-strip"
-      - "traefik.http.middlewares.cool-asia-strip.stripprefix.prefixes=/api/cool_asia"
+      - "traefik.http.routers.cool_asia.rule=PathPrefix(`/api/cool_asia`)"
       - "traefik.http.services.cool_asia.loadbalancer.server.port=8000"
+
+  cool_audio:
+    build:
+      context: ./cool_audio
+      dockerfile: Dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cool_audio.rule=PathPrefix(`/api/cool_audio`)"
+      - "traefik.http.services.cool_audio.loadbalancer.server.port=8000"
 
   db:
     image: postgres:13
     environment:
       POSTGRES_DB: bloginya
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
   redis:
     image: redis:6
-
-volumes:
-  postgres_data:
