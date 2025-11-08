@@ -15,7 +15,6 @@ export interface GetForEditResponse {
   description: string;
   enable_likes: boolean;
   enable_comments: boolean;
-  audio_ids: string[],
   tags: string[];
 }
 export interface ApplyChangesPayload {

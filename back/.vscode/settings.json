@@ -1,6 +1,5 @@
 {
     "editor.tabSize": 2,
-    "perltidy.profile": ".../.perltidyrc",
     "sqltools.connections": [
         {
             "previewLimit": 50,
@@ -10,5 +9,5 @@
             "connectString": "postgresql://postgres:postgres@db:5432/postgres"
         }
     ],
-    "perltidy-more.profile": ".../.perltidyrc"
+    "perltidy-more.profile": ".../.perltidyrc",
 }

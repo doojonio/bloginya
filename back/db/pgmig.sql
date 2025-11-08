@@ -1,4 +1,11 @@
+-- 6 up
+
+drop table post_audios;
+
+drop table post_draft_audios;
+
 -- 5 up | allow 1 char tags
+
 alter table tags
 drop constraint tags_name_check;
 
@@ -27,18 +34,7 @@ create table
         primary key (post_id, audio_id)
     );
 
--- index by post id
 create index post_draft_audios_post_id_idx on post_draft_audios (post_id);
-
--- 4 down
-alter table uploads
-drop column service;
-
-drop type service_type;
-
-drop table post_audios;
-
-drop table post_draft_audios;
 
 -- 3 up
 alter type post_status
