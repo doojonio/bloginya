@@ -143,9 +143,11 @@ async sub put($self, $file_path, $extname) {
   return $id;
 }
 
-async sub register_external_upload_p($self, $external_id, $mtype, $service) {
+async sub register_external_upload_p($self, $external_id, $service) {
   die 'no rights'
     unless $self->current_user && ($self->current_user->{role} eq 'owner' || $self->current_user->{role} eq 'creator');
+
+  my $mtype = $self->mt->mimeTypeOf($external_id) // 'unknown';
 
   my $existing = (await $self->db->select_p('uploads', ['id'], {id => $external_id}))->hashes->first;
   if (!$existing) {

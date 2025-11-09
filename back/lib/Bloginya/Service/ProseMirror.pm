@@ -1,7 +1,7 @@
 package Bloginya::Service::ProseMirror;
 use Mojo::Base -base, -signatures;
 
-use Bloginya::Model::ProseMirror qw(is_text is_image);
+use Bloginya::Model::ProseMirror qw(is_text is_image is_audio);
 use Bloginya::Model::Upload      qw(upload_id);
 use Ref::Util                    qw(is_arrayref is_ref);
 use Iterator::Simple             qw(:all);
@@ -31,6 +31,17 @@ sub it_img_ids($self) {
   return sub {
     return \@ids unless @_;
     push @ids, map { upload_id($_) } grep {$_} map { $_->{attrs}{src} } grep { is_image($_) } @_;
+    @_;
+  }
+}
+
+sub it_audios($self) {
+
+  my @ids;
+
+  return sub {
+    return \@ids unless @_;
+    push @ids, grep {$_} map { $_->{attrs}{filename} } grep { is_audio($_) } @_;
     @_;
   }
 }

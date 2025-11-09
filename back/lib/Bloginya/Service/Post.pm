@@ -4,7 +4,7 @@ use Mojo::Base -base, -signatures, -async_await;
 use experimental 'try';
 
 use Bloginya::Model::Post        qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
-use Bloginya::Model::ProseMirror qw(is_image is_text);
+use Bloginya::Model::ProseMirror qw(is_image is_text is_audio);
 use Bloginya::Model::Upload      qw(upload_id);
 use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Iterator::Simple             qw(:all);
@@ -269,12 +269,18 @@ async sub update_draft_p ($self, $post_id, $fields) {
     any { $_ eq $a } qw(title document picture_wp picture_pre)
   } keys %$fields;
 
-  my $it_img_ids = $self->se_prose_mirror->it_img_ids;
-  my $iterator   = igrep { is_image($_) } $self->se_prose_mirror->iterate($fields{document});
+  # my $it_img_ids = $self->se_prose_mirror->it_img_ids;
+  my $it_audios = $self->se_prose_mirror->it_audios;
+
+  my $iterator = igrep { is_image($_) || is_audio($_) } $self->se_prose_mirror->iterate($fields{document});
+
   while (my $el = <$iterator>) {
-    $it_img_ids->($el);
+
+    # $it_img_ids->($el);
+    $it_audios->($el);
   }
-  my $img_ids = $it_img_ids->();
+
+  # my $img_ids = $it_img_ids->();
 
   # $fields{title} =~ s/(\s)\s+/\1/;
   $fields{document} = {-json => $fields{document}} if exists $fields{document};
@@ -286,9 +292,13 @@ async sub update_draft_p ($self, $post_id, $fields) {
   my $tx = $self->db->begin;
 
   await $self->db->update_p('post_drafts', \%fields, {post_id => $post_id});
-  # for my $audio_id (@$audio_ids) {
-  #   await $self->se_drive->register_external_upload_p($audio_id, 'audio/wav', 'cool_audio');
-  # }
+
+  my $audios = $it_audios->();
+
+  for my $audio_id (@$audios) {
+    my $ext_id = await $self->se_drive->register_external_upload_p($audio_id, 'cool_audio');
+    await $self->link_upload_to_post_p($post_id, $ext_id);
+  }
 
   $tx->commit;
 }
@@ -345,18 +355,21 @@ async sub _update_meta_from_content_p($self, $post_id) {
 
   my $it_ttr     = $self->se_prose_mirror->it_ttr;
   my $it_img_ids = $self->se_prose_mirror->it_img_ids;
+  my $it_audios  = $self->se_prose_mirror->it_audios;
   my $it_text    = $self->se_prose_mirror->it_text;
 
-  my $iterator = igrep { is_image($_) || is_text($_) } $self->se_prose_mirror->iterate($doc);
+  my $iterator = igrep { is_image($_) || is_text($_) || is_audio($_) } $self->se_prose_mirror->iterate($doc);
 
   while (my $el = <$iterator>) {
     $it_ttr->($el);
     $it_img_ids->($el);
     $it_text->($el);
+    $it_audios->($el);
   }
 
   my $ttr     = $it_ttr->();
   my $img_ids = $it_img_ids->();
+  my $audios  = $it_audios->();
   my $text    = $it_text->();
 
   my $descr = substr($text, 0, 200) . (length($text) > 200 ? '...' : '');
@@ -381,7 +394,10 @@ async sub _update_meta_from_content_p($self, $post_id) {
     },
     {on_conflict => [['post_id', 'lcode'] => {fts => \'EXCLUDED.fts'}]},
   );
-  await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => $img_ids}});
+
+
+  my @post_uploads = (@$img_ids, @$audios);
+  await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => \@post_uploads}});
 
   my $category_status = $row->{cstatus};
   await $self->db->update_p(
