@@ -42,8 +42,10 @@ import { NotifierService } from '../../../shared/services/notifier.service';
 import { PictureService } from '../../../shared/services/picture.service';
 import { helperMarkPlugin } from '../../prosemirror/helper-mark.plugin';
 import {
-  findPlaceholder,
   placeholderPlugin,
+  removePlaceholder,
+  replacePlaceholderWithNode,
+  setPlaceholder,
 } from '../../prosemirror/placeholder.plugin';
 import { AsianHelpersService } from '../../services/asian-helpers.service';
 import { DriveService } from '../../services/drive.service';
@@ -190,7 +192,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:keydown.control.s', ['$event'])
-  ctrlSHandler(event: KeyboardEvent) {
+  ctrlSHandler(event: Event) {
     event.preventDefault();
     this.saveDraft(this.draft.value).pipe(takeUntil(this.destroy$)).subscribe();
   }
@@ -212,24 +214,12 @@ export class PostEditorComponent implements OnInit, OnDestroy {
         uploadOps$.push(
           this.uploadPostImage(file).pipe(
             tap((result) => {
-              const schema = this.editor.schema;
-              const view = this.editor.view;
-              const pos = findPlaceholder(view.state, result.id);
-
-              if (pos == null) {
-                return;
-              }
-
-              view.dispatch(
-                view.state.tr
-                  .replaceWith(
-                    pos,
-                    pos,
-                    schema.nodes['image'].create({
-                      src: result.path,
-                    })
-                  )
-                  .setMeta(placeholderPlugin, { remove: { id: result.id } })
+              replacePlaceholderWithNode(
+                this.editor.view,
+                result.id,
+                this.editor.schema.nodes['image'].create({
+                  src: result.path,
+                })
               );
             })
           )
@@ -256,6 +246,25 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   private uploadPostImage(file: File) {
+    const view = this.editor.view;
+    const placeholderId = setPlaceholder(this.editor.view);
+
+    const http$ = this.driveS.putFile(this.postId(), file).pipe(
+      catchError((err) => {
+        removePlaceholder(view, placeholderId);
+        this.notifierS.notify('An error occurred when uploading', 'OK');
+        // Return EMPTY to complete this stream without emitting anything and allow other uploads to continue.
+        return EMPTY;
+      }),
+      map((res) => {
+        return { id: placeholderId, path: this.picS.variant(res.id, 'medium') };
+      })
+    );
+
+    return http$;
+  }
+
+  private uploadPostAudio(file: File) {
     const pholdId = {};
     const view = this.editor.view;
     const tr = view.state.tr;
