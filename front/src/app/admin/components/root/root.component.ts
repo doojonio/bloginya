@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-root',
   standalone: false,
   template: `
+    <app-clean-up></app-clean-up>
     <app-backup></app-backup>
     <app-categories></app-categories>
     <app-users></app-users>
