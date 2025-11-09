@@ -36,6 +36,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
+import { AudioService } from '../../../audio/services/audio.service';
 import { customSchema } from '../../../prosemirror/schema';
 import { PostStatuses } from '../../../shared/interfaces/entities.interface';
 import { NotifierService } from '../../../shared/services/notifier.service';
@@ -52,6 +53,7 @@ import { DriveService } from '../../services/drive.service';
 import { EditorService } from '../../services/editor.service';
 import { MetaValue } from '../meta-editor/meta-editor.component';
 import { PhotoManagerComponent } from '../photo-manager/photo-manager.component';
+import { AudioPlayerView } from '../../prosemirror/audio-player.view';
 
 @Component({
   selector: 'app-post-editor',
@@ -66,6 +68,7 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly picS = inject(PictureService);
   private readonly asianS = inject(AsianHelpersService);
+  private readonly audioS = inject(AudioService);
   private readonly route = inject(ActivatedRoute);
 
   private destroy$ = new Subject<void>();
@@ -100,6 +103,11 @@ export class PostEditorComponent implements OnInit, OnDestroy {
       helperMarkPlugin,
     ],
     schema: customSchema,
+    nodeViews: {
+      ce_audio_player(node) {
+        return new AudioPlayerView(node);
+      },
+    },
   });
 
   @ViewChild('photoManager')
@@ -225,7 +233,19 @@ export class PostEditorComponent implements OnInit, OnDestroy {
           )
         );
       } else if (file.type.startsWith('audio')) {
-        // uploadOps$.push(this.uploadPostAudio(file));
+        uploadOps$.push(
+          this.uploadPostAudio(file).pipe(
+            tap((result) => {
+              replacePlaceholderWithNode(
+                this.editor.view,
+                result.id,
+                this.editor.schema.nodes['ce_audio_player'].create({
+                  filename: result.filename,
+                })
+              );
+            })
+          )
+        );
       }
     }
 
@@ -265,29 +285,18 @@ export class PostEditorComponent implements OnInit, OnDestroy {
   }
 
   private uploadPostAudio(file: File) {
-    const pholdId = {};
     const view = this.editor.view;
-    const tr = view.state.tr;
+    const placeholderId = setPlaceholder(this.editor.view);
 
-    if (!tr.selection.empty) {
-      tr.deleteSelection();
-    }
-    tr.setMeta(placeholderPlugin, {
-      add: { id: pholdId, pos: tr.selection.from },
-    });
-    view.dispatch(tr);
-
-    const http$ = this.driveS.putFile(this.postId(), file).pipe(
+    const http$ = this.audioS.upload(file).pipe(
       catchError((err) => {
-        view.dispatch(
-          tr.setMeta(placeholderPlugin, { remove: { id: pholdId } })
-        );
+        removePlaceholder(view, placeholderId);
         this.notifierS.notify('An error occurred when uploading', 'OK');
         // Return EMPTY to complete this stream without emitting anything and allow other uploads to continue.
         return EMPTY;
       }),
       map((res) => {
-        return { id: pholdId, path: this.picS.variant(res.id, 'medium') };
+        return { id: placeholderId, filename: res.file_id };
       })
     );
 

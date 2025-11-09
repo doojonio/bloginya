@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   ElementRef,
   inject,
   input,
@@ -10,14 +11,13 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 // TODO: load html wihtout imporing ngx-editor for viewing post
 import { toHTML } from 'ngx-editor';
 import { customSchema } from '../../prosemirror/schema';
+import { C } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-document-dom',
   templateUrl: './document-dom.component.html',
   standalone: false,
   styleUrl: './document-dom.component.scss',
-  // to apply styles to generated html
-  encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class DocumentDomComponent {
   sanitizer = inject(DomSanitizer);
@@ -29,11 +29,11 @@ export class DocumentDomComponent {
   element = inject(ElementRef);
 
   ngAfterViewInit() {
-    const rtTags = this.element.nativeElement.shadowRoot.querySelector('rt');
+    const rtTags = this.element.nativeElement.querySelector('rt');
     rtTags ? this.hasRt.emit(true) : this.hasRt.emit(false);
   }
 
-  getContent(): SafeHtml | undefined {
+  htmlContent = computed(() => {
     const document = this.document();
     if (!document) {
       return;
@@ -42,5 +42,5 @@ export class DocumentDomComponent {
     return this.sanitizer.bypassSecurityTrustHtml(
       toHTML(document, customSchema)
     );
-  }
+  });
 }
