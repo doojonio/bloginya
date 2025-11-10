@@ -27,13 +27,9 @@
   </div>
 
   <div class="time-display">
-    <span>
-      {{ currentTime() * 1000 | date : "mm:ss" : "UTC" }}
-    </span>
+    <span>{{ currentTime() * 1000 | date : "mm:ss" : "UTC" }}</span>
     <span>/</span>
-    <span>
-      {{ duration() * 1000 | date : "mm:ss" : "UTC" }}
-    </span>
+    <span>{{ duration() * 1000 | date : "mm:ss" : "UTC" }}</span>
   </div>
   }
 </div>
