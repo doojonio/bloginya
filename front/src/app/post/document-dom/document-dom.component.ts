@@ -4,14 +4,14 @@ import {
   ElementRef,
   inject,
   input,
-  output,
-  ViewEncapsulation,
+  output
 } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 // TODO: load html wihtout imporing ngx-editor for viewing post
 import { toHTML } from 'ngx-editor';
 import { customSchema } from '../../prosemirror/schema';
-import { C } from '@angular/cdk/keycodes';
+import { isPlatformBrowser } from '@angular/common';
+import { Platform } from '@angular/cdk/platform';
 
 @Component({
   selector: 'app-document-dom',
@@ -20,6 +20,8 @@ import { C } from '@angular/cdk/keycodes';
   styleUrl: './document-dom.component.scss',
 })
 export class DocumentDomComponent {
+  private readonly platform = inject(Platform);
+
   sanitizer = inject(DomSanitizer);
   document = input.required<any>();
 
@@ -34,6 +36,10 @@ export class DocumentDomComponent {
   }
 
   htmlContent = computed(() => {
+    if (!this.platform.isBrowser) {
+      return JSON.stringify(this.document());
+    }
+
     const document = this.document();
     if (!document) {
       return;

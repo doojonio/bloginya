@@ -12,7 +12,7 @@ import {
 } from 'rxjs';
 import { Category } from '../../home/home.interface';
 import { PostStatuses } from '../interfaces/entities.interface';
-import { UserRoles } from "../interfaces/entities.interface";
+import { UserRoles } from '../interfaces/entities.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -26,9 +26,7 @@ export class AppService {
       shareReplay(1)
     );
 
-  private isShowingToolbarTitle$ = new BehaviorSubject(
-    window.location.pathname != '/'
-  );
+  private isShowingToolbarTitle$ = new BehaviorSubject(true);
 
   private http = inject(HttpClient);
   private settings$ = this.http

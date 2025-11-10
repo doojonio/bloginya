@@ -9,6 +9,7 @@ import { IMAGE_CONFIG, IMAGE_LOADER, ImageLoaderConfig } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
 import { BreakpointMap } from './shared/services/picture.service';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -47,6 +48,6 @@ export const appConfig: ApplicationConfig = {
         breakpoints: [Object.keys(BreakpointMap).sort()],
         placeholderResolution: 40,
       },
-    },
+    }, provideClientHydration(withEventReplay()),
   ],
 };
