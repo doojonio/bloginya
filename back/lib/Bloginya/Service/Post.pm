@@ -4,7 +4,7 @@ use Mojo::Base -base, -signatures, -async_await;
 use experimental 'try';
 
 use Bloginya::Model::Post        qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
-use Bloginya::Model::ProseMirror qw(is_image is_text);
+use Bloginya::Model::ProseMirror qw(is_image is_text is_audio);
 use Bloginya::Model::Upload      qw(upload_id);
 use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Iterator::Simple             qw(:all);
@@ -20,7 +20,6 @@ has 'se_policy';
 has 'se_prose_mirror';
 has 'se_drive';
 has 'se_language';
-has 'se_post_audio';
 has 'log';
 
 async sub get_drafts_p ($self) {
@@ -67,7 +66,6 @@ async sub read_p($self, $post_id) {
     [-left => \'shortnames csn', 'c.id'          => 'csn.category_id'],
     [-left => \'uploads uwp',    'uwp.id'        => 'p.picture_wp'],
     [-left => \'uploads upre',   'upre.id'       => 'p.picture_pre'],
-    [-left => \'post_audios pa', 'pa.post_id'    => 'p.id'],
   );
 
   # Define columns to select
@@ -91,10 +89,6 @@ async sub read_p($self, $post_id) {
         from post_tags pt join tags t on t.id = pt.tag_id
         where pt.post_id = p.id
       )' => 'tags'
-    ],
-    [
-      \'(select coalesce(array_remove(array_agg(pa.audio_id), NULL), ARRAY[]::text[]) from post_audios pa where pa.post_id = p.id)'
-        => 'audio_ids'
     ],
     [\"(select count(*) from comments where post_id = p.id and status = 'ok')" => 'comments'],
     [\'(select count(*) from post_likes where post_id = p.id)'                 => 'likes'],
@@ -245,17 +239,6 @@ async sub get_for_edit_p($self, $post_id) {
   push @select, ['pd.title' => 'title'], ['pd.document' => 'document',], ['pd.picture_pre' => 'picture_pre'],
     ['pd.picture_wp' => 'picture_wp'];
 
-  # audio_ids from post_draft_audios
-  push @tables, [-left => \'post_audios pa', 'pa.post_id' => 'p.id'];
-  push @select, [
-    \'(
-      select coalesce(array_remove(array_agg(pa.audio_id), NULL), ARRAY[]::text[])
-      from post_draft_audios pa
-      where pa.post_id = p.id
-    )' => 'audio_ids'
-  ];
-
-
   # shortname
   push @tables, [-left     => \'shortnames sn', 'sn.post_id' => 'p.id'];
   push @select, ['sn.name' => 'shortname'];
@@ -276,28 +259,28 @@ async sub _ensure_draft_p($self, $post_id) {
       select id, $f from posts where id = (?)
       on conflict do nothing~, $post_id
   );
-
-  if (!$exists) {
-    await $self->se_post_audio->copy_post_audio_to_draft_p($post_id);
-  }
 }
 
 async sub update_draft_p ($self, $post_id, $fields) {
   die "no rights" unless (await $self->se_policy->can_update_post_p($post_id));
-
-  my $audio_ids = $fields->{audio_ids} // [];
 
   my %fields = map { $_ => $fields->{$_} } grep {
     my $a = $_;
     any { $_ eq $a } qw(title document picture_wp picture_pre)
   } keys %$fields;
 
-  my $it_img_ids = $self->se_prose_mirror->it_img_ids;
-  my $iterator   = igrep { is_image($_) } $self->se_prose_mirror->iterate($fields{document});
+  # my $it_img_ids = $self->se_prose_mirror->it_img_ids;
+  my $it_audios = $self->se_prose_mirror->it_audios;
+
+  my $iterator = igrep { is_image($_) || is_audio($_) } $self->se_prose_mirror->iterate($fields{document});
+
   while (my $el = <$iterator>) {
-    $it_img_ids->($el);
+
+    # $it_img_ids->($el);
+    $it_audios->($el);
   }
-  my $img_ids = $it_img_ids->();
+
+  # my $img_ids = $it_img_ids->();
 
   # $fields{title} =~ s/(\s)\s+/\1/;
   $fields{document} = {-json => $fields{document}} if exists $fields{document};
@@ -309,10 +292,13 @@ async sub update_draft_p ($self, $post_id, $fields) {
   my $tx = $self->db->begin;
 
   await $self->db->update_p('post_drafts', \%fields, {post_id => $post_id});
-  for my $audio_id (@$audio_ids) {
-    await $self->se_drive->register_external_upload_p($audio_id, 'audio/wav', 'cool_audio');
+
+  my $audios = $it_audios->();
+
+  for my $audio_id (@$audios) {
+    my $ext_id = await $self->se_drive->register_external_upload_p($audio_id, 'cool_audio');
+    await $self->link_upload_to_post_p($post_id, $ext_id);
   }
-  await $self->se_post_audio->apply_post_draft_audios_p($post_id, $audio_ids);
 
   $tx->commit;
 }
@@ -340,7 +326,6 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   my $tx = $self->db->begin;
 
   await $self->db->update_p('posts', \%post_values, {id => $post_id});
-  await $self->se_post_audio->apply_post_audios_p($post_id);
   await $self->db->delete_p('post_drafts', {post_id => $post_id});
 
   await $self->se_tags->apply_tags_p($post_id, $meta->{tags});
@@ -370,18 +355,21 @@ async sub _update_meta_from_content_p($self, $post_id) {
 
   my $it_ttr     = $self->se_prose_mirror->it_ttr;
   my $it_img_ids = $self->se_prose_mirror->it_img_ids;
+  my $it_audios  = $self->se_prose_mirror->it_audios;
   my $it_text    = $self->se_prose_mirror->it_text;
 
-  my $iterator = igrep { is_image($_) || is_text($_) } $self->se_prose_mirror->iterate($doc);
+  my $iterator = igrep { is_image($_) || is_text($_) || is_audio($_) } $self->se_prose_mirror->iterate($doc);
 
   while (my $el = <$iterator>) {
     $it_ttr->($el);
     $it_img_ids->($el);
     $it_text->($el);
+    $it_audios->($el);
   }
 
   my $ttr     = $it_ttr->();
   my $img_ids = $it_img_ids->();
+  my $audios  = $it_audios->();
   my $text    = $it_text->();
 
   my $descr = substr($text, 0, 200) . (length($text) > 200 ? '...' : '');
@@ -406,7 +394,10 @@ async sub _update_meta_from_content_p($self, $post_id) {
     },
     {on_conflict => [['post_id', 'lcode'] => {fts => \'EXCLUDED.fts'}]},
   );
-  await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => $img_ids}});
+
+
+  my @post_uploads = (@$img_ids, @$audios);
+  await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => \@post_uploads}});
 
   my $category_status = $row->{cstatus};
   await $self->db->update_p(

@@ -1,5 +1,5 @@
 import { marks as basicMarks, nodes as basicNodes } from 'ngx-editor';
-import { MarkSpec, Schema } from 'prosemirror-model';
+import { MarkSpec, NodeSpec, Schema } from 'prosemirror-model';
 
 const ruby: MarkSpec = {
   attrs: {
@@ -38,7 +38,23 @@ const marks = Object.assign({}, basicMarks, {
 // https://github.com/sibiraj-s/ngx-editor/issues/592
 basicNodes.ordered_list!.attrs!['order'].validate = 'number|null';
 
+const audioPlayerNode: NodeSpec = {
+  group: 'block',
+  attrs: { filename: { validate: 'string' } },
+  toDOM(node) {
+    return ['ce-audio-player', { filename: node.attrs['filename'] }];
+  },
+  parseDOM: [
+    {
+      tag: 'ce-audio-player',
+      getAttrs(dom: HTMLElement) {
+        return { filename: dom.getAttribute('filename') };
+      },
+    },
+  ],
+};
+
 export const customSchema = new Schema({
-  nodes: basicNodes,
+  nodes: { ...basicNodes, ce_audio_player: audioPlayerNode },
   marks: marks,
 });

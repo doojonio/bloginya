@@ -1,6 +1,6 @@
+import { Node } from 'prosemirror-model';
 import { Plugin } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
-
 
 const placeholderPlugin = new Plugin({
   state: {
@@ -43,4 +43,45 @@ function findPlaceholder(state: any, id: any) {
   return null;
 }
 
-export { findPlaceholder, placeholderPlugin };
+function setPlaceholder(view: any) {
+  const placeholderId = {};
+  const tr = view.state.tr;
+
+  if (!tr.selection.empty) {
+    tr.deleteSelection();
+  }
+  tr.setMeta(placeholderPlugin, {
+    add: { id: placeholderId, pos: tr.selection.from },
+  });
+  view.dispatch(tr);
+
+  return placeholderId;
+}
+
+function removePlaceholder(view: any, id: any) {
+  view.dispatch(view.state.tr.setMeta(placeholderPlugin, { remove: { id } }));
+}
+
+function replacePlaceholderWithNode(view: any, placeholderId: any, node: Node) {
+  const pos = findPlaceholder(view.state, placeholderId);
+
+  if (pos == null) {
+    return;
+  }
+
+  view.dispatch(
+    view.state.tr
+      .replaceWith(pos, pos, node)
+      .setMeta(placeholderPlugin, { remove: { id: placeholderId } })
+  );
+
+  return node;
+}
+
+export {
+  findPlaceholder,
+  placeholderPlugin,
+  setPlaceholder,
+  removePlaceholder,
+  replacePlaceholderWithNode,
+};

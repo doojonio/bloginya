@@ -13,6 +13,8 @@ import { CategoriesComponent } from './components/categories/categories.componen
 import { RootComponent } from './components/root/root.component';
 import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
+import { CleanUpComponent } from './components/clean-up/clean-up.component';
+import {NgxFilesizeModule} from 'ngx-filesize';
 
 @NgModule({
   declarations: [
@@ -20,6 +22,7 @@ import { UsersService } from './services/users.service';
     RootComponent,
     CategoriesComponent,
     BackupComponent,
+    CleanUpComponent,
   ],
   providers: [UsersService],
   imports: [
@@ -32,6 +35,7 @@ import { UsersService } from './services/users.service';
     MatCardModule,
     MatButtonModule,
     MatProgressBar,
+    NgxFilesizeModule,
   ],
 })
 export class AdminModule {}

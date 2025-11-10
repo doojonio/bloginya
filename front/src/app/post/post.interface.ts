@@ -17,7 +17,6 @@ export interface ReadPostResponse {
   category_title: string | null;
   picture_wp: string | null;
   picture_pre: string | null;
-  audio_ids: string[];
   tags: string[];
   comments?: number;
   liked?: boolean;

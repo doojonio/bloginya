@@ -164,6 +164,10 @@ sub _setup_routes($self) {
   # Policy
   $api_A->get('/policy/can_upload_audio')->to('Policy#can_upload_audio');
   $api_A->get('/policy/can_backup')->to('Policy#can_backup');
+
+  # Clean Up
+  $api_A->get('/clean-up/estimate')->to('CleanUp#estimate');
+  $api_A->delete('/clean-up')->to('CleanUp#cleanup');
 }
 
 
