@@ -3,12 +3,12 @@
   <audio
     #audioPlayer
     [src]="audioUrl()"
-    (timeupdate)="onTimeUpdate(audioPlayer)"
-    (loadedmetadata)="onLoadedMetadata(audioPlayer)"
+    (timeupdate)="onTimeUpdate()"
+    (loadedmetadata)="onLoadedMetadata()"
     (ended)="onEnded()"
   ></audio>
 
-  <button mat-icon-button (click)="togglePlayPause(audioPlayer)">
+  <button mat-icon-button (click)="togglePlayPause()">
     <mat-icon>{{ isPlaying() ? "pause" : "play_arrow" }}</mat-icon>
   </button>
 
@@ -22,7 +22,7 @@
       class="seek-slider"
       [max]="duration()"
       [value]="currentTime()"
-      (input)="onSeek($event, audioPlayer)"
+      (input)="onSeek($event)"
     />
   </div>
 

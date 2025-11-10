@@ -1,5 +1,16 @@
-import { Component, computed, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  viewChild,
+  ViewChild,
+} from '@angular/core';
 import { AudioService } from '../../services/audio.service';
+import { PlaybackService } from '../../services/playback.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-audio-player',
@@ -20,32 +31,51 @@ export class AudioPlayerComponent {
   currentTime = signal(0);
   duration = signal(0);
 
-  constructor(private audioService: AudioService) {}
+  private audioService = inject(AudioService);
+  private playbackService = inject(PlaybackService);
 
-  togglePlayPause(audioPlayer: HTMLAudioElement): void {
-    if (this.isPlaying()) {
-      audioPlayer.pause();
-    } else {
-      audioPlayer.play();
+  private readonly onPauseSub = this.playbackService
+    .onPause()
+    .pipe(takeUntilDestroyed())
+    .subscribe(() => this.pause());
+
+  playerElRef = viewChild<ElementRef>('audioPlayer');
+  player = computed(() => this.playerElRef()?.nativeElement);
+
+  togglePlayPause(): void {
+    const wasPlaying = this.isPlaying();
+
+    this.playbackService.pauseAll()
+
+    if (!wasPlaying) {
+      this.player()?.play();
+      this.isPlaying.set(true);
     }
-    this.isPlaying.set(!this.isPlaying());
   }
 
-  onTimeUpdate(audioPlayer: HTMLAudioElement): void {
-    this.currentTime.set(audioPlayer.currentTime);
+  pause() {
+    this.player()?.pause();
+    this.isPlaying.set(false);
   }
 
-  onLoadedMetadata(audioPlayer: HTMLAudioElement): void {
-    this.duration.set(audioPlayer.duration);
+  onTimeUpdate(): void {
+    this.currentTime.set(this.player()?.currentTime || 0);
+  }
+
+  onLoadedMetadata(): void {
+    this.duration.set(this.player()?.duration || 0);
   }
 
   onEnded(): void {
     this.isPlaying.set(false);
   }
 
-  onSeek(event: Event, audioPlayer: HTMLAudioElement): void {
+  onSeek(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
-    audioPlayer.currentTime = +value;
+    const player = this.player();
+    if (player) {
+      player.currentTime = +value;
+    }
     this.currentTime.set(+value);
   }
 }
