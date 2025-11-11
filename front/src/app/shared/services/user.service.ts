@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { afterNextRender, inject, Injectable } from '@angular/core';
 import { map } from 'rxjs';
 import { AppService } from './app.service';
 

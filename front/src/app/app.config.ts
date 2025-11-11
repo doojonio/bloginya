@@ -10,13 +10,18 @@ import {
 } from '@angular/router';
 
 import { IMAGE_CONFIG, IMAGE_LOADER, ImageLoaderConfig } from '@angular/common';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
 import { routes } from './app.routes';
 import { BreakpointMap } from './shared/services/picture.service';
+import { cookieInterceptor } from './ssr/cookie.interceptor';
 
 export interface ApiConfig {
   backendUrl: string;
@@ -37,7 +42,7 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
       withComponentInputBinding()
     ),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([cookieInterceptor])),
     {
       provide: IMAGE_LOADER,
       useValue: (config: ImageLoaderConfig) => {

@@ -8,11 +8,11 @@ import {
 import { serverRoutes } from './app.routes.server';
 import { DOMSerializer, Node } from 'prosemirror-model';
 import { customSchema } from './prosemirror/schema';
+import { provideHttpClient } from '@angular/common/http';
 
 const serverConfig: ApplicationConfig = {
   providers: [
     provideServerRendering(withRoutes(serverRoutes)),
-
     {
       provide: API_CONFIG,
       useValue: {
