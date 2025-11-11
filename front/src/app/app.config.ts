@@ -1,4 +1,8 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  InjectionToken,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -6,10 +10,24 @@ import {
 } from '@angular/router';
 
 import { IMAGE_CONFIG, IMAGE_LOADER, ImageLoaderConfig } from '@angular/common';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
+import {
+  provideClientHydration,
+  withEventReplay,
+} from '@angular/platform-browser';
 import { routes } from './app.routes';
 import { BreakpointMap } from './shared/services/picture.service';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+
+export interface ApiConfig {
+  backendUrl: string;
+  coolAudioUrl: string;
+  coolAsiaUrl: string;
+}
+export const API_CONFIG = new InjectionToken<ApiConfig>('ApiConfigToken');
+
+export const PROSEMIRROR_SERVER_CONVERT = new InjectionToken<
+  (doc: any) => string
+>('ProsemirrorServerConver');
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,8 +37,7 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
       withComponentInputBinding()
     ),
-    provideHttpClient(),
-    // TODO finish this shit
+    provideHttpClient(withFetch()),
     {
       provide: IMAGE_LOADER,
       useValue: (config: ImageLoaderConfig) => {
@@ -48,6 +65,19 @@ export const appConfig: ApplicationConfig = {
         breakpoints: [Object.keys(BreakpointMap).sort()],
         placeholderResolution: 40,
       },
-    }, provideClientHydration(withEventReplay()),
+    },
+    {
+      provide: API_CONFIG,
+      useValue: {
+        backendUrl: '',
+        coolAsiaUrl: '',
+        coolAudioUrl: '',
+      },
+    },
+    {
+      provide: PROSEMIRROR_SERVER_CONVERT,
+      useValue: (_: any) => '',
+    },
+    provideClientHydration(withEventReplay()),
   ],
 };
