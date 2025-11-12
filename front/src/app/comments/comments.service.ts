@@ -4,12 +4,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { throwError } from 'rxjs';
 import { OkResponse } from '../shared/interfaces/responses.interface';
 import { UserService } from '../shared/services/user.service';
+import { API_CONFIG } from '../app.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CommentsService {
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
 
   private userS = inject(UserService);
   user = toSignal(this.userS.getCurrentUser());
@@ -22,13 +24,16 @@ export class CommentsService {
       params = params.set('reply_to_id', replyToId);
     }
 
-    return this.http.get<GetCommentsResponseItem[]>('/api/comments', {
-      params,
-    });
+    return this.http.get<GetCommentsResponseItem[]>(
+      this.api.backendUrl + '/api/comments',
+      {
+        params,
+      }
+    );
   }
 
   addComment(postId: string, content: string, replyId?: string) {
-    return this.http.post<string>('/api/comments', {
+    return this.http.post<string>(this.api.backendUrl + '/api/comments', {
       post_id: postId,
       reply_to_id: replyId,
       content: content,
@@ -36,9 +41,12 @@ export class CommentsService {
   }
 
   unlike(id: string) {
-    return this.http.delete<OkResponse>('/api/comments/like', {
-      params: { id },
-    });
+    return this.http.delete<OkResponse>(
+      this.api.backendUrl + '/api/comments/like',
+      {
+        params: { id },
+      }
+    );
   }
   like(id: string) {
     if (!this.user()) {
@@ -46,22 +54,30 @@ export class CommentsService {
       return throwError(() => new Error('User not logged in'));
     }
 
-    return this.http.post<OkResponse>('/api/comments/like', null, {
-      params: { id },
-    });
+    return this.http.post<OkResponse>(
+      this.api.backendUrl + '/api/comments/like',
+      null,
+      {
+        params: { id },
+      }
+    );
   }
 
   deleteComment(id: string) {
-    return this.http.delete<OkResponse>('/api/comments', {
+    return this.http.delete<OkResponse>(this.api.backendUrl + '/api/comments', {
       params: { id },
     });
   }
 
   blockUser(userId: string) {
     // TODO move to users service
-    return this.http.post<OkResponse>('/api/users/block', null, {
-      params: { id: userId },
-    });
+    return this.http.post<OkResponse>(
+      this.api.backendUrl + '/api/users/block',
+      null,
+      {
+        params: { id: userId },
+      }
+    );
   }
 }
 

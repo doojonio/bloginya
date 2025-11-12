@@ -1,4 +1,10 @@
-import { Component, inject, Injector, ViewChild } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  inject,
+  Injector,
+  ViewChild,
+} from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -24,10 +30,13 @@ export class AppComponent {
     sanitizer: DomSanitizer,
     injector: Injector
   ) {
-    const AudioPlayerElement = createCustomElement(AudioPlayerComponent, {
-      injector,
+    // do not rely on customElements in SSR
+    afterNextRender(() => {
+      const AudioPlayerElement = createCustomElement(AudioPlayerComponent, {
+        injector,
+      });
+      customElements.define('ce-audio-player', AudioPlayerElement);
     });
-    customElements.define('ce-audio-player', AudioPlayerElement);
 
     for (const icon of ['instagram', 'podcast', 'naver']) {
       matIconRegistry.addSvgIcon(

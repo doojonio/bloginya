@@ -1,14 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { UserStatuses } from "../shared/interfaces/entities.interface";
-import { UserRoles } from "../shared/interfaces/entities.interface";
+import { UserStatuses } from '../shared/interfaces/entities.interface';
+import { UserRoles } from '../shared/interfaces/entities.interface';
+import { API_CONFIG } from '../app.config';
 
 @Injectable()
 export class ProfileReaderService {
   private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
 
   getUser(userId: string) {
-    return this.http.get<GetUserResponse>(`/api/users/profile`, {
+    return this.http.get<GetUserResponse>(this.api.backendUrl + `/api/users/profile`, {
       params: { id: userId },
     });
   }

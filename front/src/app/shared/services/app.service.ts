@@ -1,6 +1,6 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, REQUEST } from '@angular/core';
 import { Toolbar } from 'ngx-editor';
 import {
   BehaviorSubject,
@@ -9,15 +9,18 @@ import {
   of,
   shareReplay,
   Subject,
+  tap,
 } from 'rxjs';
 import { Category } from '../../home/home.interface';
 import { PostStatuses } from '../interfaces/entities.interface';
-import { UserRoles } from "../interfaces/entities.interface";
+import { UserRoles } from '../interfaces/entities.interface';
+import { API_CONFIG } from '../../app.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppService {
+  private api = inject(API_CONFIG);
   private breakpointObserver = inject(BreakpointObserver);
   private isHandset$: Observable<boolean> = this.breakpointObserver
     .observe(Breakpoints.Handset)
@@ -26,13 +29,11 @@ export class AppService {
       shareReplay(1)
     );
 
-  private isShowingToolbarTitle$ = new BehaviorSubject(
-    window.location.pathname != '/'
-  );
+  private isShowingToolbarTitle$ = new BehaviorSubject(true);
 
   private http = inject(HttpClient);
   private settings$ = this.http
-    .get<SettingsResponse>('/api/settings')
+    .get<SettingsResponse>(this.api.backendUrl + '/api/settings')
     .pipe(shareReplay(1));
 
   isHandset() {

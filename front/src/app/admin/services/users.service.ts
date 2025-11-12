@@ -1,13 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { UserRoles } from "../../shared/interfaces/entities.interface";
+import { API_CONFIG } from '../../app.config';
 
 @Injectable()
 export class UsersService {
   private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
 
   getUsers() {
-    return this.http.get<GetUsersItem[]>('/api/users/list');
+    return this.http.get<GetUsersItem[]>(this.api.backendUrl + '/api/users/list');
   }
 }
 

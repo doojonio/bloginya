@@ -5,22 +5,25 @@ import { catchError, throwError } from 'rxjs';
 import { PostMed } from '../components/post-med/post-med.component';
 import { CategoryStatuses } from '../interfaces/entities.interface';
 import { NotifierService } from './notifier.service';
+import { API_CONFIG } from '../../app.config';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private readonly notifierS = inject(NotifierService);
   // router
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
 
-  constructor(private readonly http: HttpClient) {}
+  constructor() {}
 
   getCategories() {
-    return this.http.get<GetCategoriesItem[]>('/api/categories/list');
+    return this.http.get<GetCategoriesItem[]>(this.api.backendUrl + '/api/categories/list');
   }
 
   loadCategory(id: string, page?: number, sortBy?: SortBy) {
     return this.http
-      .get<LoadCategoryResponse>('/api/categories/load', {
+      .get<LoadCategoryResponse>(this.api.backendUrl + '/api/categories/load', {
         params: { id, page: page || 0, sort: sortBy || SortBy.NEWEST },
       })
       .pipe(
@@ -34,14 +37,14 @@ export class CategoryService {
   }
 
   getForEdit(id: string) {
-    return this.http.get<GetForEditResponse>('/api/categories/for_edit', {
+    return this.http.get<GetForEditResponse>(this.api.backendUrl + '/api/categories/for_edit', {
       params: { id },
     });
   }
 
   updateCategory(id: string, cat: UpdateCategoryPayload, notifyError = true) {
     return this.http
-      .put<AddCategoryResponse>('/api/categories', cat, { params: { id } })
+      .put<AddCategoryResponse>(this.api.backendUrl + '/api/categories', cat, { params: { id } })
       .pipe(
         catchError((err: HttpErrorResponse) =>
           throwError(() =>
@@ -55,7 +58,7 @@ export class CategoryService {
 
   addCategory(cat: UpdateCategoryPayload, notifyError = true) {
     return this.http
-      .post<AddCategoryResponse>('/api/categories', cat)
+      .post<AddCategoryResponse>(this.api.backendUrl + '/api/categories', cat)
       .pipe(
         catchError((err: HttpErrorResponse) =>
           throwError(() =>
@@ -68,7 +71,7 @@ export class CategoryService {
   }
   getCategoryByTitle(title: string) {
     return this.http.get<GetCategoryByTitleResponse>(
-      '/api/categories/by_title',
+      this.api.backendUrl + '/api/categories/by_title',
       {
         params: { title },
       }
@@ -105,7 +108,7 @@ export interface GetForEditResponse {
   tags: string[];
 }
 export interface LoadCategoryResponse {
-  id: string;
+  id:string;
   title: string;
   name: string | null;
   sort: SortBy;
