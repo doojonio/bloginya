@@ -1,18 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { API_CONFIG } from '../../app.config';
 
 @Injectable()
 export class StatService {
   private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
 
   recordRead(id: string, type: 'short' | 'medium' | 'long') {
-    return this.http.post('/api/stat', undefined, {
+    return this.http.post(this.api.backendUrl + '/api/stat', undefined, {
       params: { post_id: id, view_type: type },
     });
   }
 
   getViews(id: string) {
-    return this.http.get<GetViewsResponse>('/api/stat', {
+    return this.http.get<GetViewsResponse>(this.api.backendUrl + '/api/stat', {
       params: { post_id: id },
     });
   }

@@ -4,16 +4,18 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { throwError } from 'rxjs';
 import { OkResponse } from '../../shared/interfaces/responses.interface';
 import { UserService } from '../../shared/services/user.service';
+import { API_CONFIG } from '../../app.config';
 
 @Injectable()
 export class LikerService {
   private userS = inject(UserService);
   private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
 
   currentUser = toSignal(this.userS.getCurrentUser());
 
   unlike(id: string) {
-    return this.http.delete<OkResponse>('/api/posts/like', { params: { id } });
+    return this.http.delete<OkResponse>(this.api.backendUrl + '/api/posts/like', { params: { id } });
   }
   like(id: string) {
     if (!this.currentUser()) {
@@ -21,7 +23,7 @@ export class LikerService {
       return throwError(() => {});
     }
 
-    return this.http.post<OkResponse>('/api/posts/like', null, {
+    return this.http.post<OkResponse>(this.api.backendUrl + '/api/posts/like', null, {
       params: { id },
     });
   }

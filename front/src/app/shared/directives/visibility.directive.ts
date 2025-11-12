@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   Directive,
   ElementRef,
   EventEmitter,
@@ -15,7 +16,7 @@ import { debounceTime, Observable, Subscription } from 'rxjs';
   selector: '[appVisibility]',
   exportAs: 'visibility',
 })
-export class VisibilityDirective implements OnInit, OnDestroy {
+export class VisibilityDirective implements OnDestroy {
   @Input() root: HTMLElement | null = null;
   @Input() rootMargin = '0px 0px 0px 0px';
   @Input() threshold = 0;
@@ -27,11 +28,13 @@ export class VisibilityDirective implements OnInit, OnDestroy {
   intersecting = false;
   subs: Subscription | undefined;
 
-  constructor(private el: ElementRef) {}
-
-  ngOnInit(): void {
-    this.subs = this.createAndObserve();
+  constructor(private el: ElementRef) {
+    afterNextRender(() => {
+      this.subs = this.createAndObserve();
+    });
   }
+
+  // ngOnInit(): void {}
   ngOnDestroy(): void {
     this.subs?.unsubscribe();
   }

@@ -3,11 +3,13 @@ import { inject, Injectable } from '@angular/core';
 import { combineLatest, map } from 'rxjs';
 import { OkResponse } from '../../shared/interfaces/responses.interface';
 import { UserService } from '../../shared/services/user.service';
+import { API_CONFIG } from '../../app.config';
 
 @Injectable()
 export class SettingsService {
   private readonly usersS = inject(UserService);
   private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
 
   currentUser$ = this.usersS.getCurrentUser();
 
@@ -16,18 +18,18 @@ export class SettingsService {
 
     return combineLatest([
       this.currentUser$,
-      this.http.get<string | null>('/api/users/is_username_taken', {
+      this.http.get<string | null>(this.api.backendUrl + '/api/users/is_username_taken', {
         params: { username },
       }),
     ]).pipe(map(([u, takenBy]) => (takenBy ? takenBy !== u?.id : false)));
   }
 
   saveSettings(value: SaveSettingsPayload) {
-    return this.http.put<OkResponse>('/api/users/settings', value);
+    return this.http.put<OkResponse>(this.api.backendUrl + '/api/users/settings', value);
   }
 
   getSettings() {
-    return this.http.get<GetSettingsResponse>('/api/users/settings');
+    return this.http.get<GetSettingsResponse>(this.api.backendUrl + '/api/users/settings');
   }
 }
 
