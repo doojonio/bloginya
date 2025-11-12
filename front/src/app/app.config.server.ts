@@ -15,7 +15,7 @@ const serverConfig: ApplicationConfig = {
     {
       provide: API_CONFIG,
       useValue: {
-        backendUrl: 'http://backend:8080',
+        backendUrl: 'http://back:8080',
         coolAsiaUrl: 'http://cool_asia:8000/api/cool_asia',
         coolAudioUrl: 'http://cool_audio:8080/api/audio',
       },
