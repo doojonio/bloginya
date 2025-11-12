@@ -10,9 +10,9 @@ export class SeoService {
   private readonly titleService = inject(Title);
   private readonly picS = inject(PictureService);
 
-  private readonly SITE = 'https://hpotato.io/';
+  private readonly SITE = 'https://polyine.com/';
   private readonly SITE_NAME = 'POLYINE';
-  private readonly DOMAIN = 'hpotato.io';
+  private readonly DOMAIN = 'polyine.com';
   private readonly DEFAULT_PRE = this.SITE + 'assets/images/wp_footer.webp';
   private readonly DESCRIPTION = 'I Learn Languages!';
 
