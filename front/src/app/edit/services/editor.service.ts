@@ -7,15 +7,17 @@ import {
   GetForEditResponse,
   UpdateDraftPayload,
 } from '../edit.interface';
+import { API_CONFIG } from '../../app.config';
 
 @Injectable()
 export class EditorService {
   private readonly http = inject(HttpClient);
   private readonly notifierS = inject(NotifierService);
+  private readonly api = inject(API_CONFIG);
 
   getForEdit(postId: string) {
     return this.http
-      .get<GetForEditResponse>('/api/posts/for_edit', {
+      .get<GetForEditResponse>(this.api.backendUrl + '/api/posts/for_edit', {
         params: { id: postId },
       })
       .pipe(
@@ -27,7 +29,7 @@ export class EditorService {
 
   getPostImages(postId: string) {
     return this.http
-      .get<string[]>(`/api/posts/images`, { params: { post_id: postId } })
+      .get<string[]>(this.api.backendUrl + `/api/posts/images`, { params: { post_id: postId } })
       .pipe(
         catchError((err: HttpErrorResponse) =>
           throwError(() => this.notifierS.mapError(err))
@@ -37,7 +39,7 @@ export class EditorService {
 
   updateDraft(postId: string, fields: UpdateDraftPayload, notifyError = true) {
     return this.http
-      .put('/api/posts/draft', fields, {
+      .put(this.api.backendUrl + '/api/posts/draft', fields, {
         params: { id: postId },
       })
       .pipe(
@@ -53,7 +55,7 @@ export class EditorService {
 
   applyChanges(id: string, meta: ApplyChangesPayload, notifyError = true) {
     return this.http
-      .put<{ message: string }>('/api/posts', meta, { params: { id } })
+      .put<{ message: string }>(this.api.backendUrl + '/api/posts', meta, { params: { id } })
       .pipe(
         catchError((err: HttpErrorResponse) =>
           throwError(() =>

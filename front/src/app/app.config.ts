@@ -75,8 +75,8 @@ export const appConfig: ApplicationConfig = {
       provide: API_CONFIG,
       useValue: {
         backendUrl: '',
-        coolAsiaUrl: '',
-        coolAudioUrl: '',
+        coolAsiaUrl: '/api/cool_asia',
+        coolAudioUrl: '/api/audio',
       },
     },
     {

@@ -14,9 +14,10 @@ RUN npm run build --prod
 
 ENV PORT=8080
 
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist/front/browser/ /usr/share/nginx/html
+COPY /app/dist/front/browser/ /usr/share/nginx/html
+
+WORKDIR /app/dist/front/browser/server
 
 EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "./server.mjs"]

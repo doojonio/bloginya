@@ -1,14 +1,13 @@
 import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
+import { DOMSerializer, Node } from 'prosemirror-model';
 import {
   API_CONFIG,
   appConfig,
   PROSEMIRROR_SERVER_CONVERT,
 } from './app.config';
 import { serverRoutes } from './app.routes.server';
-import { DOMSerializer, Node } from 'prosemirror-model';
 import { customSchema } from './prosemirror/schema';
-import { provideHttpClient } from '@angular/common/http';
 
 const serverConfig: ApplicationConfig = {
   providers: [
@@ -17,8 +16,8 @@ const serverConfig: ApplicationConfig = {
       provide: API_CONFIG,
       useValue: {
         backendUrl: 'http://localhost:3000',
-        coolAsiaUrl: 'http://cool_asia',
-        coolAudioUrl: '',
+        coolAsiaUrl: 'http://cool_asia/api/cool_asia',
+        coolAudioUrl: 'http://cool_audio/api/audio',
       },
     },
     {

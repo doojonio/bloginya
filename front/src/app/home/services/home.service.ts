@@ -10,16 +10,18 @@ import {
   tap,
 } from 'rxjs';
 import { HomeResponse, PostDescribed } from '../home.interface';
+import { API_CONFIG } from '../../app.config';
 
 @Injectable()
 export class HomeService {
   private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
   private readonly updateHome$ = new BehaviorSubject<boolean>(true);
   private readonly catsCache = signal({});
 
   home$ = this.updateHome$.pipe(
     switchMap((_) =>
-      this.http.get<HomeResponse>('/api/posts/home', {
+      this.http.get<HomeResponse>(this.api.backendUrl + '/api/posts/home', {
         params: { category_tag: 'langs' },
       })
     ),
@@ -71,7 +73,7 @@ export class HomeService {
       return of(cached);
     }
     return this.http
-      .get<PostDescribed[]>('/api/posts/by_category', {
+      .get<PostDescribed[]>(this.api.backendUrl + '/api/posts/by_category', {
         params: { id: catId },
       })
       .pipe(

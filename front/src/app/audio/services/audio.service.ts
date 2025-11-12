@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { API_CONFIG } from '../../app.config';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AudioService {
-  private apiUrl = '/api/audio';
-
-  constructor(private http: HttpClient) {}
+  private readonly api = inject(API_CONFIG);
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = this.api.coolAudioUrl;
 
   upload(file: File) {
     const formData = new FormData();

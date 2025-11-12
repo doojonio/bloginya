@@ -1,14 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { API_CONFIG } from '../../app.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CleanUpService {
   private readonly http = inject(HttpClient);
+  private readonly api = inject(API_CONFIG);
 
   estimate() {
-    return this.http.get<CleanUpResponse>('/api/clean-up/estimate');
+    return this.http.get<CleanUpResponse>(this.api.backendUrl + '/api/clean-up/estimate');
   }
 
   cleanup() {

@@ -14,11 +14,11 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
-    path: 'nimda',
+    path: 'nimda/**',
     renderMode: RenderMode.Client,
   },
   {
-    path: 'e',
+    path: 'e/**',
     renderMode: RenderMode.Client,
   },
   {
