@@ -64,7 +64,7 @@ export class MetaEditorComponent {
   public meta = new FormGroup({
     tags: new FormControl<string[]>([], {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [],
     }),
     status: new FormControl(PostStatuses.Draft, {
       nonNullable: true,
@@ -187,6 +187,7 @@ export class MetaEditorComponent {
 
   applyChanges() {
     if (this.meta.invalid) {
+      console.error("meta invalid ");
       return;
     }
 
