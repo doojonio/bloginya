@@ -1,5 +1,5 @@
 import { AsyncPipe, NgOptimizedImage } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
@@ -19,6 +19,8 @@ import { PictureService } from '../../services/picture.service';
   styleUrl: './post-list-grid-titles.component.scss',
 })
 export class PostListGridTitlesComponent {
+  onDelete = output<string>();
+
   getLink(item: Post) {
     if (this.forEdit()) {
       return 'e/' + item.id;
@@ -26,6 +28,8 @@ export class PostListGridTitlesComponent {
 
     return item.name ? item.name : 'p/' + item.id;
   }
+
+  withDeletion = input(false);
 
   isLCP = input(true);
   posts = input.required<Post[]>();

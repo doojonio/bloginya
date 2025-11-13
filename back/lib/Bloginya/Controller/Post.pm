@@ -176,5 +176,22 @@ async sub get_all_post_images($self) {
   return $self->render(json => $images);
 }
 
+async sub delete_draft($self) {
+  my $post_id = $self->i(id => 'cool_id');
+
+  my $ok;
+  try {
+    $ok = await $self->service('post')->delete_draft_p($post_id);
+  }
+  catch ($e) {
+    if ($e =~ /no rights/) {
+      return $self->msg('NORIGHT', 403);
+    }
+    die $e;
+  }
+
+  return $self->render(json => $ok);
+}
+
 
 1
