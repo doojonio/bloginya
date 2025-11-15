@@ -99,6 +99,7 @@ sub _setup_routes($self) {
   # Post
   $api_A->delete('/posts/like')->to('Post#unlike');
   $api_A->get('/posts/drafts')->to('Post#drafts');
+  $api_A->delete('/posts/drafts')->to('Post#delete_draft');
   $api_A->get('/posts/for_edit')->to('Post#get_for_edit');
   $api_A->post('/posts/like')->to('Post#like');
   $api_A->post('/posts/new')->to('Post#create_draft');

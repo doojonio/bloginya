@@ -9,6 +9,15 @@ export class DraftsService {
   private readonly api = inject(API_CONFIG);
 
   getDrafts() {
-    return this.http.get<GetDraftsResponse>(this.api.backendUrl + '/api/posts/drafts');
+    return this.http.get<GetDraftsResponse>(
+      this.api.backendUrl + '/api/posts/drafts'
+    );
+  }
+
+  deleteDraft(id: any) {
+    return this.http.delete<boolean>(
+      this.api.backendUrl + '/api/posts/drafts',
+      { params: { id } }
+    );
   }
 }

@@ -10,9 +10,20 @@
 }
 
 .post-item {
+  position: relative;
+
+  &:hover {
+    .post-delete-btn {
+      display: inline;
+    }
+  }
+}
+
+.post-link {
   display: flex;
   flex-direction: column;
   text-decoration: none;
+  position: relative;
 
   width: 200px;
   @include mixs.handset {
@@ -42,4 +53,12 @@
   margin: 0.5rem 0 0 0;
 
   @include mixs.line_clamp(1);
+}
+
+.post-delete-btn {
+  position: absolute;
+  top: -1.5rem;
+  right: -1.5rem;
+
+  display: none;
 }

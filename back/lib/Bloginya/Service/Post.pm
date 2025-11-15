@@ -34,8 +34,12 @@ async sub get_drafts_p ($self) {
       [\'coalesce(d.title, p.title)',              'title'],
       'p.created_at', ['d.post_id' => 'draft_id'], 'p.status',
     ],
-    {'p.user_id' => $u->{id}, -or => {'d.post_id' => {'!=', undef}, 'p.status' => POST_STATUS_DRAFT}},
-    {order_by    => {-desc => 'created_at'}}
+    {
+      'p.user_id' => $u->{id},
+      -or         => {'d.post_id' => {'!=', undef}, 'p.status' => POST_STATUS_DRAFT},
+      'p.status'  => {'!=', POST_STATUS_DEL},
+    },
+    {order_by => {-desc => 'created_at'}}
   );
 
   my (@continue_edit, @drafts);
@@ -475,7 +479,7 @@ async sub list_posts_by_category_p($self, $category_id, $limit = 9) {
       )' => 'tags'
       ],
     ],
-    {'p.category_id' => $category_id,                    'status' => POST_STATUS_PUB},
+    {'p.category_id' => $category_id,                      'status' => POST_STATUS_PUB},
     {order_by        => \'p.published_at desc nulls last', limit    => $limit}
   );
 
@@ -528,6 +532,12 @@ async sub get_all_post_images_p($self, $post_id) {
   die 'no rights to read post' unless await $self->se_policy->can_read_post_p($post_id);
   my $res = await $self->db->select_p('post_uploads', ['upload_id'], {post_id => $post_id},);
   return $res->hashes->map(sub { $_->{upload_id} });
+}
+
+async sub delete_draft_p($self, $post_id) {
+  die 'no rights to edit this post' unless await $self->se_policy->can_update_post_p($post_id);
+  await $self->db->update_p('posts', {status => POST_STATUS_DEL}, {id => $post_id, status => POST_STATUS_DRAFT});
+  return 1;
 }
 
 

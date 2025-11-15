@@ -1,18 +1,19 @@
 <div class="c">
-  @if ((continueEdit$ | async); as posts) { @if(posts.length) {
+  @if (conitnueEdit(); as posts) { @if(posts.length) {
   <h1>Continue Editing</h1>
   <app-post-list-grid-titles
     [posts]="posts"
     [forEdit]="true"
   ></app-post-list-grid-titles>
-  } } @if ((drafts$ | async); as posts) { @if (posts.length) {
+  } } @if (drafts(); as posts) { @if (posts.length) {
   <h1>Drafts</h1>
   <app-post-list-grid-titles
+    (onDelete)="deleteDraft($event)"
+    [withDeletion]="true"
     [posts]="posts"
     [forEdit]="true"
   ></app-post-list-grid-titles>
-  } }
-  @if (!maxLength) {
-    <h1>You have no drafts</h1>
+  } } @if (!maxLength) {
+  <h1>You have no drafts</h1>
   }
 </div>

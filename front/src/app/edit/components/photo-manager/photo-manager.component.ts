@@ -30,12 +30,16 @@ export interface DialogData {
         matButton="outlined"
         (click)="selectPreview()"
         [disabled]="selectedImages.size != 1"
-      ><mat-icon>photo</mat-icon>Preview</button>
+      >
+        <mat-icon>photo</mat-icon>Preview
+      </button>
       <button
         matButton="outlined"
         (click)="deleteSelected()"
         [disabled]="selectedImages.size == 0"
-      ><mat-icon>delete</mat-icon>Delete</button>
+      >
+        <mat-icon>delete</mat-icon>Delete
+      </button>
     </div>
     <div
       class="images"
@@ -189,9 +193,10 @@ export class PhotoManagerComponent implements OnInit {
 
   onDropped(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.images, event.previousIndex, event.currentIndex);
+    this.syncImagesWithDoc();
   }
 
-  applyChanges() {
+  syncImagesWithDoc() {
     const doc = this.documentControl().value;
     let node;
     try {
@@ -214,5 +219,9 @@ export class PhotoManagerComponent implements OnInit {
 
     const updatedNode = tr.doc;
     this.documentControl().setValue(updatedNode.toJSON());
+  }
+
+  applyChanges() {
+    this.syncImagesWithDoc();
   }
 }
