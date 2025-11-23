@@ -5,21 +5,22 @@ import {
   Injector,
   ViewChild,
 } from '@angular/core';
+import { createCustomElement } from '@angular/elements';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer } from '@angular/platform-browser';
-import { createCustomElement } from '@angular/elements';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { AudioModule } from './audio/audio.module';
+import { AudioPlayerComponent } from './audio/components/audio-player/audio-player.component';
 import { Footer } from './footer';
 import {
   NavigationComponent,
   NavigationModule,
 } from './navigation/navigation.module';
-import { AudioPlayerComponent } from './audio/components/audio-player/audio-player.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatToolbarModule, NavigationModule],
+  imports: [RouterOutlet, MatToolbarModule, NavigationModule, AudioModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

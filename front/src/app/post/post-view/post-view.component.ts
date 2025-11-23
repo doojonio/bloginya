@@ -26,6 +26,7 @@ import {
 } from '../../shared/interfaces/entities.interface';
 import { AppService } from '../../shared/services/app.service';
 import { PictureService } from '../../shared/services/picture.service';
+import { SearchService } from '../../shared/services/search.service';
 import { SeoService } from '../../shared/services/seo.service';
 import { UserService } from '../../shared/services/user.service';
 import { ReadPostResponse } from '../post.interface';
@@ -139,9 +140,11 @@ export class PostViewComponent {
     );
   }
 
+  private readonly searchService = inject(SearchService);
   tagClicked(tag: string) {
-    throw new Error('Method not implemented.');
+    this.searchService.askSearch('#' + tag);
   }
+
   like() {
     this.likerS
       .like(this.post().id)

@@ -1,6 +1,7 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { AppService } from '../../../shared/services/app.service';
+import { SearchService } from '../../../shared/services/search.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -9,6 +10,15 @@ import { AppService } from '../../../shared/services/app.service';
   styleUrl: './toolbar.component.scss',
 })
 export class ToolbarComponent {
+  private readonly searchService = inject(SearchService);
+
+  searchInitInput = signal<string>('');
+
+  onSearchAskSub = this.searchService.getSearchAsks().subscribe((query) => {
+    this.searchInitInput.set(query);
+    this.isSearch.set(true);
+  });
+
   closeSearch() {
     this.isSearch.set(false);
   }

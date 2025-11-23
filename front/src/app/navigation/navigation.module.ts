@@ -18,7 +18,6 @@ import { SearchComponent } from './components/search/search.component';
 import { SidenavComponent } from './components/sidenav/sidenav.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { NewDraftService } from './services/new-draft.service';
-import { SearchService } from './services/search.service';
 
 @NgModule({
   declarations: [
@@ -28,7 +27,7 @@ import { SearchService } from './services/search.service';
     FooterComponent,
     SearchComponent,
   ],
-  providers: [SearchService, NewDraftService],
+  providers: [NewDraftService],
   exports: [NavigationComponent],
   imports: [
     FormsModule,
@@ -36,9 +35,6 @@ import { SearchService } from './services/search.service';
     MatInputModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    AsyncPipe,
-    MatButtonModule,
-    RouterModule,
     AsyncPipe,
     CommonModule,
     MatButtonModule,

@@ -1,5 +1,14 @@
-import { Component, inject, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  input,
+  OnInit,
+  output,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteActivatedEvent } from '@angular/material/autocomplete';
 import { Router } from '@angular/router';
@@ -13,7 +22,10 @@ import {
 } from 'rxjs/operators';
 import { AppService } from '../../../shared/services/app.service';
 import { PictureService } from '../../../shared/services/picture.service';
-import { QueryResult, SearchService } from '../../services/search.service';
+import {
+  QueryResult,
+  SearchService,
+} from '../../../shared/services/search.service';
 
 @Component({
   selector: 'app-search',
@@ -21,7 +33,7 @@ import { QueryResult, SearchService } from '../../services/search.service';
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
-export class SearchComponent {
+export class SearchComponent implements OnInit, AfterViewInit {
   private readonly appService = inject(AppService);
   private readonly searchService = inject(SearchService);
   private readonly router = inject(Router);
@@ -29,6 +41,22 @@ export class SearchComponent {
   readonly onCloseSearch = output();
   readonly isHandset$ = this.appService.isHandset();
   readonly searchControl = new FormControl<string>('');
+
+  initalInput = input<string>();
+
+  ngOnInit() {
+    if (this.initalInput()) {
+      this.searchControl.setValue(this.initalInput() || '');
+    }
+  }
+  ngAfterViewInit(): void {
+    if (this.initalInput()) {
+      this.searchControl.markAsDirty();
+      this.searchFieldElement()?.nativeElement.focus();
+    }
+  }
+
+  private readonly searchFieldElement = viewChild<ElementRef>('searchField');
 
   readonly results = toSignal(
     this.searchControl.valueChanges.pipe(
@@ -41,6 +69,15 @@ export class SearchComponent {
       )
     )
   );
+
+  private readonly searchAsksSub = this.searchService
+    .getSearchAsks()
+    .pipe(takeUntilDestroyed())
+    .subscribe((query) => {
+      this.searchControl.setValue(query);
+      this.searchControl.markAsDirty();
+      this.searchFieldElement()?.nativeElement.focus();
+    });
 
   private readonly picS = inject(PictureService);
   itemBack(item: QueryResult) {

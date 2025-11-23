@@ -12,7 +12,6 @@ import { HomeService } from '../../services/home.service';
 
 @Component({
   selector: 'app-post-list-category-chips',
-  standalone: true,
   imports: [MatChipsModule, PostListMedComponent, UpperCasePipe, AsyncPipe],
   template: `
     <div class="cats noscrollbar">
@@ -89,14 +88,13 @@ export class PostListCategoryChipsComponent {
 
 @Component({
   selector: 'app-post-list-category-tabs',
-  standalone: true,
   imports: [
-    MatTabsModule,
-    PostListMedComponent,
-    UpperCasePipe,
-    RouterModule,
-    NgOptimizedImage,
     AsyncPipe,
+    MatTabsModule,
+    NgOptimizedImage,
+    PostListMedComponent,
+    RouterModule,
+    UpperCasePipe,
   ],
   template: `
     <mat-tab-group (selectedTabChange)="onChangeTab($event)">
