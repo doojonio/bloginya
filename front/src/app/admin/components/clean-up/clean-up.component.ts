@@ -12,10 +12,18 @@ import { BehaviorSubject, finalize, Subject, switchMap } from 'rxjs';
     <p>files: {{ filesCount() }}</p>
     <p>file copies (smaller sizes): {{ copiesCount() }}</p>
     <p>overall files size: {{ filesSize() || 0 | filesize }}</p>
+    <p>
+      <a routerLink="trash">posts in recycle bin: {{ postsCount() || 0 }}</a>
+    </p>
+    <p>
+      <a routerLink="trash">comments in recycle bin: {{ commentsCount() || 0 }}</a>
+    </p>
 
-    <button matButton="filled" [disabled]="loading" (click)="cleanUp()">
-      Clean Up!
-    </button>
+    <div>
+      <button matButton="filled" [disabled]="loading" (click)="cleanUp()">
+        Clean Up!
+      </button>
+    </div>
   `,
   styles: `
     :host {
@@ -28,6 +36,10 @@ import { BehaviorSubject, finalize, Subject, switchMap } from 'rxjs';
 
     button {
       margin-top: 1rem;
+    }
+
+    a {
+      color: var(--mat-sys-secondary);
     }
   `,
 })
@@ -44,6 +56,9 @@ export class CleanUpComponent {
   filesSize = computed(() => this.estimated()?.files_size);
   filesCount = computed(() => this.estimated()?.files_count);
   copiesCount = computed(() => this.estimated()?.copies_count);
+
+  postsCount = computed(() => this.estimated()?.post_count);
+  commentsCount = computed(() => this.estimated()?.comment_count);
 
   loading = false;
 

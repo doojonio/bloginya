@@ -14,7 +14,12 @@ import { RootComponent } from './components/root/root.component';
 import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { CleanUpComponent } from './components/clean-up/clean-up.component';
-import {NgxFilesizeModule} from 'ngx-filesize';
+import { NgxFilesizeModule } from 'ngx-filesize';
+import { TrashComponent } from './components/trash/trash.component';
+import { TrashService } from './services/trash.service';
+import { CleanUpService } from './services/clean-up.service';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 
 @NgModule({
   declarations: [
@@ -23,8 +28,9 @@ import {NgxFilesizeModule} from 'ngx-filesize';
     CategoriesComponent,
     BackupComponent,
     CleanUpComponent,
+    TrashComponent,
   ],
-  providers: [UsersService],
+  providers: [UsersService, TrashService, CleanUpService],
   imports: [
     CommonModule,
     AdminRoutingModule,
@@ -36,6 +42,8 @@ import {NgxFilesizeModule} from 'ngx-filesize';
     MatButtonModule,
     MatProgressBar,
     NgxFilesizeModule,
+    MatProgressSpinner,
+    PostListMedComponent,
   ],
 })
 export class AdminModule {}

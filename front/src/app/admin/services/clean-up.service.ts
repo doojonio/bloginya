@@ -2,15 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { API_CONFIG } from '../../app.config';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class CleanUpService {
   private readonly http = inject(HttpClient);
   private readonly api = inject(API_CONFIG);
 
   estimate() {
-    return this.http.get<CleanUpResponse>(this.api.backendUrl + '/api/clean-up/estimate');
+    return this.http.get<CleanUpResponse>(
+      this.api.backendUrl + '/api/clean-up/estimate'
+    );
   }
 
   cleanup() {
@@ -23,4 +23,6 @@ export interface CleanUpResponse {
   files_count: number;
   copies_count: number;
   files_size: number;
+  post_count: number;
+  comment_count: number;
 }

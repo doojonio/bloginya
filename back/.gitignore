@@ -10,3 +10,4 @@ local/
 
 # SQL tools
 db.session.sql
+tmp/
