@@ -14,7 +14,7 @@ import {
 import { Category } from '../../home/home.interface';
 import { PostStatuses } from '../interfaces/entities.interface';
 import { UserRoles } from '../interfaces/entities.interface';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 
 @Injectable({
   providedIn: 'root',

@@ -9,11 +9,9 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 // TODO: load html wihtout imporing ngx-editor for viewing post
 import { Platform } from '@angular/cdk/platform';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { toHTML } from 'ngx-editor';
-import { switchMap } from 'rxjs';
+import { PROSEMIRROR_SERVER_CONVERT } from '../../app.tokens';
 import { customSchema } from '../../prosemirror/schema';
-import { PROSEMIRROR_SERVER_CONVERT } from '../../app.config';
 
 @Component({
   selector: 'app-document-dom',

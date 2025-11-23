@@ -1,12 +1,9 @@
 import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { DOMSerializer, Node } from 'prosemirror-model';
-import {
-  API_CONFIG,
-  appConfig,
-  PROSEMIRROR_SERVER_CONVERT,
-} from './app.config';
+import { appConfig } from './app.config';
 import { serverRoutes } from './app.routes.server';
+import { API_CONFIG, PROSEMIRROR_SERVER_CONVERT } from './app.tokens';
 import { customSchema } from './prosemirror/schema';
 
 const serverConfig: ApplicationConfig = {

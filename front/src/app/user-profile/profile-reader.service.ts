@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { UserStatuses } from '../shared/interfaces/entities.interface';
 import { UserRoles } from '../shared/interfaces/entities.interface';
-import { API_CONFIG } from '../app.config';
+import { API_CONFIG } from '../app.tokens';
 
 @Injectable()
 export class ProfileReaderService {

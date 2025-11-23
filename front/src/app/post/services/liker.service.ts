@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { throwError } from 'rxjs';
 import { OkResponse } from '../../shared/interfaces/responses.interface';
 import { UserService } from '../../shared/services/user.service';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 
 @Injectable()
 export class LikerService {

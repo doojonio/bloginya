@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 import { PostMed } from '../../shared/components/post-med/post-med.component';
 import { ReadPostResponse } from '../post.interface';
 
