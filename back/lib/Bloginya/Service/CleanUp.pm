@@ -5,6 +5,8 @@ use DateTime;
 use DateTime::Duration;
 use Mojo::Util qw(getopt);
 
+use Bloginya::Model::Post qw(POST_STATUS_DEL);
+
 has 'app';
 has 'db';
 has 'log';
@@ -12,15 +14,18 @@ has 'log';
 sub estimate($self) {
   my $sessions_num = $self->_process_sessions();
   my ($files_count, $copies_count, $files_size) = $self->_process_unused_files();
+  my ($del_post_count, $del_comments_count) = $self->_process_deleted_posts_n_comments();
 
   $self->log->info("ESTIMATED TO DELETE: $sessions_num sessions; "
       . "$files_count files, $copies_count copies, $files_size overall file size");
 
   return (
-    sessions     => $sessions_num,
-    files_count  => $files_count,
-    copies_count => $copies_count,
-    files_size   => $files_size
+    sessions      => $sessions_num,
+    files_count   => $files_count,
+    copies_count  => $copies_count,
+    files_size    => $files_size,
+    post_count    => $del_post_count,
+    comment_count => $del_comments_count,
   );
 }
 
@@ -30,11 +35,16 @@ sub cleanup ($self, @args) {
 
   $self->log->info("DELETED: $deleted_sessions sessions; "
       . "$deleted_files files, $deleted_copies copies, $deleted_size overall file size");
+
+  my ($del_post_count, $del_comments_count) = $self->_process_deleted_posts_n_comments(1);
+
   return (
     sessions     => $deleted_sessions,
     files_count  => $deleted_files,
     copies_count => $deleted_copies,
     files_size   => $deleted_size,
+    post_count    => $del_post_count,
+    comment_count => $del_comments_count,
   );
 }
 
@@ -132,6 +142,86 @@ sub _process_sessions ($self, $is_delete = 0) {
   $self->app->log->info("processed ($is_delete) " . $rows);
 
   return $rows;
+}
+
+sub _process_deleted_posts_n_comments ($self, $is_delete = 0) {
+
+  my $db = $self->db;
+
+  my $post_rows    = 0;
+  my $comment_rows = 0;
+
+  if ($is_delete) {
+    $comment_rows = $self->_delete_comments();
+    $post_rows = $self->_delete_posts();
+  }
+  else {
+    $post_rows = $self->db->query('select count(*) from posts where status = ?', POST_STATUS_DEL)->arrays->first->[0];
+    $comment_rows = $self->db->query(
+      "select count(*) from comments
+        where status = ? or post_id in
+          (select id from posts where status = ?)", 'deleted', POST_STATUS_DEL
+    )->arrays->first->[0];
+  }
+
+  return $post_rows, $comment_rows;
+}
+
+sub _delete_comments($self) {
+
+  state $subtree_cte = q~
+    WITH RECURSIVE CommentSubtree AS (
+      SELECT id
+      FROM comments
+      WHERE status = ?
+        OR post_id in (select id from posts where status = ?)
+
+      UNION
+
+      SELECT c.id
+      FROM comments c
+        INNER JOIN CommentSubtree cs ON c.reply_to_id = cs.id
+    )
+  ~;
+
+  state @stmts = (
+    [
+      "$subtree_cte delete from comment_likes where comment_id in (select id from CommentSubtree)", 'deleted',
+      POST_STATUS_DEL
+    ],
+  );
+
+  for my $stmt (@stmts) {
+    $self->db->query($stmt->[0], @{$stmt}[1 .. (@$stmt - 1)]);
+  }
+
+  my $result = $self->db->query("$subtree_cte delete from comments where id in (select id from CommentSubtree)",
+    'deleted', POST_STATUS_DEL);
+
+  return $result->rows();
+
+}
+
+sub _delete_posts($self) {
+
+  state $posts_stmt = 'select id from posts where status = ?';
+  state @stmts      = (
+    ["delete from post_drafts where post_id in ($posts_stmt)",  POST_STATUS_DEL],
+    ["delete from post_fts where post_id in ($posts_stmt)",     POST_STATUS_DEL],
+    ["delete from post_likes where post_id in ($posts_stmt)",   POST_STATUS_DEL],
+    ["delete from post_stats where post_id in ($posts_stmt)",   POST_STATUS_DEL],
+    ["delete from post_tags where post_id in ($posts_stmt)",    POST_STATUS_DEL],
+    ["delete from post_uploads where post_id in ($posts_stmt)", POST_STATUS_DEL],
+    ["delete from shortnames where post_id in ($posts_stmt)",   POST_STATUS_DEL],
+  );
+
+  for my $stmt (@stmts) {
+    $self->db->query($stmt->[0], @{$stmt}[1 .. (@$stmt - 1)]);
+  }
+
+  my $result = $self->db->query('delete from posts where status = ?', POST_STATUS_DEL);
+
+  return $result->rows();
 }
 
 1;

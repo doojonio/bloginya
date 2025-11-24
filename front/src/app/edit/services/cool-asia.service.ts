@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map } from 'rxjs';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 
 @Injectable()
 export class CoolAsiaService {

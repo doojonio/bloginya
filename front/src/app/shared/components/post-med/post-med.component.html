@@ -19,7 +19,7 @@
   <p class="post-descr">{{ post.description }}</p>
   <p class="post-tags">
     @for (tag of post.tags; track tag) {
-    <a>#{{ tag }} </a>
+    <a (click)="tagClicked(tag)">#{{ tag }}</a>
     }
   </p>
 </div>

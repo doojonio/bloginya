@@ -1,14 +1,25 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { API_CONFIG } from '../../app.config';
+import { Subject } from 'rxjs';
+import { API_CONFIG } from '../../app.tokens';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SearchService {
   private readonly http = inject(HttpClient);
   private readonly api = inject(API_CONFIG);
+  private readonly searchAsks$ = new Subject<string>();
 
   search(query: string) {
-    return this.http.get<QueryResult[]>(this.api.backendUrl + '/api/search', { params: { query } });
+    return this.http.get<QueryResult[]>(this.api.backendUrl + '/api/search', {
+      params: { query },
+    });
+  }
+
+  askSearch(query: string) {
+    this.searchAsks$.next(query);
+  }
+  getSearchAsks() {
+    return this.searchAsks$.asObservable();
   }
 }
 

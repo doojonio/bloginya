@@ -1,8 +1,4 @@
-import {
-  ApplicationConfig,
-  InjectionToken,
-  provideZoneChangeDetection,
-} from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -20,19 +16,9 @@ import {
   withEventReplay,
 } from '@angular/platform-browser';
 import { routes } from './app.routes';
+import { API_CONFIG, PROSEMIRROR_SERVER_CONVERT } from './app.tokens';
 import { BreakpointMap } from './shared/services/picture.service';
 import { cookieInterceptor } from './ssr/cookie.interceptor';
-
-export interface ApiConfig {
-  backendUrl: string;
-  coolAudioUrl: string;
-  coolAsiaUrl: string;
-}
-export const API_CONFIG = new InjectionToken<ApiConfig>('ApiConfigToken');
-
-export const PROSEMIRROR_SERVER_CONVERT = new InjectionToken<
-  (doc: any) => string
->('ProsemirrorServerConver');
 
 export const appConfig: ApplicationConfig = {
   providers: [

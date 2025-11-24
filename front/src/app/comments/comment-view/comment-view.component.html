@@ -11,7 +11,10 @@
     <a class="date">{{ com.created_at | date }}</a>
   </div>
   <div class="content">
-    {{ com.content }}
+    @for (line of com.content.split("\n"); track line) {
+      {{ line }}
+      <br />
+    }
   </div>
   <div class="actions">
     <button

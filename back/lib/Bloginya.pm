@@ -157,6 +157,7 @@ sub _setup_routes($self) {
   # Admin
   $api_A->post('/users/block')->to('Admin#block');
   $api_A->get('/users/list')->to('Admin#users_list');
+  $api_A->get('/trash')->to('Admin#list_trash');
 
   # Stat
   $api_U->post('/stat')->to('Stat#add_stat');

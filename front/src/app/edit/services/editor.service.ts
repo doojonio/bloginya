@@ -7,7 +7,7 @@ import {
   GetForEditResponse,
   UpdateDraftPayload,
 } from '../edit.interface';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 
 @Injectable()
 export class EditorService {

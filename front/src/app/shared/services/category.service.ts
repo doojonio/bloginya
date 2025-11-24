@@ -5,7 +5,7 @@ import { catchError, throwError } from 'rxjs';
 import { PostMed } from '../components/post-med/post-med.component';
 import { CategoryStatuses } from '../interfaces/entities.interface';
 import { NotifierService } from './notifier.service';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {

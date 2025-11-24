@@ -540,5 +540,34 @@ async sub delete_draft_p($self, $post_id) {
   return 1;
 }
 
+async sub list_deleted_posts($self) {
+  die 'no rights to list del posts' unless my $current_user = $self->current_user;
+  die 'no rights to list del posts' unless $current_user->{role} eq 'owner';
+
+  my $posts = (await $self->db->select_p(
+    [\'posts p', [-left => \'shortnames sn', 'p.id' => 'sn.post_id']],
+    [
+      'p.id',
+      'sn.name',
+      'p.title',
+      'p.picture_pre',
+      'p.created_at',
+      'p.description',
+      [
+        \'(
+        select
+          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
+        from post_tags pt join tags t on t.id = pt.tag_id
+        where pt.post_id = p.id
+      )' => 'tags'
+      ]
+    ],
+    {'p.status' => POST_STATUS_DEL},
+    {order_by   => {-desc => 'p.created_at'}}
+  ))->hashes;
+
+  return $posts;
+}
+
 
 1;

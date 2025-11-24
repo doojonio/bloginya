@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { combineLatest, map } from 'rxjs';
 import { OkResponse } from '../../shared/interfaces/responses.interface';
 import { UserService } from '../../shared/services/user.service';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 
 @Injectable()
 export class SettingsService {

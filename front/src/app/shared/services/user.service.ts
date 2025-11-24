@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { afterNextRender, inject, Injectable } from '@angular/core';
 import { map } from 'rxjs';
 import { AppService } from './app.service';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 
 @Injectable({
   providedIn: 'root',

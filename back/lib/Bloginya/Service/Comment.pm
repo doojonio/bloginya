@@ -6,6 +6,7 @@ use experimental 'try';
 use List::Util qw(any);
 
 use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
+use Bloginya::Model::Post qw(POST_STATUS_DEL);
 
 has 'db';
 has 'redis';
@@ -85,6 +86,51 @@ async sub delete_p($self, $comment_id) {
     {-or => [id => $comment_id, reply_to_id => $comment_id]});
 
   $tx->commit;
+}
+
+async sub list_deleted_comments ($self) {
+  die 'no rights' unless my $current_user = $self->current_user;
+  die 'no rights' unless $current_user->{role} eq 'owner';
+
+
+  my $res = (await $self->db->query_p(
+    q~
+    WITH RECURSIVE CommentSubtree AS (
+      SELECT id
+      FROM comments
+      WHERE status = ?
+        OR post_id in (select id from posts where status = ?)
+
+      UNION
+
+      SELECT c.id
+      FROM comments c
+        INNER JOIN CommentSubtree cs ON c.reply_to_id = cs.id
+    )
+    SELECT
+      u.id as user_id,
+      u.username,
+      u.google_userinfo->>'picture' as user_picture,
+
+      p.title as post_title,
+      p.id as post_id,
+      sn.name as post_name,
+
+      c.id,
+      c.content,
+      c.created_at
+
+    FROM comments c
+      JOIN users u ON c.user_id = u.id
+      JOIN posts p ON c.post_id = p.id
+      JOIN shortnames sn ON p.id = sn.post_id
+
+    WHERE c.id IN (SELECT id FROM CommentSubtree)
+    ORDER BY c.created_at DESC
+  ~, 'deleted', POST_STATUS_DEL
+  ))->hashes;
+
+  return $res;
 }
 
 

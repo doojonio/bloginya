@@ -10,7 +10,7 @@ import {
   tap,
 } from 'rxjs';
 import { HomeResponse, PostDescribed } from '../home.interface';
-import { API_CONFIG } from '../../app.config';
+import { API_CONFIG } from '../../app.tokens';
 
 @Injectable()
 export class HomeService {

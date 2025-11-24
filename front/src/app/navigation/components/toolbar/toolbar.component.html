@@ -1,5 +1,8 @@
 @if (isHandset$ | async) { @if (isSearch()) {
-<app-search (onCloseSearch)="closeSearch()"></app-search>
+<app-search
+  (onCloseSearch)="closeSearch()"
+  [initalInput]="searchInitInput()"
+></app-search>
 } @else {
 <div class="container">
   <button
