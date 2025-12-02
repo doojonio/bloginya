@@ -5,7 +5,7 @@ import {
   DecimalPipe,
   I18nPluralPipe,
 } from '@angular/common';
-import { importProvidersFrom, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { GALLERY_CONFIG, GalleryConfig, GalleryModule } from 'ng-gallery';
+import { GalleryModule } from 'ng-gallery';
 import { LightboxModule } from 'ng-gallery/lightbox';
 import { AudioModule } from '../audio/audio.module';
 import { CommentsModule } from '../comments/comments.module';
@@ -56,21 +56,6 @@ import { StatService } from './services/stat.service';
     ReaderService,
     LikerService,
     StatService,
-    {
-      provide: GALLERY_CONFIG,
-      useValue: {
-        autoHeight: true,
-        imageSize: 'cover',
-
-        // Enable thumbnail strip for galleries/lightbox
-        thumbs: true,
-        thumbPosition: 'bottom',
-        thumbImageSize: 'cover',
-        thumbWidth: 120,
-        thumbHeight: 80,
-      } as GalleryConfig,
-    },
-    importProvidersFrom(GalleryModule, LightboxModule),
   ],
 })
 export class PostModule {}

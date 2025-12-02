@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -13,6 +13,8 @@ import {
 } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { GALLERY_CONFIG, GalleryConfig, GalleryModule } from 'ng-gallery';
+import { LightboxModule } from 'ng-gallery/lightbox';
 import { routes } from './app.routes';
 import { API_CONFIG, PROSEMIRROR_SERVER_CONVERT } from './app.tokens';
 import { BreakpointMap } from './shared/services/picture.service';
@@ -68,6 +70,20 @@ export const appConfig: ApplicationConfig = {
       useValue: (_: any) => '',
     },
     provideClientHydration(withEventReplay()),
+    {
+      provide: GALLERY_CONFIG,
+      useValue: {
+        autoHeight: true,
+        imageSize: 'cover',
+
+        thumbs: true,
+        thumbPosition: 'bottom',
+        thumbImageSize: 'cover',
+        thumbWidth: 120,
+        thumbHeight: 80,
+      } as GalleryConfig,
+    },
+    importProvidersFrom(GalleryModule, LightboxModule),
     provideAnimations(),
   ],
 };
