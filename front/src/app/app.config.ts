@@ -1,8 +1,4 @@
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  provideZoneChangeDetection,
-} from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -15,19 +11,12 @@ import {
   withFetch,
   withInterceptors,
 } from '@angular/common/http';
-import {
-  provideClientHydration,
-  withEventReplay,
-} from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { GalleryModule } from 'ng-gallery';
-import { LightboxModule } from 'ng-gallery/lightbox';
 import { routes } from './app.routes';
 import { API_CONFIG, PROSEMIRROR_SERVER_CONVERT } from './app.tokens';
 import { BreakpointMap } from './shared/services/picture.service';
 import { cookieInterceptor } from './ssr/cookie.interceptor';
-import { GALLERY_CONFIG, GalleryConfig } from 'ng-gallery';
-
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -78,22 +67,7 @@ export const appConfig: ApplicationConfig = {
       provide: PROSEMIRROR_SERVER_CONVERT,
       useValue: (_: any) => '',
     },
-    {
-      provide: GALLERY_CONFIG,
-      useValue: {
-        autoHeight: true,
-        imageSize: 'cover',
-
-        // Enable thumbnail strip for galleries/lightbox
-        thumbs: true,
-        thumbPosition: 'bottom',
-        thumbImageSize: 'cover',
-        thumbWidth: 120,
-        thumbHeight: 80,
-      } as GalleryConfig,
-    },
-    provideAnimations(),
-    importProvidersFrom(GalleryModule, LightboxModule),
     provideClientHydration(withEventReplay()),
+    provideAnimations(),
   ],
 };
