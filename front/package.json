@@ -25,6 +25,7 @@
     "@angular/ssr": "^20.3.9",
     "express": "^5.1.0",
     "happy-dom": "^20.0.10",
+    "ng-gallery": "^12.0.0",
     "ngx-editor": "^19.0.0-beta.1",
     "ngx-filesize": "^3.0.6",
     "prosemirror-model": "^1.25.2",
