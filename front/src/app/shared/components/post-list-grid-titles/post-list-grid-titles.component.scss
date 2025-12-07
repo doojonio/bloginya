@@ -3,10 +3,14 @@
 @use "sass:map";
 
 .post-list-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: space-evenly;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+
+  @include mixs.for-size("desktop") {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
 }
 
 .post-item {
@@ -24,27 +28,21 @@
   flex-direction: column;
   text-decoration: none;
   position: relative;
-
-  width: 200px;
-  @include mixs.handset {
-    width: 120px;
-  }
+  width: 100%;
 
   img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
     object-fit: cover;
     border-radius: 8px;
   }
 
   .pre-placeholder {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    aspect-ratio: 1;
     border-radius: 1rem;
     border: 2px dashed map.get(c.$primary-palette, 90);
-
-    @include mixs.handset {
-      width: 120px;
-      height: 120px;
-    }
   }
 }
 
