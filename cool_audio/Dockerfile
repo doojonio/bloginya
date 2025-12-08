@@ -13,6 +13,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cool_audio .
 # Final stage
 FROM alpine:latest
 
+# Install ffmpeg (includes ffprobe) for audio duration checking
+RUN apk add --no-cache ffmpeg
+
 WORKDIR /root/
 
 COPY --from=builder /app/cool_audio .

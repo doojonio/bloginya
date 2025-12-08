@@ -12,7 +12,6 @@ import { PictureService } from '../../services/picture.service';
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    AsyncPipe,
     NgOptimizedImage,
   ],
   templateUrl: './post-list-grid-titles.component.html',
