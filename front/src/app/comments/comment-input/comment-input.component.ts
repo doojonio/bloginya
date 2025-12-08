@@ -5,6 +5,7 @@ import {
   input,
   OnInit,
   output,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, Validators } from '@angular/forms';
@@ -12,6 +13,7 @@ import { finalize, map } from 'rxjs';
 import { UserService } from '../../shared/services/user.service';
 import { CommentDto } from '../comment-view/comment-view.component';
 import { CommentsService } from '../comments.service';
+import { AudioRecordingBlockComponent } from '../audio-recording-block/audio-recording-block.component';
 
 @Component({
   standalone: false,
@@ -35,6 +37,9 @@ export class CommentInputComponent implements OnInit {
 
   // mode = input<'comment' | 'reply'>('comment');
   mode = computed(() => (this.replyToId() ? 'reply' : 'comment'));
+
+  // Audio recording component reference
+  audioRecorder = viewChild(AudioRecordingBlockComponent);
 
   getAvatarProps() {
     return this.mode() == 'comment'
@@ -75,6 +80,13 @@ export class CommentInputComponent implements OnInit {
     this.content.setValue(null);
     this.content.markAsUntouched();
     this.isTyping = false;
+
+    // Clean up recording if active
+    const recorder = this.audioRecorder();
+    if (recorder) {
+      recorder.deleteRecording();
+    }
+
     this.onCancel.emit();
   }
 
@@ -108,5 +120,57 @@ export class CommentInputComponent implements OnInit {
         });
         this.cancel();
       });
+  }
+
+  // Audio recording methods
+  async startRecording() {
+    console.log('startRecording called');
+
+    // Check if user is logged in
+    if (!this.user()) {
+      console.log('User not logged in, redirecting to login');
+      this.userService.goToLogin();
+      return;
+    }
+
+    const recorder = this.audioRecorder();
+    console.log('Recorder component:', recorder);
+
+    if (!recorder) {
+      console.error('Audio recorder component not found');
+      return;
+    }
+
+    try {
+      console.log('Calling recorder.startRecording()');
+      await recorder.startRecording();
+      console.log('Recording started successfully');
+    } catch (error) {
+      console.error('Error starting recording:', error);
+    }
+  }
+
+  hasRecordedAudio(): boolean {
+    const recorder = this.audioRecorder();
+    if (!recorder) {
+      return false;
+    }
+    return recorder.getRecordedAudio() !== null;
+  }
+
+  isRecording(): boolean {
+    const recorder = this.audioRecorder();
+    if (!recorder) {
+      return false;
+    }
+    return recorder.isRecordingActive();
+  }
+
+  onRecordingStop() {
+    // Handle recording stopped event if needed
+  }
+
+  onRecordingDelete() {
+    // Handle recording deleted event if needed
   }
 }

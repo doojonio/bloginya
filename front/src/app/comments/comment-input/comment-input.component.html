@@ -11,6 +11,16 @@
       cdkAutosizeMinRows="1"
       cdkAutosizeMaxRows="24"
     ></textarea>
+    <mat-icon
+      matPrefix
+      (click)="$event.stopPropagation(); $event.preventDefault(); startRecording()"
+      class="record-button"
+      [class.recording]="isRecording()"
+      [class.disabled]="isRecording() || hasRecordedAudio()"
+      [title]="isRecording() ? 'Recording...' : (hasRecordedAudio() ? 'Audio already recorded' : 'Start recording')"
+    >
+      mic
+    </mat-icon>
 
     @if (this.content.getError('minlength')) {
     <mat-error i18n>Too short</mat-error>
@@ -18,6 +28,13 @@
     <mat-error i18n>Too long</mat-error>
     }
   </mat-form-field>
+
+  <app-audio-recording-block
+    #audioRecorder
+    (onStop)="onRecordingStop()"
+    (onDelete)="onRecordingDelete()"
+  ></app-audio-recording-block>
+
   @if(isTyping || mode() == 'reply') {
   <div class="actions">
     <button matButton="elevated" [disabled]="isLocked" (click)="cancel()" i18n>

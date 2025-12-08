@@ -25,6 +25,38 @@ img {
 
 mat-form-field {
   width: 100%;
+
+  .record-button {
+    cursor: pointer;
+    color: var(--mat-sys-on-surface-variant);
+    transition: color 0.2s;
+    pointer-events: auto;
+
+    &:hover:not(.disabled) {
+      color: var(--mat-sys-primary);
+    }
+
+    &.recording {
+      color: var(--mat-sys-error);
+      animation: pulse 1.5s ease-in-out infinite;
+      cursor: not-allowed;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .actions {

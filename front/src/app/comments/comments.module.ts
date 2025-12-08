@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { CommentInputComponent } from './comment-input/comment-input.component';
 import { CommentViewComponent } from './comment-view/comment-view.component';
 import { CommentsComponent } from './comments/comments.component';
+import { AudioRecordingBlockComponent } from './audio-recording-block/audio-recording-block.component';
+import { AudioWaveVisualizerComponent } from './audio-wave-visualizer/audio-wave-visualizer.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 
@@ -16,6 +18,8 @@ import { RouterModule } from '@angular/router';
     CommentsComponent,
     CommentViewComponent,
     CommentInputComponent,
+    AudioRecordingBlockComponent,
+    AudioWaveVisualizerComponent,
   ],
   providers: [CommentInputComponent, CommentViewComponent, CommentsComponent],
   exports: [CommentsComponent],

@@ -1,0 +1,10 @@
+<div class="wave-visualizer">
+  @for (bar of bars(); track bar) {
+  <div
+    class="wave-bar"
+    [class.active]="isPlaying() && currentBarIndex() === bar"
+    [style.height.%]="getBarHeight(bar) * 100"
+  ></div>
+  }
+</div>
+
