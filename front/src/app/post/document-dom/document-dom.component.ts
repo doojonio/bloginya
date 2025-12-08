@@ -14,6 +14,7 @@ import { PROSEMIRROR_SERVER_CONVERT } from '../../app.tokens';
 import { customSchema } from '../../prosemirror/schema';
 import { Gallery, ImageItem } from 'ng-gallery';
 import { Lightbox } from 'ng-gallery/lightbox';
+import { PictureService } from '../../shared/services/picture.service';
 
 @Component({
   selector: 'app-document-dom',
@@ -25,6 +26,7 @@ export class DocumentDomComponent {
   private readonly platform = inject(Platform);
   private readonly gallery = inject(Gallery);
   private readonly lightbox = inject(Lightbox);
+  private readonly pictureService = inject(PictureService);
 
   sanitizer = inject(DomSanitizer);
   document = input.required<any>();
@@ -78,7 +80,11 @@ export class DocumentDomComponent {
             return null;
           }
           const alt = image.getAttribute('alt') ?? '';
-          return new ImageItem({ src, thumb: src, alt });
+          // Extract base image ID and get large variant for gallery
+          const baseId = this.pictureService.extractId(src);
+          const largeSrc = this.pictureService.variant(baseId, 'large') || src;
+          // Use original src as thumbnail, large variant as full image
+          return new ImageItem({ src: largeSrc, thumb: src, alt });
         })
         .filter((item): item is ImageItem => item !== null);
 
