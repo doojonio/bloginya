@@ -5,8 +5,6 @@ use Bloginya::Model::Upload qw(SIZES);
 use List::Util              qw(any);
 
 schema 'dimension' => sub {
-  return 1 unless defined $_[0];  # Allow undefined
-  return 1 if $_[0] eq 'original';  # Allow 'original' as special dimension
   any { $_ eq $_[0] } keys(SIZES->%*);
 };
 
