@@ -58,6 +58,12 @@ sub _create_variant ($self, $orig, $dimension) {
   my $is_gif = $orig =~ /\.gif$/;
   $im->Read($orig . ($size->{gifable} ? '' : '[0]'));
 
+  # Auto-orient image based on EXIF data before processing
+  # GIFs typically don't have EXIF orientation data, so skip for GIFs
+  unless ($is_gif) {
+    $im->AutoOrient();
+  }
+
   my ($orig_width, $orig_height) = $im->Get('width', 'height');
   $self->log->trace(qq/Original image dimensions: ${orig_width}x${orig_height}/);
   my $reduce_width = $orig_width > $orig_height;
