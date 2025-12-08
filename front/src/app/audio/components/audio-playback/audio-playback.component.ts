@@ -9,7 +9,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { AudioService } from '../../audio/services/audio.service';
+import { AudioService } from '../../services/audio.service';
+import { PlaybackService } from '../../services/playback.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   standalone: false,
@@ -21,6 +23,12 @@ export class AudioPlaybackComponent implements OnDestroy {
   uploadId = input.required<string>();
 
   private audioService = inject(AudioService);
+  private playbackService = inject(PlaybackService);
+
+  private readonly onPauseSub = this.playbackService
+    .onPause()
+    .pipe(takeUntilDestroyed())
+    .subscribe(() => this.pause());
 
   audioUrl = computed(() => {
     const id = this.uploadId();
@@ -57,12 +65,24 @@ export class AudioPlaybackComponent implements OnDestroy {
     const player = this.audioPlayer();
     if (!player) return;
 
-    if (this.isPlaying()) {
-      player.pause();
-      this.isPlaying.set(false);
+    const wasPlaying = this.isPlaying();
+
+    if (wasPlaying) {
+      // Stop this player
+      this.pause();
     } else {
+      // Pause all other audio players, then start this one
+      this.playbackService.pauseAll();
       player.play();
       this.isPlaying.set(true);
+    }
+  }
+
+  pause() {
+    const player = this.audioPlayer();
+    if (player) {
+      player.pause();
+      this.isPlaying.set(false);
     }
   }
 

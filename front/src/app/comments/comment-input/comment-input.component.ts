@@ -13,7 +13,7 @@ import { finalize, map, switchMap, of } from 'rxjs';
 import { UserService } from '../../shared/services/user.service';
 import { CommentDto } from '../comment-view/comment-view.component';
 import { CommentsService } from '../comments.service';
-import { AudioRecordingBlockComponent } from '../audio-recording-block/audio-recording-block.component';
+import { AudioRecordingBlockComponent } from '../../audio/components/audio-recording-block/audio-recording-block.component';
 import { AudioService } from '../../audio/services/audio.service';
 
 @Component({
