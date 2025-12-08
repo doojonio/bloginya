@@ -164,7 +164,7 @@ sub _setup_routes($self) {
   $api_A->get('/stat')->to('Stat#get_view_count');
 
   # Policy
-  $api_A->get('/policy/can_upload_audio')->to('Policy#can_upload_audio');
+  $api_U->get('/policy/can_upload_audio')->to('Policy#can_upload_audio');
   $api_A->get('/policy/can_backup')->to('Policy#can_backup');
 
   # Clean Up

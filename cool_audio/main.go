@@ -7,9 +7,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -49,12 +53,12 @@ func uploadHandler(config *Config) http.HandlerFunc {
 			return
 		}
 
-		allowedToUpload, err := isAllowedToUpload(config.PolicyServiceURL, sidCookie.Value)
+		policyResult, err := getUploadPolicy(config.PolicyServiceURL, sidCookie.Value)
 		if err != nil {
 			httpError(w, err, http.StatusInternalServerError, "Failed to check policy")
 			return
 		}
-		if !allowedToUpload {
+		if !policyResult.Authorized {
 			httpError(w, nil, http.StatusForbidden, "Upload not allowed by policy")
 			return
 		}
@@ -71,9 +75,22 @@ func uploadHandler(config *Config) http.HandlerFunc {
 			return
 		}
 
-		if header.Size > config.MaxFileSize {
-			httpError(w, nil, http.StatusBadRequest, fmt.Sprintf("File size is too large. Maximum size is %d bytes", config.MaxFileSize))
+		// Check file size based on policy limits
+		if policyResult.MaxFileSize > 0 && header.Size > policyResult.MaxFileSize {
+			httpError(w, nil, http.StatusBadRequest, fmt.Sprintf("File size is too large. Maximum size is %d bytes", policyResult.MaxFileSize))
 			return
+		}
+
+		// Check duration if limit is set
+		if policyResult.MaxDurationSeconds > 0 {
+			duration, err := getAudioDuration(file, header.Filename)
+			if err != nil {
+				log.Printf("Warning: Failed to get audio duration: %v", err)
+				// Continue anyway, but log the error
+			} else if duration > float64(policyResult.MaxDurationSeconds) {
+				httpError(w, nil, http.StatusBadRequest, fmt.Sprintf("Audio duration is too long. Maximum duration is %d seconds", policyResult.MaxDurationSeconds))
+				return
+			}
 		}
 
 		contentType := header.Header.Get("Content-Type")
@@ -139,33 +156,77 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "OK")
 }
 
-func isAllowedToUpload(policyURL, sid string) (bool, error) {
+type PolicyResult struct {
+	Authorized        int    `json:"authorized"`
+	MaxFileSize       int64  `json:"max_file_size"`
+	MaxDurationSeconds int   `json:"max_duration_seconds"`
+	Role              string `json:"role"`
+}
+
+func getUploadPolicy(policyURL, sid string) (*PolicyResult, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", policyURL+"/can_upload_audio", nil)
 	if err != nil {
-		return false, fmt.Errorf("failed to create request: %w", err)
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.AddCookie(&http.Cookie{Name: "sid", Value: sid})
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return false, fmt.Errorf("failed to get policy: %w", err)
+		return nil, fmt.Errorf("failed to get policy: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("policy service returned non-200 status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("policy service returned non-200 status code: %d", resp.StatusCode)
 	}
 
-	var result = struct {
-		Authorized int `json:"authorized"`
-	}{}
+	var result PolicyResult
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		return false, fmt.Errorf("failed to decode policy response: %w", err)
+		return nil, fmt.Errorf("failed to decode policy response: %w", err)
 	}
 
-	return result.Authorized == 1, nil
+	return &result, nil
+}
+
+func getAudioDuration(file multipart.File, filename string) (float64, error) {
+	// Create a temporary file to store the uploaded audio
+	tmpFile, err := os.CreateTemp("", "audio-*"+filepath.Ext(filename))
+	if err != nil {
+		return 0, fmt.Errorf("failed to create temp file: %w", err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	// Reset file pointer to beginning
+	file.Seek(0, 0)
+
+	// Copy file content to temp file
+	_, err = io.Copy(tmpFile, file)
+	if err != nil {
+		return 0, fmt.Errorf("failed to copy file: %w", err)
+	}
+	tmpFile.Close()
+
+	// Reset file pointer for later use
+	file.Seek(0, 0)
+
+	// Use ffprobe to get duration (if available)
+	cmd := exec.Command("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", tmpFile.Name())
+	output, err := cmd.Output()
+	if err != nil {
+		// ffprobe not available or failed, return error
+		return 0, fmt.Errorf("ffprobe not available or failed: %w", err)
+	}
+
+	durationStr := strings.TrimSpace(string(output))
+	duration, err := strconv.ParseFloat(durationStr, 64)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse duration: %w", err)
+	}
+
+	return duration, nil
 }
 
 func httpError(w http.ResponseWriter, err error, statusCode int, message string) {
