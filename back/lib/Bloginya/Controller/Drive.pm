@@ -9,6 +9,9 @@ async sub get_file($self) {
   $self->stash(_current_user => undef);
   my ($upload_id, $dimension) = $self->i(upload_id => 'path', d => 'dimension');
 
+  # Default to 'original' if dimension is omitted
+  $dimension //= 'original';
+
   my $path;
   try {
     $path = await $self->service('drive')->get_or_create_variant_p($upload_id, $dimension);
