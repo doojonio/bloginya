@@ -33,6 +33,7 @@ jobs:
             -i inventory \
             --private-key private_key.pem \
             -u root \
+            -e bloginya_cool_audio_api_key=${{ secrets.COOL_AUDIO_API_KEY }} \
             -e bloginya_google_client_id=${{ secrets.GOOGLE_CLIENT_ID }} \
             -e bloginya_google_project_id=${{ secrets.GOOGLE_PROJECT_ID }} \
             -e bloginya_google_client_secret=${{ secrets.GOOGLE_CLIENT_SECRET }} \
