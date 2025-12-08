@@ -157,4 +157,15 @@ async sub register_external_upload_p($self, $external_id, $service) {
   return $external_id;
 }
 
+async sub register_external_audio_p($self, $external_id, $service, $user_id) {
+  my $mtype = $self->mt->mimeTypeOf($external_id) // 'audio/webm';
+
+  my $existing = (await $self->db->select_p('uploads', ['id'], {id => $external_id}))->hashes->first;
+  if (!$existing) {
+    await $self->db->insert_p('uploads',
+      {id => $external_id, user_id => $user_id, mtype => $mtype, service => $service});
+  }
+  return $external_id;
+}
+
 1;

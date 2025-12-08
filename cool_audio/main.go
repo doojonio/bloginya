@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -58,7 +59,7 @@ func uploadHandler(config *Config) http.HandlerFunc {
 			httpError(w, err, http.StatusInternalServerError, "Failed to check policy")
 			return
 		}
-		if !policyResult.Authorized {
+		if policyResult.Authorized == 0 {
 			httpError(w, nil, http.StatusForbidden, "Upload not allowed by policy")
 			return
 		}
@@ -127,6 +128,15 @@ func uploadHandler(config *Config) http.HandlerFunc {
 		if err != nil {
 			httpError(w, err, http.StatusInternalServerError, "Failed to save file")
 			return
+		}
+
+		// Register audio in backend
+		if config.BackendURL != "" && config.BackendAPIKey != "" {
+			err = registerAudioInBackend(config.BackendURL, config.BackendAPIKey, filename, sidCookie.Value)
+			if err != nil {
+				log.Printf("Warning: Failed to register audio in backend: %v", err)
+				// Continue anyway - file is uploaded
+			}
 		}
 
 		log.Printf("File '%s' uploaded successfully as '%s'", header.Filename, filename)
@@ -227,6 +237,40 @@ func getAudioDuration(file multipart.File, filename string) (float64, error) {
 	}
 
 	return duration, nil
+}
+
+func registerAudioInBackend(backendURL, apiKey, uploadID, sid string) error {
+	client := &http.Client{}
+
+	payload := map[string]string{
+		"upload_id": uploadID,
+	}
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal payload: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", backendURL+"/drive/register_audio", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", apiKey)
+	req.AddCookie(&http.Cookie{Name: "sid", Value: sid})
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("backend returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	return nil
 }
 
 func httpError(w http.ResponseWriter, err error, statusCode int, message string) {

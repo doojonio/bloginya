@@ -13,6 +13,8 @@ type Config struct {
 	UploadDir             string   `json:"upload_dir"`
 	PolicyServiceURL      string   `json:"policy_service_url"`
 	PolicyServiceEndpoint string   `json:"policy_service_endpoint"`
+	BackendAPIKey         string   `json:"backend_api_key"`
+	BackendURL            string   `json:"backend_url"`
 }
 
 // LoadConfig loads the configuration from a file

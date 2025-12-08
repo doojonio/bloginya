@@ -147,6 +147,7 @@ sub _setup_routes($self) {
   # Drive
   $api_A->post('/drive')->to('Drive#put_file');
   $r->get('/drive/*upload_id')->to('Drive#get_file');
+  $api_U->post('/drive/register_audio')->to('Drive#register_external_audio');
 
   # User
   $api_A->get('/users/settings')->to('User#settings');

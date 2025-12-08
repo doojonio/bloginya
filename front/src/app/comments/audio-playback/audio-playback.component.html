@@ -1,0 +1,38 @@
+@if (audioUrl(); as url) {
+  <div class="audio-playback">
+    <audio
+      #audioPlayer
+      [src]="url"
+      (timeupdate)="onTimeUpdate()"
+      (loadedmetadata)="onLoadedMetadata()"
+      (ended)="onEnded()"
+      (error)="onError()"
+    ></audio>
+
+    <button
+      matIconButton
+      class="play-button"
+      (click)="togglePlayPause()"
+      [attr.aria-label]="isPlaying() ? 'Stop' : 'Play'"
+    >
+      <mat-icon>{{ isPlaying() ? 'stop' : 'play_arrow' }}</mat-icon>
+    </button>
+
+    <div class="wave-container">
+      @if (audioBlob(); as blob) {
+        <app-audio-wave-visualizer
+          [audioBlob]="blob"
+          [isPlaying]="isPlaying()"
+          [currentTime]="currentTime()"
+          [barCount]="30"
+        ></app-audio-wave-visualizer>
+      }
+    </div>
+
+    <div class="time-info">
+      <span class="current-time">{{ formatTime(currentTime()) }}</span>
+      <span class="duration">{{ formatTime(duration()) }}</span>
+    </div>
+  </div>
+}
+

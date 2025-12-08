@@ -57,4 +57,47 @@ async sub put_file($self) {
   $self->render(json => {id => $id});
 }
 
+async sub register_external_audio($self) {
+  my $api_key = $self->req->headers->header('X-API-Key') // '';
+
+  # Find app by API key
+  my $app_name = undef;
+  my $apps = $self->app->config->{apps} // {};
+  for my $name (keys %$apps) {
+    if ($apps->{$name} eq $api_key) {
+      $app_name = $name;
+      last;
+    }
+  }
+
+  unless ($app_name) {
+    return $self->msg('Invalid API key', 401);
+  }
+
+  # Get user_id from session cookie
+  my $user = await $self->current_user_p;
+  unless ($user) {
+    return $self->msg('Unauthorized', 401);
+  }
+  my $user_id = $user->{id};
+
+  my $upload_id = $self->i(json => 'RegisterAudioPayload')->{upload_id};
+
+  unless ($upload_id) {
+    return $self->msg('upload_id is required', 400);
+  }
+
+  my $drive = $self->service('drive');
+
+  try {
+    await $drive->register_external_audio_p($upload_id, $app_name, $user_id);
+  }
+  catch ($e) {
+    $self->log->error("Error registering external audio: $e");
+    return $self->msg('Failed to register audio', 500);
+  }
+
+  return $self->render(json => {id => $upload_id});
+}
+
 1

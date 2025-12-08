@@ -10,6 +10,7 @@ import { CommentViewComponent } from './comment-view/comment-view.component';
 import { CommentsComponent } from './comments/comments.component';
 import { AudioRecordingBlockComponent } from './audio-recording-block/audio-recording-block.component';
 import { AudioWaveVisualizerComponent } from './audio-wave-visualizer/audio-wave-visualizer.component';
+import { AudioPlaybackComponent } from './audio-playback/audio-playback.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 
@@ -20,6 +21,7 @@ import { RouterModule } from '@angular/router';
     CommentInputComponent,
     AudioRecordingBlockComponent,
     AudioWaveVisualizerComponent,
+    AudioPlaybackComponent,
   ],
   providers: [CommentInputComponent, CommentViewComponent, CommentsComponent],
   exports: [CommentsComponent],

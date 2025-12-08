@@ -16,6 +16,9 @@
       <br />
     }
   </div>
+  @if (com.audio_upload_id) {
+    <app-audio-playback [uploadId]="com.audio_upload_id"></app-audio-playback>
+  }
   <div class="actions">
     <button
       class="btn-like"

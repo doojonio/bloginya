@@ -124,4 +124,5 @@ export interface CommentDto {
   likes: number;
   liked?: boolean;
   replies: number;
+  audio_upload_id?: string | null;
 }

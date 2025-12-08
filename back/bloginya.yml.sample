@@ -29,3 +29,7 @@ google_oauth:
   auth_uri: https://accounts.google.com/o/oauth2/auth
   token_uri: https://oauth2.googleapis.com/token
   auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+
+# API keys for external apps
+apps:
+  cool_audio: "25ed2af070e7a07a2749bafe3dba757bbec873b0bdab3e9d3b000660bffabd63"
