@@ -119,6 +119,8 @@ export class CommentInputComponent implements OnInit {
             content,
             this.replyToId(),
             uploadId
+          ).pipe(
+            map((id: string) => ({ id, uploadId }))
           )
         ),
         finalize(() => {
@@ -126,7 +128,7 @@ export class CommentInputComponent implements OnInit {
         })
       )
       .subscribe({
-        next: (id: string) => {
+        next: ({ id, uploadId }) => {
           this.onAddComment.emit({
             id: id,
             user_id: user.id,
@@ -137,6 +139,7 @@ export class CommentInputComponent implements OnInit {
             picture: user.picture,
             likes: 0,
             replies: 0,
+            audio_upload_id: uploadId || null,
           });
           this.cancel();
         },
