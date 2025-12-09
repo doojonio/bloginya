@@ -15,11 +15,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   standalone: false,
-  selector: 'app-audio-playback',
-  templateUrl: './audio-playback.component.html',
-  styleUrl: './audio-playback.component.scss',
+  selector: 'app-audio-wave-playback',
+  templateUrl: './audio-wave-playback.component.html',
+  styleUrl: './audio-wave-playback.component.scss',
 })
-export class AudioPlaybackComponent implements OnDestroy {
+export class AudioWavePlaybackComponent implements OnDestroy {
   uploadId = input.required<string>();
 
   private audioService = inject(AudioService);

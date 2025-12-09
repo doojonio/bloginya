@@ -43,6 +43,12 @@ img {
   overflow: hidden;
 }
 
+app-audio-player {
+  display: block;
+  max-width: 25rem;
+  margin-top: 0.5rem;
+}
+
 .actions {
   font-size: var(--mat-sys-body-medium);
   display: flex;

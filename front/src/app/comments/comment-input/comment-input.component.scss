@@ -59,6 +59,11 @@ mat-form-field {
   }
 }
 
+app-audio-recording-block {
+  display: block;
+  max-width: 25rem;
+}
+
 .actions {
   display: flex;
   justify-content: right;
