@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -30,6 +31,14 @@ func LoadConfig(path string) (*Config, error) {
 	err = decoder.Decode(config)
 	if err != nil {
 		return nil, err
+	}
+
+	// Validate required backend configuration
+	if config.BackendURL == "" {
+		return nil, fmt.Errorf("backend_url is required in config.json")
+	}
+	if config.BackendAPIKey == "" {
+		return nil, fmt.Errorf("backend_api_key is required in config.json")
 	}
 
 	return config, nil

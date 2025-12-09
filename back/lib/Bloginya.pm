@@ -20,7 +20,12 @@ sub startup ($self) {
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::Log4perl');
   $self->plugin('Bloginya::Plugin::WebHelpers');
-  $self->plugin('Bloginya::Plugin::XSRF');
+  $self->plugin(
+    'Bloginya::Plugin::XSRF',
+    {
+      allowed_api_keys => [values %{$config->{apps} // {}}]
+    }
+  );
   $self->plugin('Bloginya::Plugin::DB');
   $self->plugin(
     'Bloginya::Plugin::Service',

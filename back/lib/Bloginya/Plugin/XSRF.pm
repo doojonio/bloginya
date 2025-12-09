@@ -18,6 +18,8 @@ sub register {
   my $cookie_max_age = $config->{cookie_max_age} // 60 * 60 * 24; # 24 hours
   my $excluded_methods = $config->{excluded_methods} // ['GET', 'HEAD', 'OPTIONS'];
   my $excluded_paths = $config->{excluded_paths} // [];
+  # Allowed API keys for service-to-service authentication
+  my $allowed_api_keys = $config->{allowed_api_keys} // [];
 
   # Helper to generate CSRF token
   $app->helper(
@@ -79,6 +81,33 @@ sub register {
       # Skip validation for excluded paths
       for my $excluded_path (@$excluded_paths) {
         return if $path =~ /^$excluded_path/;
+      }
+
+      # Validate API key for service-to-service requests
+      # These requests use X-API-Key header for authentication instead of XSRF tokens
+      my $api_key_header = $c->req->headers->header('X-API-Key');
+      if ($api_key_header) {
+        my $is_valid = 0;
+
+        # Check if the provided API key matches any allowed key
+        for my $allowed_key (@$allowed_api_keys) {
+          if (secure_compare($api_key_header, $allowed_key)) {
+            $is_valid = 1;
+            last;
+          }
+        }
+
+        # If API key is invalid, forbid the request
+        unless ($is_valid) {
+          $c->render(
+            json   => {message => 'Invalid API key'},
+            status => 403
+          );
+          return;
+        }
+
+        # Valid API key - skip XSRF validation
+        return;
       }
 
       # Get token from cookie

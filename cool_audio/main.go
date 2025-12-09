@@ -116,27 +116,38 @@ func uploadHandler(config *Config) http.HandlerFunc {
 			return
 		}
 		filename := hex.EncodeToString(randomBytes) + ext
+		filePath := filepath.Join(config.UploadDir, filename)
 
-		f, err := os.Create(filepath.Join(config.UploadDir, filename))
+		f, err := os.Create(filePath)
 		if err != nil {
 			httpError(w, err, http.StatusInternalServerError, "Failed to save file")
 			return
 		}
-		defer f.Close()
 
 		_, err = io.Copy(f, file)
 		if err != nil {
+			f.Close()
 			httpError(w, err, http.StatusInternalServerError, "Failed to save file")
 			return
 		}
 
-		// Register audio in backend
-		if config.BackendURL != "" && config.BackendAPIKey != "" {
-			err = registerAudioInBackend(config.BackendURL, config.BackendAPIKey, filename, sidCookie.Value)
-			if err != nil {
-				log.Printf("Warning: Failed to register audio in backend: %v", err)
-				// Continue anyway - file is uploaded
+		// Close file before registration attempt (needed for file removal on some systems)
+		if err := f.Close(); err != nil {
+			httpError(w, err, http.StatusInternalServerError, "Failed to close file")
+			return
+		}
+
+		// Always register audio in backend (required)
+		err = registerAudioInBackend(config.BackendURL, config.BackendAPIKey, filename, sidCookie.Value)
+		if err != nil {
+			// Registration failed - remove the saved file
+			if removeErr := os.Remove(filePath); removeErr != nil {
+				log.Printf("Error: Failed to remove file after registration failure: %v", removeErr)
+			} else {
+				log.Printf("Removed file '%s' after registration failure", filename)
 			}
+			httpError(w, err, http.StatusInternalServerError, "Failed to register audio in backend")
+			return
 		}
 
 		log.Printf("File '%s' uploaded successfully as '%s'", header.Filename, filename)
