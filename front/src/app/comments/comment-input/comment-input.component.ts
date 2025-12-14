@@ -62,8 +62,6 @@ export class CommentInputComponent implements OnInit {
   }
 
   content = new FormControl('', [
-    Validators.required,
-    Validators.minLength(3),
     Validators.maxLength(500),
   ]);
 
@@ -173,6 +171,8 @@ export class CommentInputComponent implements OnInit {
       console.log('Calling recorder.startRecording()');
       await recorder.startRecording();
       console.log('Recording started successfully');
+      // Trigger startTyping when recording starts
+      this.startTyping();
     } catch (error) {
       console.error('Error starting recording:', error);
     }
@@ -195,7 +195,8 @@ export class CommentInputComponent implements OnInit {
   }
 
   onRecordingStop() {
-    // Handle recording stopped event if needed
+    // Trigger startTyping when audio is recorded
+    this.startTyping();
   }
 
   onRecordingDelete() {

@@ -10,12 +10,14 @@
     }}</a>
     <a class="date">{{ com.created_at | date }}</a>
   </div>
-  <div class="content">
-    @for (line of com.content.split("\n"); track line) {
-      {{ line }}
-      <br />
-    }
-  </div>
+  @if (com.content.length > 0) {
+    <div class="content">
+      @for (line of com.content.split("\n"); track line) {
+        {{ line }}
+        <br />
+      }
+    </div>
+  }
   @if (com.audio_upload_id) {
     <app-audio-player [filename]="com.audio_upload_id"></app-audio-player>
   }

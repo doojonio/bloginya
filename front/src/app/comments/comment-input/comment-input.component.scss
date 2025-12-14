@@ -23,6 +23,18 @@ img {
   flex: 1;
 }
 
+
+.comment-input-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.25rem;
+
+  & > button {
+    margin-top: 0.5rem;
+    background-color: var(--mat-sys-surface);
+  }
+}
+
 mat-form-field {
   width: 100%;
 

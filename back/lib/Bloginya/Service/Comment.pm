@@ -69,6 +69,12 @@ async sub add_comment_p($self, $fields) {
 
   my $upload_id = $fields->{upload_id};
 
+  # Allow empty content if an upload_id is provided, otherwise enforce minimum length
+  if (!$upload_id && (!defined $fields{content} || length $fields{content} < 3)) {
+    die 'Content too short';
+  }
+
+
   # Validate upload_id if provided
   if ($upload_id) {
     my $upload = (await $self->db->select_p('uploads', ['user_id', 'mtype', 'service'], {id => $upload_id}))->hashes->first;
