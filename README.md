@@ -6,20 +6,23 @@ Bloginya is a modern blogging platform built with a Perl backend (Mojolicious) a
 
 *   **User Management:** User registration, blocking, login, and profile management.
 *   **Content Creation:** Create, edit, and delete blog posts with a rich text editor.
+*   **Audio Posts:** Add audio files to blog posts for enhanced multimedia content.
 *   **Categorization:** Organize posts with categories.
 *   **Private categories:** Ability to create private categories visible only to the owner.
 *   **Comments:** Allow users to comment on posts.
+*   **Voice Comments:** Record and attach voice messages to comments.
 *   **File Uploads:** Upload and manage files.
 *   **Search:** Full-text search for posts.
 *   **Admin Panel:** Manage users, posts, and other site settings.
 
 ## Architecture
 
-The project is composed of three main services:
+The project is composed of four main services:
 
 *   **`backend`:** A Perl-based API built with the Mojolicious framework. It handles all the business logic and data persistence.
 *   **`frontend`:** An Angular single-page application that provides the user interface.
 *   **`cool_asia`:** A Python microservice that provides language conversion functionality.
+*   **`cool_audio`:** A Go microservice that handles audio file uploads and streaming for audio posts and voice comments.
 
 All services are designed to be run in Docker containers.
 

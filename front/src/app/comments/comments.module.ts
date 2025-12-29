@@ -10,6 +10,7 @@ import { CommentViewComponent } from './comment-view/comment-view.component';
 import { CommentsComponent } from './comments/comments.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
+import { AudioModule } from '../audio/audio.module';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { RouterModule } from '@angular/router';
     MatButtonModule,
     MatMenuModule,
     RouterModule,
+    AudioModule,
   ],
 })
 export class CommentsModule {}

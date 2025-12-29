@@ -12,4 +12,8 @@ schema 'path' => sub {
   $_[0] !~ /\.\./;
 };
 
+schema RegisterAudioPayload => {
+  upload_id => 'str',
+};
+
 1;

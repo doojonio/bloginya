@@ -2,6 +2,8 @@
 :host {
   display: flex;
   flex-flow: row nowrap;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 img {
@@ -32,6 +34,19 @@ img {
 
 .uname {
   color: var(--mat-sys-primary);
+}
+
+.comment {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+app-audio-player {
+  display: block;
+  max-width: 25rem;
+  margin-top: 0.5rem;
 }
 
 .actions {

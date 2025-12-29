@@ -116,7 +116,6 @@ export interface LoadCategoryResponse {
   posts_num: number;
   page: number;
   grid_posts: PostCategoryGrid[];
-  list_posts: PostMed[];
 }
 export interface PostCategoryGrid {
   picture_pre: string;

@@ -32,12 +32,18 @@ export class CommentsService {
     );
   }
 
-  addComment(postId: string, content: string, replyId?: string) {
-    return this.http.post<string>(this.api.backendUrl + '/api/comments', {
+  addComment(postId: string, content: string, replyId?: string, uploadId?: string) {
+    const payload: any = {
       post_id: postId,
       reply_to_id: replyId,
       content: content,
-    });
+    };
+
+    if (uploadId) {
+      payload.upload_id = uploadId;
+    }
+
+    return this.http.post<string>(this.api.backendUrl + '/api/comments', payload);
   }
 
   unlike(id: string) {
@@ -92,4 +98,5 @@ export interface GetCommentsResponseItem {
   likes: number;
   liked?: boolean;
   replies: number;
+  audio_upload_id?: string | null;
 }

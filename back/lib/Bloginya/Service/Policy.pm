@@ -4,7 +4,7 @@ use Mojo::Base -base, -signatures, -async_await;
 use List::Util qw(any none);
 
 use Bloginya::Model::Post qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
-use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
+use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR USER_ROLE_VISITOR);
 
 has 'db';
 has 'current_user';
@@ -56,7 +56,46 @@ sub can_change_categories($self) {
 
 sub can_upload_audio ($self) {
   my $user = $self->current_user;
-  return $user && ($user->{role} eq USER_ROLE_OWNER || $user->{role} eq USER_ROLE_CREATOR);
+
+  # Unauthorized: forbidden
+  unless ($user) {
+    return {
+      authorized => 0,
+      max_file_size => 0,
+      max_duration_seconds => 0,
+      role => 'unauthorized',
+    };
+  }
+
+  my $role = $user->{role};
+
+  # Owner or creator: unlimited
+  if ($role eq USER_ROLE_OWNER || $role eq USER_ROLE_CREATOR) {
+    return {
+      authorized => 1,
+      max_file_size => 0,  # 0 means unlimited
+      max_duration_seconds => 0,  # 0 means unlimited
+      role => $role,
+    };
+  }
+
+  # Authorized guest: limited to 2 minutes and 150MB
+  if ($role eq USER_ROLE_VISITOR) {
+    return {
+      authorized => 1,
+      max_file_size => 150 * 1024 * 1024,  # 150MB in bytes
+      max_duration_seconds => 120,  # 2 minutes
+      role => $role,
+    };
+  }
+
+  # Other roles: forbidden
+  return {
+    authorized => 0,
+    max_file_size => 0,
+    max_duration_seconds => 0,
+    role => $role,
+  };
 }
 
 sub can_backup ($self) {

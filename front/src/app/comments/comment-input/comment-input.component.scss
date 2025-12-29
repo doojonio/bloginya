@@ -23,11 +23,61 @@ img {
   flex: 1;
 }
 
+
+.comment-input-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.25rem;
+
+  & > button {
+    margin-top: 0.5rem;
+    background-color: var(--mat-sys-surface);
+  }
+}
+
 mat-form-field {
   width: 100%;
+
+  .record-button {
+    cursor: pointer;
+    color: var(--mat-sys-on-surface-variant);
+    transition: color 0.2s;
+    pointer-events: auto;
+
+    &:hover:not(.disabled) {
+      color: var(--mat-sys-primary);
+    }
+
+    &.recording {
+      color: var(--mat-sys-error);
+      animation: pulse 1.5s ease-in-out infinite;
+      cursor: not-allowed;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+app-audio-recording-block {
+  display: block;
+  max-width: 25rem;
 }
 
 .actions {
   display: flex;
   justify-content: right;
+  margin-top: 0.75rem;
 }

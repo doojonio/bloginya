@@ -151,9 +151,7 @@ sub _map_cat_sort($self, $sort) {
 }
 
 async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
-  use constant GRID_COUNT => 18;
-  use constant LIST_COUNT => 5;
-  use constant PER_PAGE   => GRID_COUNT + LIST_COUNT;
+  use constant PER_PAGE => 16;
   $self->log->debug("Loading category page for id $id (page: $page, sort: $sort)");
 
   my @add_select;
@@ -204,15 +202,10 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
     [
       \'posts p',
       [-left => \'shortnames psn', 'p.id'          => 'psn.post_id'],
-      [-left => \'uploads upre',   'p.picture_pre' => 'upre.id'],
+      [-left => \'uploads upre',   'p.picture_pre' => 'upre.id',],
     ],
     [
-      ['upre.id', 'picture_pre'], 'p.title', 'psn.name', 'p.id', 'p.description', \'(
-        select
-          coalesce(array_remove(array_agg(t.name), NULL), ARRAY[]::text[])
-        from post_tags pt join tags t on t.id = pt.tag_id
-        where pt.post_id = p.id
-      ) as tags', @add_select,
+      ['upre.id', 'picture_pre'], 'p.title', 'psn.name', 'p.id', @add_select,
     ],
     {
       'p.category_id' => $id,
@@ -222,28 +215,9 @@ async sub load_p($self, $id, $page = 0, $sort = '!published_at') {
   );
 
   $self->log->trace("Found " . $res->rows . " posts for this page");
-  my (@grid_posts, @list_posts);
-  for my $row ($res->hashes->@*) {
-    if (@grid_posts < GRID_COUNT) {
+  my $grid_posts = $res->hashes;
 
-      # TODO FIX x3
-      push @grid_posts,
-        {picture_pre => $row->{picture_pre}, title => $row->{title}, name => $row->{name}, id => $row->{id}};
-    }
-    else {
-      push @list_posts,
-        {
-        id          => $row->{id},
-        name        => $row->{name},
-        title       => $row->{title},
-        picture_pre => $row->{picture_pre},
-        description => $row->{description},
-        tags        => $row->{tags},
-        };
-    }
-  }
-
-  @{$cat}{qw(grid_posts list_posts page sort)} = (\@grid_posts, \@list_posts, $page, $sort);
+  @{$cat}{qw(grid_posts page sort)} = ($grid_posts, $page, $sort);
 
   $self->log->info("Successfully loaded page $page for category '$cat->{title}'");
   $cat;

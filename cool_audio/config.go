@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -13,6 +14,8 @@ type Config struct {
 	UploadDir             string   `json:"upload_dir"`
 	PolicyServiceURL      string   `json:"policy_service_url"`
 	PolicyServiceEndpoint string   `json:"policy_service_endpoint"`
+	BackendAPIKey         string   `json:"backend_api_key"`
+	BackendURL            string   `json:"backend_url"`
 }
 
 // LoadConfig loads the configuration from a file
@@ -28,6 +31,14 @@ func LoadConfig(path string) (*Config, error) {
 	err = decoder.Decode(config)
 	if err != nil {
 		return nil, err
+	}
+
+	// Validate required backend configuration
+	if config.BackendURL == "" {
+		return nil, fmt.Errorf("backend_url is required in config.json")
+	}
+	if config.BackendAPIKey == "" {
+		return nil, fmt.Errorf("backend_api_key is required in config.json")
 	}
 
 	return config, nil

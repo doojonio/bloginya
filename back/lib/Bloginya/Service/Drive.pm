@@ -58,6 +58,12 @@ sub _create_variant ($self, $orig, $dimension) {
   my $is_gif = $orig =~ /\.gif$/;
   $im->Read($orig . ($size->{gifable} ? '' : '[0]'));
 
+  # Auto-orient image based on EXIF data before processing
+  # GIFs typically don't have EXIF orientation data, so skip for GIFs
+  unless ($is_gif) {
+    $im->AutoOrient();
+  }
+
   my ($orig_width, $orig_height) = $im->Get('width', 'height');
   $self->log->trace(qq/Original image dimensions: ${orig_width}x${orig_height}/);
   my $reduce_width = $orig_width > $orig_height;
@@ -153,6 +159,17 @@ async sub register_external_upload_p($self, $external_id, $service) {
   if (!$existing) {
     await $self->db->insert_p('uploads',
       {id => $external_id, user_id => $self->current_user->{id}, mtype => $mtype, service => $service});
+  }
+  return $external_id;
+}
+
+async sub register_external_audio_p($self, $external_id, $service, $user_id) {
+  my $mtype = $self->mt->mimeTypeOf($external_id) // 'audio/webm';
+
+  my $existing = (await $self->db->select_p('uploads', ['id'], {id => $external_id}))->hashes->first;
+  if (!$existing) {
+    await $self->db->insert_p('uploads',
+      {id => $external_id, user_id => $user_id, mtype => $mtype, service => $service});
   }
   return $external_id;
 }

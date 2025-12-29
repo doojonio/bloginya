@@ -20,6 +20,12 @@ sub startup ($self) {
   $self->plugin('DefaultHelpers');
   $self->plugin('Bloginya::Plugin::Log4perl');
   $self->plugin('Bloginya::Plugin::WebHelpers');
+  $self->plugin(
+    'Bloginya::Plugin::XSRF',
+    {
+      allowed_api_keys => [values %{$config->{apps} // {}}]
+    }
+  );
   $self->plugin('Bloginya::Plugin::DB');
   $self->plugin(
     'Bloginya::Plugin::Service',
@@ -147,6 +153,7 @@ sub _setup_routes($self) {
   # Drive
   $api_A->post('/drive')->to('Drive#put_file');
   $r->get('/drive/*upload_id')->to('Drive#get_file');
+  $api_U->post('/drive/register_audio')->to('Drive#register_external_audio');
 
   # User
   $api_A->get('/users/settings')->to('User#settings');
@@ -164,7 +171,7 @@ sub _setup_routes($self) {
   $api_A->get('/stat')->to('Stat#get_view_count');
 
   # Policy
-  $api_A->get('/policy/can_upload_audio')->to('Policy#can_upload_audio');
+  $api_U->get('/policy/can_upload_audio')->to('Policy#can_upload_audio');
   $api_A->get('/policy/can_backup')->to('Policy#can_backup');
 
   # Clean Up

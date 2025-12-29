@@ -54,5 +54,12 @@
     @include mixs.line-clamp(1);
     color: var(--mat-sys-secondary);
     font: var(--mat-sys-body-small);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    & > * {
+      white-space: nowrap;
+    }
   }
 }

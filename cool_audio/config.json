@@ -9,5 +9,7 @@
     "audio/vnd.wave"
   ],
   "upload_dir": "uploads",
-  "policy_service_url": "http://localhost:3000/api/policy"
+  "policy_service_url": "http://localhost:3000/api/policy",
+  "backend_api_key": "25ed2af070e7a07a2749bafe3dba757bbec873b0bdab3e9d3b000660bffabd63",
+  "backend_url": "http://localhost:3000/api"
 }

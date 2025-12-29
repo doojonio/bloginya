@@ -1,23 +1,53 @@
 <img src="{{ avatar() }}" [class]="mode() == 'reply' ? 'av-small' : 'av'" />
 <div class="comment">
-  <mat-form-field>
-    <textarea
-      matInput
-      [formControl]="content"
-      i18n-placeholder
-      (click)="startTyping()"
-      placeholder="Enter comment..."
-      cdkTextareaAutosize
-      cdkAutosizeMinRows="1"
-      cdkAutosizeMaxRows="24"
-    ></textarea>
+  <div class="comment-input-container">
+    <mat-form-field>
+      <textarea
+        matInput
+        [formControl]="content"
+        i18n-placeholder
+        (click)="startTyping()"
+        (focus)="startTyping()"
+        placeholder="Enter comment..."
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="24"
+      ></textarea>
 
-    @if (this.content.getError('minlength')) {
-    <mat-error i18n>Too short</mat-error>
-    } @else if (this.content.getError('maxlength')) {
-    <mat-error i18n>Too long</mat-error>
-    }
-  </mat-form-field>
+      @if (this.content.getError('minlength')) {
+      <mat-error i18n>Too short</mat-error>
+      } @else if (this.content.getError('maxlength')) {
+      <mat-error i18n>Too long</mat-error>
+      }
+    </mat-form-field>
+
+    <button mat-mini-fab>
+      <mat-icon
+        (click)="
+          $event.stopPropagation(); $event.preventDefault(); startRecording()
+        "
+        class="record-button"
+        [class.recording]="isRecording()"
+        [class.disabled]="isRecording() || hasRecordedAudio()"
+        [title]="
+          isRecording()
+            ? 'Recording...'
+            : hasRecordedAudio()
+            ? 'Audio already recorded'
+            : 'Start recording'
+        "
+      >
+        mic
+      </mat-icon>
+    </button>
+  </div>
+
+  <app-audio-recording-block
+    #audioRecorder
+    (onStop)="onRecordingStop()"
+    (onDelete)="onRecordingDelete()"
+  ></app-audio-recording-block>
+
   @if(isTyping || mode() == 'reply') {
   <div class="actions">
     <button matButton="elevated" [disabled]="isLocked" (click)="cancel()" i18n>

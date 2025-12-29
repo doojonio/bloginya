@@ -5,13 +5,16 @@ import {
   input,
   OnInit,
   output,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, Validators } from '@angular/forms';
-import { finalize, map } from 'rxjs';
+import { finalize, map, switchMap, of } from 'rxjs';
 import { UserService } from '../../shared/services/user.service';
 import { CommentDto } from '../comment-view/comment-view.component';
 import { CommentsService } from '../comments.service';
+import { AudioRecordingBlockComponent } from '../../audio/components/audio-recording-block/audio-recording-block.component';
+import { AudioService } from '../../audio/services/audio.service';
 
 @Component({
   standalone: false,
@@ -32,9 +35,13 @@ export class CommentInputComponent implements OnInit {
   defaultPicture = '/assets/images/default_user.webp';
 
   commentsService = inject(CommentsService);
+  audioService = inject(AudioService);
 
   // mode = input<'comment' | 'reply'>('comment');
   mode = computed(() => (this.replyToId() ? 'reply' : 'comment'));
+
+  // Audio recording component reference
+  audioRecorder = viewChild(AudioRecordingBlockComponent);
 
   getAvatarProps() {
     return this.mode() == 'comment'
@@ -55,8 +62,6 @@ export class CommentInputComponent implements OnInit {
   }
 
   content = new FormControl('', [
-    Validators.required,
-    Validators.minLength(3),
     Validators.maxLength(500),
   ]);
 
@@ -75,6 +80,13 @@ export class CommentInputComponent implements OnInit {
     this.content.setValue(null);
     this.content.markAsUntouched();
     this.isTyping = false;
+
+    // Clean up recording if active
+    const recorder = this.audioRecorder();
+    if (recorder) {
+      recorder.deleteRecording();
+    }
+
     this.onCancel.emit();
   }
 
@@ -87,26 +99,107 @@ export class CommentInputComponent implements OnInit {
 
     this.isLocked = true;
     const content = this.content.value || '';
-    this.commentsService
-      .addComment(this.postId(), content, this.replyToId())
+    const recorder = this.audioRecorder();
+    const recordedAudio = recorder?.getRecordedAudio();
+
+    // Upload audio first if present
+    const uploadAudio$ = recordedAudio
+      ? this.audioService.uploadAudioBlob(recordedAudio).pipe(
+          map((response) => response.file_id as string)
+        )
+      : of(undefined as string | undefined);
+
+    uploadAudio$
       .pipe(
+        switchMap((uploadId: string | undefined) =>
+          this.commentsService.addComment(
+            this.postId(),
+            content,
+            this.replyToId(),
+            uploadId
+          ).pipe(
+            map((id: string) => ({ id, uploadId }))
+          )
+        ),
         finalize(() => {
           this.isLocked = false;
         })
       )
-      .subscribe((id) => {
-        this.onAddComment.emit({
-          id: id,
-          user_id: user.id,
-          edited_at: null,
-          created_at: new Date().toISOString(),
-          content: content,
-          username: user.username,
-          picture: user.picture,
-          likes: 0,
-          replies: 0,
-        });
-        this.cancel();
+      .subscribe({
+        next: ({ id, uploadId }) => {
+          this.onAddComment.emit({
+            id: id,
+            user_id: user.id,
+            edited_at: null,
+            created_at: new Date().toISOString(),
+            content: content,
+            username: user.username,
+            picture: user.picture,
+            likes: 0,
+            replies: 0,
+            audio_upload_id: uploadId || null,
+          });
+          this.cancel();
+        },
+        error: (error: any) => {
+          console.error('Error creating comment:', error);
+          // Error handling could be improved with user notification
+        },
       });
+  }
+
+  // Audio recording methods
+  async startRecording() {
+    console.log('startRecording called');
+
+    // Check if user is logged in
+    if (!this.user()) {
+      console.log('User not logged in, redirecting to login');
+      this.userService.goToLogin();
+      return;
+    }
+
+    const recorder = this.audioRecorder();
+    console.log('Recorder component:', recorder);
+
+    if (!recorder) {
+      console.error('Audio recorder component not found');
+      return;
+    }
+
+    try {
+      console.log('Calling recorder.startRecording()');
+      await recorder.startRecording();
+      console.log('Recording started successfully');
+      // Trigger startTyping when recording starts
+      this.startTyping();
+    } catch (error) {
+      console.error('Error starting recording:', error);
+    }
+  }
+
+  hasRecordedAudio(): boolean {
+    const recorder = this.audioRecorder();
+    if (!recorder) {
+      return false;
+    }
+    return recorder.getRecordedAudio() !== null;
+  }
+
+  isRecording(): boolean {
+    const recorder = this.audioRecorder();
+    if (!recorder) {
+      return false;
+    }
+    return recorder.isRecordingActive();
+  }
+
+  onRecordingStop() {
+    // Trigger startTyping when audio is recorded
+    this.startTyping();
+  }
+
+  onRecordingDelete() {
+    // Handle recording deleted event if needed
   }
 }

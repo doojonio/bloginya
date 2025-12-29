@@ -13,24 +13,15 @@
     }
 
     <a class="post-link" routerLink="/{{ getLink(item) }}">
-      @if (item.picture_pre) { @if (isHandset$ | async) {
+      @if (item.picture_pre) {
       <img
-        width="120"
-        height="120"
+        width="400"
+        height="400"
         [ngSrc]="item.picture_pre"
         [priority]="isLCP()"
         placeholder
       />
       } @else {
-      <img
-        width="200"
-        height="200"
-        [ngSrc]="item.picture_pre"
-        [priority]="isLCP()"
-        placeholder
-      />
-      } } @else {
-
       <div class="pre-placeholder"></div>
       }
       <p class="title">{{ item.title }}</p>

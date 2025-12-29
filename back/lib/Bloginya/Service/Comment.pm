@@ -31,7 +31,11 @@ async sub list_by_post_p($self, $post_id, $reply_to_id = undef) {
   }
 
   my $res = await $self->db->select_p(
-    [\'comments c', [-left => \'users u', 'u.id' => 'c.user_id']],
+    [
+      \'comments c',
+      [-left => \'users u', 'u.id' => 'c.user_id'],
+      [-left => \'comment_audios ca', 'ca.comment_id' => 'c.id'],
+    ],
     [
       'c.id',
       'c.user_id',
@@ -40,6 +44,7 @@ async sub list_by_post_p($self, $post_id, $reply_to_id = undef) {
       'c.content',
       'u.username',
       [\"u.google_userinfo->>'picture'" => 'picture'],
+      ['ca.upload_id' => 'audio_upload_id'],
       \'(select count(cl.*) from comment_likes cl where cl.comment_id = c.id) as likes',
       \'(select count(cr.id) from comments cr where cr.reply_to_id = c.id and cr.status = \'ok\') as replies',
       @more_sel,
@@ -62,8 +67,44 @@ async sub add_comment_p($self, $fields) {
 
   $fields{user_id} = $self->current_user->{id};
 
+  my $upload_id = $fields->{upload_id};
+
+  # Allow empty content if an upload_id is provided, otherwise enforce minimum length
+  if (!$upload_id && (!defined $fields{content} || length $fields{content} < 3)) {
+    die 'Content too short';
+  }
+
+
+  # Validate upload_id if provided
+  if ($upload_id) {
+    my $upload = (await $self->db->select_p('uploads', ['user_id', 'mtype', 'service'], {id => $upload_id}))->hashes->first;
+    die 'upload not found' unless $upload;
+
+    # Verify upload belongs to current user
+    die 'no rights to use this upload' unless $upload->{user_id} eq $self->current_user->{id};
+
+    # Verify it's an audio file (either mtype starts with 'audio/' or service is 'cool_audio')
+    unless ($upload->{mtype} =~ /^audio\// || ($upload->{service} && $upload->{service} eq 'cool_audio')) {
+      die 'upload is not an audio file';
+    }
+  }
+
+  my $tx = $self->db->begin;
+
   my $res = await $self->db->insert_p('comments', \%fields, {returning => 'id'});
-  return $res->hashes->first->{id};
+  my $comment_id = $res->hashes->first->{id};
+
+  # Insert into comment_audios if upload_id is provided
+  if ($upload_id) {
+    await $self->db->insert_p('comment_audios', {
+      comment_id => $comment_id,
+      upload_id => $upload_id,
+    });
+  }
+
+  $tx->commit;
+
+  return $comment_id;
 }
 
 async sub like_p ($self, $comment_id) {

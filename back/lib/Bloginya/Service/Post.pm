@@ -300,8 +300,8 @@ async sub update_draft_p ($self, $post_id, $fields) {
   my $audios = $it_audios->();
 
   for my $audio_id (@$audios) {
-    my $ext_id = await $self->se_drive->register_external_upload_p($audio_id, 'cool_audio');
-    await $self->link_upload_to_post_p($post_id, $ext_id);
+    # Audio should already be registered by cool_audio service, just link it to post
+    await $self->link_upload_to_post_p($post_id, $audio_id);
   }
 
   $tx->commit;

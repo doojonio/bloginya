@@ -1,3 +1,13 @@
+-- 7 up | add comment_audios table
+
+create table
+    comment_audios (
+        comment_id cool_id primary key references comments (id),
+        upload_id text not null references uploads (id)
+    );
+
+create index comment_audios_upload_id_idx on comment_audios (upload_id);
+
 -- 6 up
 
 drop table post_audios;

@@ -1,0 +1,39 @@
+@if (isRecording() || isStopping() || recordedAudio) {
+<div class="recording-block">
+  @if (isRecording()) {
+  <div class="recording-active">
+    <div class="waves">
+      @for (bar of [1,2,3,4,5,6,7,8]; track bar) {
+      <div class="wave-bar" [style.animation-delay]="(bar - 1) * 0.1 + 's'"></div>
+      }
+    </div>
+    <div class="recording-info">
+      <span class="time">{{ formatTime(recordedSeconds()) }} / {{ formatTime(maxRecordingSeconds) }}</span>
+    </div>
+    <button matIconButton (click)="stopRecording()" class="stop-button" i18n-title title="Stop recording">
+      <mat-icon>stop</mat-icon>
+    </button>
+  </div>
+  } @else if (recordedAudio) {
+  <div class="recording-complete">
+    <app-audio-wave-visualizer
+      [audioBlob]="recordedAudio"
+      [isPlaying]="isPlaying()"
+      [currentTime]="currentPlaybackTime()"
+      [barCount]="20"
+    ></app-audio-wave-visualizer>
+    <div class="recording-complete-info">
+      <mat-icon class="audio-icon">audiotrack</mat-icon>
+      <span class="recorded-info" i18n>Audio recorded ({{ formatTime(recordedSeconds()) }})</span>
+      <button matIconButton (click)="togglePlayback()" [class.playing]="isPlaying()" i18n-title [title]="isPlaying() ? 'Pause audio' : 'Play audio'">
+        <mat-icon>{{ isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
+      </button>
+      <button matIconButton (click)="deleteRecording()" i18n-title title="Delete audio">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+  }
+</div>
+}
+
