@@ -9,4 +9,5 @@ COPY . .
 
 EXPOSE 8080
 
-ENTRYPOINT ["carmel", "exec", "hypnotoad", "-f", "script/bloginya"]
+ENTRYPOINT ["carmel", "exec" ]
+CMD ["hypnotoad", "-f", "script/bloginya"]

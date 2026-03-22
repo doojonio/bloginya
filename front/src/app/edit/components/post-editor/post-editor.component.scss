@@ -20,8 +20,8 @@
   --ngx-editor-icon-size: 30px;
   --ngx-editor-popup-bg-color: var(--mat-sys-surface);
   --ngx-editor-popup-border-radius: 4px;
-  --ngx-editor-popup-shadow: var(--mat-sys-outline) 0px 2px 6px 2px;
 
+  --ngx-editor-popup-shadow: var(--mat-sys-outline) 0px 2px 6px 2px;
   --ngx-editor-menu-item-border-radius: 2px;
   --ngx-editor-menu-item-active-color: var(--mat-sys-on-primary);
   --ngx-editor-menu-item-hover-bg-color: var(--mat-sys-primary);
@@ -36,10 +36,39 @@
 :host {
   display: flex;
   justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .wallpaper-chooser {
   width: 100%;
+  box-sizing: border-box;
+}
+
+form {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+::ng-deep {
+  .NgxEditor__Wrapper,
+  .NgxEditor,
+  .NgxEditor__Content,
+  .ProseMirror {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .NgxEditor__MenuBar {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    @include m.for-size(handset) {
+      flex-wrap: wrap;
+    }
+  }
 }
 
 
@@ -51,17 +80,35 @@
 }
 
 .container {
+  width: 100%;
+  box-sizing: border-box;
+
   @include m.for-size(handset) {
-    width: 100%;
+    padding: 0;
   }
+
+  @include m.for-size(tablet) {
+    padding: 0 1.5rem;
+  }
+
   @include m.for-size(desktop) {
     max-width: var(--post-max-width);
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 1200px) {
+    padding: 0;
   }
 }
 
 .title-editor {
   margin-top: 2rem;
   margin-bottom: 2rem;
+
+  @include m.for-size(handset) {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
 }
 
 .menu-container {
@@ -73,8 +120,11 @@
   display: flex;
   flex-flow: row wrap;
   gap: 1rem;
-
   align-items: center;
+
+  @include m.for-size(handset) {
+    padding: 0 1rem;
+  }
 
   .attachment-btn {
     @include mat.icon-overrides(
@@ -85,13 +135,14 @@
   }
 }
 
-@include m.for-size(handset) {
-  .editor {
-    margin: 0 1rem;
-  }
+.editor {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 
-  .meta-editor {
-    margin: 0 1rem;
+  @include m.for-size(handset) {
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 }
 
