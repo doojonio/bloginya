@@ -1,5 +1,6 @@
 package Bloginya::Service::Comment;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use experimental 'try';
 
@@ -8,10 +9,11 @@ use List::Util qw(any);
 use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Bloginya::Model::Post qw(POST_STATUS_DEL);
 
-has 'db';
-has 'redis';
-has 'current_user';
-has 'se_policy';
+inject 'db';
+inject 'redis';
+inject 'current_user';
+
+service se_policy => 'policy';
 
 
 async sub list_by_post_p($self, $post_id, $reply_to_id = undef) {

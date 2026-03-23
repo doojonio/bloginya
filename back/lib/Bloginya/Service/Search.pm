@@ -1,5 +1,6 @@
 package Bloginya::Service::Search;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use experimental 'try';
 
@@ -10,10 +11,10 @@ use Time::Piece           ();
 
 use constant _Query => __PACKAGE__ . '::_Query';
 
-has 'db';
-has 'redis';
-has 'log';
-has 'current_user';
+inject 'db';
+inject 'redis';
+inject 'log';
+inject 'current_user';
 
 async sub search_p ($self, $query) {
   $query = _Query->new(q => $query, log => $self->log, current_user => $self->current_user);

@@ -1,12 +1,13 @@
 package Bloginya::Service::Subscription;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use Bloginya::Model::User qw(USER_ROLE_OWNER);
 
-has 'config';
-has 'db';
-has 'current_user';
-has 'log';
+inject 'config';
+inject 'db';
+inject 'current_user';
+inject 'log';
 
 async sub subscribe_p ($self, $user_id = undef) {
   $user_id //= $self->current_user->{id};

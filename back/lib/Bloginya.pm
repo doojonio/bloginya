@@ -30,11 +30,14 @@ sub startup ($self) {
   $self->plugin(
     'Bloginya::Plugin::Service',
     {
-      'di_tokens' => [
-        qw(app config current_user log),
-        [db    => 'db_lazy',    'Bloginya::ServiceRole::LazyDB'],
-        [redis => 'redis_lazy', 'Bloginya::ServiceRole::LazyRedis']
-      ]
+      'dependencies' => {
+        app          => sub ($c) { $c->app },
+        config       => sub ($c) { $c->config },
+        current_user => sub ($c) { $c->current_user },
+        log          => sub ($c) { $c->log },
+        db           => sub ($c) { $c->db },
+        redis        => sub ($c) { $c->redis },
+      }
     }
   );
   $self->plugin('Bloginya::Plugin::CoolIO', {namespaces => ['Bloginya::Schema']});

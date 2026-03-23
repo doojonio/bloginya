@@ -1,5 +1,6 @@
 package Bloginya::Service::Drive;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use File::Path               qw(make_path);
 use Image::Magick            ();
@@ -13,10 +14,10 @@ use Bloginya::Model::Upload qw(SIZES);
 
 use constant SUBP => 'Mojo::IOLoop::Subprocess';
 
-has 'app';
-has 'db';
-has 'current_user';
-has 'log';
+inject 'app';
+inject 'db';
+inject 'current_user';
+inject 'log';
 
 has 'im' => sub { Image::Magick->new };
 has 'mt' => sub { MIME::Types->new };

@@ -3,82 +3,64 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Mojo::Loader qw(load_classes);
 use Mojo::Util   qw(camelize decamelize);
 
-use Ref::Util qw(is_arrayref);
+use Bloginya::Plugin::Service::DiResolver;
 
-has 'di_tokens';
-has 'seen' => sub { {} };
+has 'dependencies';
 has 'service_prefix';
 
 has _class_cache => sub { {} };
+has _instance_cache => sub { {} };
 
 sub register ($self, $app, $conf) {
-  $self->di_tokens($conf->{di_tokens}           // []);
+  $self->dependencies($conf->{dependencies}     // {});
   $self->service_prefix($conf->{service_prefix} // 'se_');
 
   my @services = load_classes('Bloginya::Service');
-  $self->_setup_serv_di_token($_) for @services;
 
   $app->helper(
     'service' => sub ($c, $name, @args) {
-      $self->seen->%* = ();
+      $self->_instance_cache->%* = ();
       $self->_service($c, $name, @args);
     }
   );
 }
 
 sub _service($self, $c, $name, @args) {
-  if ($self->seen->{$name}) {
-    my @seen = keys($self->seen->%*);
-    local $" = ',';
-    die "circular service dependency: $name, seen: @seen";
-  }
-
-  $self->seen->{$name} = 1;
+  # Return cached instance if exists (per-request cache)
+  my $cache_key = $name . (@args ? join(':', @args) : '');
+  return $self->_instance_cache->{$cache_key} if exists $self->_instance_cache->{$cache_key};
 
   my $class = 'Bloginya::Service::' . camelize($name);
   if (my $cache = $self->_class_cache->{$name}) {
-    return $cache->new(($self->_di($c, $class))[0]->@*, @args);
+    my $instance = $cache->new(($self->_di($c, $class))[0]->@*, @args);
+    $self->_instance_cache->{$cache_key} = $instance;
+    return $instance;
   }
 
-
-  my ($di_args, $roles) = $self->_di($c, $class);
-
-  if (@$roles) {
-    $class = $class->with_roles(@$roles);
-  }
+  my $di_args = $self->_di($c, $class);
 
   $self->_class_cache->{$name} = $class;
 
-  return $class->new(@$di_args, @args);
+  my $instance = $class->new(@$di_args, @args);
+  $self->_instance_cache->{$cache_key} = $instance;
+  return $instance;
 }
 
 sub _di ($self, $c, $class) {
-  my (@args, %service_roles);
+  my @args;
 
-  for my $token ($self->di_tokens->@*) {
-    my ($insert_as, $helper, @roles) = ($token) x 2;
-    if (is_arrayref($token)) {
-      ($insert_as, $helper, @roles) = @$token;
-    }
-
-    next unless $class->can($insert_as);
-
-    if (substr($insert_as, 0, length($self->service_prefix)) eq $self->service_prefix) {
-      my $sname = substr($insert_as, length($self->service_prefix));
-      push @args, $insert_as => $self->_service($c, $sname);
-    }
-    else {
-      push @args, $insert_as => $c->$helper;
-      $service_roles{$_} = 1 for @roles;
-    }
+  if ($class->can('_di_resolver')) {
+    push @args, _di_resolver => $self->_create_resolver($c);
   }
 
-  \@args, [keys %service_roles];
+  \@args;
 }
 
-sub _setup_serv_di_token($self, $serv) {
-  my $name = $self->service_prefix . decamelize((split /::/, $serv)[-1]);
-  push $self->di_tokens->@*, $name;
+sub _create_resolver($self, $c) {
+  Bloginya::Plugin::Service::DiResolver->new(
+    plugin     => $self,
+    controller => $c,
+  );
 }
 
 1;

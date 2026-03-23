@@ -1,14 +1,16 @@
 package Bloginya::Service::Email;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use Mojo::IOLoop;
 use Mojo::Promise;
 
-has 'app';
-has 'config';
-has 'db';
-has 'log';
-has 'se_post';
+inject 'app';
+inject 'config';
+inject 'db';
+inject 'log';
+
+service se_post => 'post';
 
 has 'backend' => sub ($self) {
   my $backend_type = $self->config->{smtp}{backend} || 'smtp';

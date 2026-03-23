@@ -1,5 +1,6 @@
 package Bloginya::Service::Post;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use experimental 'try';
 
@@ -12,17 +13,18 @@ use List::Util                   qw(none any);
 use Time::Piece                  ();
 use Mojo::IOLoop                 ();
 
-has 'db';
-has 'redis';
-has 'current_user';
-has 'se_tags';
-has 'se_shortname';
-has 'se_policy';
-has 'se_prose_mirror';
-has 'se_drive';
-has 'se_language';
-has 'se_email';
-has 'log';
+inject 'db';
+inject 'redis';
+inject 'current_user';
+inject 'log';
+
+service se_tags         => 'tags';
+service se_shortname    => 'shortname';
+service se_policy       => 'policy';
+service se_prose_mirror => 'prose_mirror';
+service se_drive        => 'drive';
+service se_language     => 'language';
+service se_email        => 'email';
 
 async sub get_drafts_p ($self) {
   die 'not authorized' unless my $u = $self->current_user;

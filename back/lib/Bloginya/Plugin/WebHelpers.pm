@@ -61,6 +61,8 @@ sub register {
     'current_user_p' => async sub ($c) {
       return $c->stash(CURRENT_USER_STASH_NAME) if exists $c->stash->{&CURRENT_USER_STASH_NAME()};
 
+      # User service requires some services that require current_user_p, so we set it to undef first
+      $c->stash(CURRENT_USER_STASH_NAME, undef);
       my $user_p = async sub {
         my $cname = $c->config->{sessions}{name};
         my $sid   = $c->cookie($cname);
