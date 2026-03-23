@@ -56,7 +56,7 @@ async sub send_new_post_notification_p ($self, $post_id) {
 
 async sub _get_subscribers_p ($self) {
   my $res = await $self->db->select_p(
-    [\'subscribers s', [-join => \'users u', 'u.id' => 's.user_id']],
+    [\'subscribers s', [\'users u', 'u.id' => 's.user_id']],
     ['u.email', 's.user_id', 's.unsubscribe_secret'],
     {'s.subscribed' => 1, 'u.status' => 'active'},
   );
@@ -120,7 +120,7 @@ sub _build_html_email ($self, $post, $unsubscribe_url) {
 
   my $picture_html = '';
   if ($post->{picture_pre}) {
-    my $picture_url = sprintf('%s/drive/%s', $site_url, $post->{picture_pre});
+    my $picture_url = sprintf('%s/%s?d=medium', $site_url, $post->{picture_pre});
     $picture_html = qq{
       <tr>
         <td style="padding: 0;">
@@ -138,37 +138,37 @@ sub _build_html_email ($self, $post, $unsubscribe_url) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Post: $post->{title}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px 0;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f0ef;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f0ef; padding: 20px 0;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
           <tr>
-            <td style="background-color: #2c3e50; padding: 30px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px;">$site_name</h1>
+            <td style="background: linear-gradient(135deg, #ac2473 0%, #FF6AB7 100%); padding: 40px 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 600; letter-spacing: 0.5px;">$site_name</h1>
             </td>
           </tr>
           $picture_html
           <tr>
             <td style="padding: 40px 30px;">
-              <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 28px; line-height: 1.3;">$post->{title}</h2>
-              <p style="margin: 0 0 30px 0; color: #555555; font-size: 16px; line-height: 1.6;">$post->{description}</p>
+              <h2 style="margin: 0 0 20px 0; color: #1c1b1b; font-size: 28px; line-height: 1.3; font-weight: 600;">$post->{title}</h2>
+              <p style="margin: 0 0 30px 0; color: #474746; font-size: 16px; line-height: 1.6;">$post->{description}</p>
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="$post_url" style="display: inline-block; padding: 15px 40px; background-color: #3498db; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold;">Read Full Post</a>
+                    <a href="$post_url" style="display: inline-block; padding: 16px 48px; background: linear-gradient(135deg, #FF6AB7 0%, #ff81be 100%); color: #ffffff; text-decoration: none; border-radius: 28px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(255, 106, 183, 0.3);">Read Full Post</a>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
           <tr>
-            <td style="background-color: #ecf0f1; padding: 20px 30px; text-align: center;">
-              <p style="margin: 0 0 10px 0; color: #7f8c8d; font-size: 14px;">
+            <td style="background-color: #fff8f8; padding: 24px 30px; text-align: center; border-top: 1px solid #f9dbe5;">
+              <p style="margin: 0 0 12px 0; color: #624d55; font-size: 14px;">
                 You're receiving this because you're subscribed to $site_name
               </p>
-              <p style="margin: 0; color: #7f8c8d; font-size: 12px;">
-                <a href="$unsubscribe_url" style="color: #3498db; text-decoration: none;">Unsubscribe</a>
+              <p style="margin: 0; color: #89717a; font-size: 12px;">
+                <a href="$unsubscribe_url" style="color: #ac2473; text-decoration: none; font-weight: 500;">Unsubscribe</a>
               </p>
             </td>
           </tr>

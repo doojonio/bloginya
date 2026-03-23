@@ -345,12 +345,11 @@ async sub apply_changes_p ($self, $post_id, $meta) {
 
   # Send email notifications if post was just published
   if ($old->{status} ne POST_STATUS_PUB && $post_values{status} eq POST_STATUS_PUB) {
-    # TODO maybe send values instead of id
-    Mojo::IOLoop->next_tick(sub {
-      $self->se_email->send_new_post_notification_p($post_id)->catch(sub ($err) {
+    # Mojo::IOLoop->next_tick(sub {
+      await $self->se_email->send_new_post_notification_p($post_id)->catch(sub ($err) {
         $self->log->error("Failed to send email notifications for post $post_id: $err");
       });
-    });
+    # });
   }
 
   return 1;

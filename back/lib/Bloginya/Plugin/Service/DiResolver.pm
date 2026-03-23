@@ -10,7 +10,7 @@ sub resolve_service ($self, $name, @args) {
 
 sub resolve_dependency ($self, $name) {
   die "Unknown dependency: $name" unless exists $self->plugin->dependencies->{$name};
-  return $self->plugin->dependencies->{$name}->($self->controllker);
+  return $self->plugin->dependencies->{$name}->($self->controller);
 }
 
 1;
