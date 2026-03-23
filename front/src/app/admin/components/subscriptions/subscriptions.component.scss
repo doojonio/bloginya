@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+h1 {
+  margin-bottom: 1rem;
+}
+
+.filter-buttons {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+
+  button {
+    &.active {
+      background-color: var(--mat-sys-primary);
+      color: var(--mat-sys-on-primary);
+    }
+  }
+}
+
+mat-card {
+  margin-bottom: 1rem;
+
+  p {
+    margin: 0.5rem 0;
+  }
+
+  .actions {
+    margin-top: 1rem;
+  }
+}
+
+table {
+  width: 100%;
+}
+
+.status-subscribed {
+  color: var(--mat-sys-primary);
+  font-weight: 500;
+}
+
+.status-unsubscribed {
+  color: var(--mat-sys-error);
+  font-weight: 500;
+}

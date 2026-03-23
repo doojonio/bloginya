@@ -126,7 +126,7 @@ async sub admin_list_p ($self, $filters = {}) {
   }
 
   my $res = await $self->db->select_p(
-    [\'subscribers s', [-join => \'users u', 'u.id' => 's.user_id']],
+    [\'subscribers s', [\'users u', 'u.id' => 's.user_id']],
     [
       's.user_id',
       'u.username',
