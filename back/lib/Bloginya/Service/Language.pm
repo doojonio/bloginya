@@ -1,8 +1,10 @@
 package Bloginya::Service::Language;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
-has 'se_google';
-has 'log';
+inject 'log';
+
+service se_google => 'google';
 
 use constant {CHINESE => 'zh', RUSSIAN => 'ru', ENGLISH => 'en', JAPANESE => 'ja', KOREAN => 'ko'};
 

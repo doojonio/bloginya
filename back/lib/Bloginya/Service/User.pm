@@ -1,11 +1,14 @@
 package Bloginya::Service::User;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_VISITOR);
 use Bloginya::Model::Post qw(POST_STATUS_PUB);
 
-has 'db';
-has 'redis';
+inject 'db';
+inject 'redis';
+
+service se_subscription => 'subscription';
 
 async sub find_p($self, $uid) {
   my $res = await $self->db->select_p('users', undef, {id => $uid});
@@ -43,6 +46,9 @@ async sub find_or_create_by_google_id_p($self, $userinfo, $token) {
     ->hashes->first;
 
   $tx->commit;
+
+  # Auto-subscribe new users to email notifications
+  await $self->se_subscription->ensure_subscriber_p($user->{id});
 
   return $user->{id};
 }

@@ -1,8 +1,9 @@
 package Bloginya::Service::Google;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
-has 'config';
-has 'current_user';
+inject 'config';
+inject 'current_user';
 
 has ua   => sub { Mojo::UserAgent->new };
 has _cfg => sub { $_[0]->config->{google_oauth} };

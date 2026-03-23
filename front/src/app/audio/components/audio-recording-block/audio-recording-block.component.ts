@@ -4,6 +4,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fixWebmDuration } from '@fix-webm-duration/fix';
 
 @Component({
   standalone: false,
@@ -28,6 +29,8 @@ export class AudioRecordingBlockComponent implements OnDestroy {
   analyser: AnalyserNode | null = null;
   animationFrameId: number | null = null;
   isStopping = signal(false);
+  visibilityChangeHandler: (() => void) | null = null;
+  recordingStartTime: number | null = null;
 
   // Playback state
   audioPlayer: HTMLAudioElement | null = null;
@@ -51,8 +54,14 @@ export class AudioRecordingBlockComponent implements OnDestroy {
       this.analyser.fftSize = 256;
       source.connect(this.analyser);
 
-      // Set up MediaRecorder
-      this.mediaRecorder = new MediaRecorder(stream);
+      // Set up MediaRecorder with MIME type and options
+      const options: MediaRecorderOptions = {};
+      const mimeType = 'audio/webm;codecs=opus';
+      if (MediaRecorder.isTypeSupported(mimeType)) {
+        options.mimeType = mimeType;
+      }
+
+      this.mediaRecorder = new MediaRecorder(stream, options);
       this.audioChunks = [];
 
       this.mediaRecorder.ondataavailable = (event) => {
@@ -64,7 +73,8 @@ export class AudioRecordingBlockComponent implements OnDestroy {
       this.mediaRecorder.onstop = () => {
         // Only update if not already set (to prevent overwriting)
         if (!this.recordedAudio && this.audioChunks.length > 0) {
-          this.recordedAudio = new Blob(this.audioChunks, { type: 'audio/webm' });
+          const mimeType = this.mediaRecorder?.mimeType || 'audio/webm';
+          this.recordedAudio = new Blob(this.audioChunks, { type: mimeType });
         }
         this.isStopping.set(false);
         stream.getTracks().forEach(track => track.stop());
@@ -74,9 +84,21 @@ export class AudioRecordingBlockComponent implements OnDestroy {
         }
       };
 
-      this.mediaRecorder.start();
+      // Start recording with timeslice to fix Chrome mobile bug
+      // This ensures ondataavailable fires regularly and prevents infinite recording
+      this.mediaRecorder.start(1000);
       this.isRecording.set(true);
       this.recordedSeconds.set(0);
+      this.recordingStartTime = Date.now();
+
+      // Add visibility change handler to stop recording if app is backgrounded
+      this.visibilityChangeHandler = () => {
+        if (document.hidden && this.isRecording()) {
+          console.log('App backgrounded, stopping recording');
+          this.stopRecording();
+        }
+      };
+      document.addEventListener('visibilitychange', this.visibilityChangeHandler);
 
       // Start timer
       this.recordingTimer = setInterval(() => {
@@ -97,10 +119,14 @@ export class AudioRecordingBlockComponent implements OnDestroy {
     }
   }
 
-  stopRecording() {
+  async stopRecording() {
     if (this.mediaRecorder && this.isRecording()) {
       this.isStopping.set(true);
-      this.mediaRecorder.stop();
+
+      // Check state before stopping to avoid errors
+      if (this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.stop();
+      }
       this.isRecording.set(false);
 
       if (this.recordingTimer) {
@@ -115,7 +141,24 @@ export class AudioRecordingBlockComponent implements OnDestroy {
 
       // Set recordedAudio immediately from chunks to prevent UI flicker
       if (this.audioChunks.length > 0) {
-        this.recordedAudio = new Blob(this.audioChunks, { type: 'audio/webm' });
+        const mimeType = this.mediaRecorder?.mimeType || 'audio/webm';
+        const blob = new Blob(this.audioChunks, { type: mimeType });
+
+        // Fix WebM duration metadata
+        const duration = Date.now() - (this.recordingStartTime || 0);
+        try {
+          this.recordedAudio = await fixWebmDuration(blob, duration, { logger: false });
+        } catch (error) {
+          console.warn('Failed to fix WebM duration, using original blob:', error);
+          this.recordedAudio = blob;
+        }
+        this.recordingStartTime = null;
+      }
+
+      // Remove visibility change handler
+      if (this.visibilityChangeHandler) {
+        document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
+        this.visibilityChangeHandler = null;
       }
 
       this.onStop.emit();
@@ -127,6 +170,7 @@ export class AudioRecordingBlockComponent implements OnDestroy {
     this.recordedAudio = null;
     this.audioChunks = [];
     this.recordedSeconds.set(0);
+    this.recordingStartTime = null;
     this.onDelete.emit();
   }
 
@@ -252,6 +296,11 @@ export class AudioRecordingBlockComponent implements OnDestroy {
     this.stopPlayback();
     if (this.playbackTimeInterval) {
       clearInterval(this.playbackTimeInterval);
+    }
+    // Clean up visibility change handler
+    if (this.visibilityChangeHandler) {
+      document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
+      this.visibilityChangeHandler = null;
     }
   }
 }

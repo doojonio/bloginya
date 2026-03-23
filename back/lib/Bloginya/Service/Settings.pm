@@ -1,8 +1,9 @@
 package Bloginya::Service::Settings;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
-has 'db';
-has 'current_user';
+inject 'db';
+inject 'current_user';
 
 async sub update_settings_p($self, $form) {
   my $u = $self->current_user;

@@ -1,17 +1,19 @@
 package Bloginya::Service::Category;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use List::Util qw(any);
 
 use Bloginya::Model::Post qw(POST_STATUS_PUB POST_STATUS_PRIVATE);
 
-has 'db';
-has 'redis';
-has 'current_user';
-has 'se_tags';
-has 'se_shortname';
-has 'log';
-has 'se_policy';
+inject 'db';
+inject 'redis';
+inject 'current_user';
+inject 'log';
+
+service se_tags      => 'tags';
+service se_shortname => 'shortname';
+service se_policy    => 'policy';
 
 async sub create_p ($self, $vals) {
   die 'no rights' unless $self->se_policy->can_change_categories;

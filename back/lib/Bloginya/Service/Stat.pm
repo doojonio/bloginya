@@ -1,11 +1,12 @@
 package Bloginya::Service::Stat;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use Bloginya::Model::UserActionLog qw(LOG_TYPE_SHORTVIEW LOG_TYPE_MEDIUMVIEW LOG_TYPE_LONGVIEW);
 
-has 'db';
-has 'current_user';
-has 'redis';
+inject 'db';
+inject 'current_user';
+inject 'redis';
 
 async sub add_stat_p($self, $post_id, $view_type) {
   my $user = $self->current_user;

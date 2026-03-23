@@ -95,9 +95,14 @@ func uploadHandler(config *Config) http.HandlerFunc {
 		}
 
 		contentType := header.Header.Get("Content-Type")
+		baseContentType := contentType
+		if idx := strings.Index(contentType, ";"); idx != -1 {
+			baseContentType = strings.TrimSpace(contentType[:idx])
+		}
+
 		allowed := false
 		for _, t := range config.AllowedMediaTypes {
-			if t == contentType {
+			if t == baseContentType {
 				allowed = true
 				break
 			}

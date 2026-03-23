@@ -18,6 +18,8 @@ import { NgxFilesizeModule } from 'ngx-filesize';
 import { TrashComponent } from './components/trash/trash.component';
 import { TrashService } from './services/trash.service';
 import { CleanUpService } from './services/clean-up.service';
+import { SubscriptionsComponent } from './components/subscriptions/subscriptions.component';
+import { SubscriptionService } from './services/subscription.service';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { PostListMedComponent } from '../shared/components/post-list-med/post-list-med.component';
 
@@ -29,8 +31,9 @@ import { PostListMedComponent } from '../shared/components/post-list-med/post-li
     BackupComponent,
     CleanUpComponent,
     TrashComponent,
+    SubscriptionsComponent,
   ],
-  providers: [UsersService, TrashService, CleanUpService],
+  providers: [UsersService, TrashService, CleanUpService, SubscriptionService],
   imports: [
     CommonModule,
     AdminRoutingModule,

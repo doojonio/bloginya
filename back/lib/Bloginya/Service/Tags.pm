@@ -1,13 +1,14 @@
 package Bloginya::Service::Tags;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use SQL::Abstract::Pg;
 use List::Util qw(uniq);
 
-has 'db';
-has 'redis';
-has 'current_user';
-has 'log';
+inject 'db';
+inject 'redis';
+inject 'current_user';
+inject 'log';
 
 has 'sql' => sub { SQL::Abstract::Pg->new };
 
