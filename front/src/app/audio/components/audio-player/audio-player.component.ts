@@ -63,7 +63,17 @@ export class AudioPlayerComponent {
   }
 
   onLoadedMetadata(): void {
-    this.duration.set(this.player()?.duration || 0);
+    const dur = this.player()?.duration;
+    if (dur && isFinite(dur)) {
+      this.duration.set(dur);
+    }
+  }
+
+  onDurationChange(): void {
+    const dur = this.player()?.duration;
+    if (dur && isFinite(dur)) {
+      this.duration.set(dur);
+    }
   }
 
   onEnded(): void {

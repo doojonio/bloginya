@@ -20,7 +20,7 @@ export class AudioService {
 
   uploadAudioBlob(audioBlob: Blob) {
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.wav');
+    formData.append('audio', audioBlob, 'recording.webm');
     return this.http.post<AudioUploadResponse>(
       `${this.apiUrl}/upload`,
       formData
