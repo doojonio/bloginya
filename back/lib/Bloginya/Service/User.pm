@@ -6,6 +6,7 @@ use Bloginya::Model::Post qw(POST_STATUS_PUB);
 
 has 'db';
 has 'redis';
+has 'se_subscription';
 
 async sub find_p($self, $uid) {
   my $res = await $self->db->select_p('users', undef, {id => $uid});
@@ -43,6 +44,9 @@ async sub find_or_create_by_google_id_p($self, $userinfo, $token) {
     ->hashes->first;
 
   $tx->commit;
+
+  # Auto-subscribe new users to email notifications
+  await $self->se_subscription->ensure_subscriber_p($user->{id});
 
   return $user->{id};
 }

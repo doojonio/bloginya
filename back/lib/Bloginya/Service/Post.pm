@@ -10,6 +10,7 @@ use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Iterator::Simple             qw(:all);
 use List::Util                   qw(none any);
 use Time::Piece                  ();
+use Mojo::IOLoop                 ();
 
 has 'db';
 has 'redis';
@@ -20,6 +21,7 @@ has 'se_policy';
 has 'se_prose_mirror';
 has 'se_drive';
 has 'se_language';
+has 'se_email';
 has 'log';
 
 async sub get_drafts_p ($self) {
@@ -338,6 +340,16 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   await $self->_update_meta_from_content_p($post_id);
 
   $tx->commit;
+
+  # Send email notifications if post was just published
+  if ($old->{status} ne POST_STATUS_PUB && $post_values{status} eq POST_STATUS_PUB) {
+    # TODO maybe send values instead of id
+    Mojo::IOLoop->next_tick(sub {
+      $self->se_email->send_new_post_notification_p($post_id)->catch(sub ($err) {
+        $self->log->error("Failed to send email notifications for post $post_id: $err");
+      });
+    });
+  }
 
   return 1;
 }

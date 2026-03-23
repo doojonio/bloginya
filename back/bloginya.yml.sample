@@ -1,5 +1,6 @@
 ---
 site_name: hpotato.io
+site_url: "https://hpotato.io"
 secrets:
   - REPLACE_ME
 test: true
@@ -33,3 +34,20 @@ google_oauth:
 # API keys for external apps
 apps:
   cool_audio: "25ed2af070e7a07a2749bafe3dba757bbec873b0bdab3e9d3b000660bffabd63"
+
+# SMTP configuration for email notifications
+smtp:
+  backend: smtp  # 'smtp' for production, 'file' for test mode
+  host: smtp.zoho.com
+  port: 587
+  ssl: starttls
+  username: REPLACE_ME
+  password: REPLACE_ME
+  from_email: noreply@hpotato.io
+  from_name: Bloginya Blog
+
+  # Test mode settings (when backend is 'file')
+  test_output_dir: /tmp/bloginya_emails
+
+  # Rate limiting (emails per minute)
+  rate_limit: 10

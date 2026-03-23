@@ -14,6 +14,10 @@ requires 'Iterator::Simple';
 requires 'Image::Magick';
 requires 'Log::Log4perl';
 requires 'DateTime';
+requires 'Email::Sender::Simple';
+requires 'Email::MIME';
+requires 'Email::Sender::Transport::SMTP';
+requires 'Email::Sender::Transport::Test';
 
 on 'develop' => sub {
   requires 'DDP';
