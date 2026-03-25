@@ -116,7 +116,9 @@ async sub _send_with_rate_limit_p ($self, $post, $subscribers) {
 sub _build_html_email ($self, $post, $unsubscribe_url) {
   my $site_url = $self->config->{site_url};
   my $site_name = $self->config->{site_name};
-  my $post_url = sprintf('%s/p/%s', $site_url, $post->{name} || $post->{id});
+  my $post_url = $post->{name}
+    ? sprintf('%s/%s', $site_url, $post->{name})
+    : sprintf('%s/p/%s', $site_url, $post->{id});
 
   my $picture_html = '';
   if ($post->{picture_pre}) {
