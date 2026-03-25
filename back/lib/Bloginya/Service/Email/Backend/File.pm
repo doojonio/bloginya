@@ -20,19 +20,19 @@ sub send_email ($self, $to, $subject, $html, $text) {
     parts => [
       Email::MIME->create(
         attributes => {
-          content_type => 'text/plain',
-          charset      => 'UTF-8',
-          encoding     => 'quoted-printable',
-        },
-        body_str => $text,
-      ),
-      Email::MIME->create(
-        attributes => {
           content_type => 'text/html',
           charset      => 'UTF-8',
           encoding     => 'quoted-printable',
         },
         body_str => $html,
+      ),
+      Email::MIME->create(
+        attributes => {
+          content_type => 'text/plain',
+          charset      => 'UTF-8',
+          encoding     => 'quoted-printable',
+        },
+        body_str => $text,
       ),
     ],
   );
