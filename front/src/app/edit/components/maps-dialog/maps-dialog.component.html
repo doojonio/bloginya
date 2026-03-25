@@ -1,0 +1,30 @@
+<h2 mat-dialog-title i18n>Insert Map</h2>
+<mat-dialog-content>
+  <mat-form-field appearance="outline" style="width: 100%">
+    <mat-label i18n>Map Embed URL</mat-label>
+    <input
+      matInput
+      [formControl]="urlControl"
+      placeholder="Paste iframe tag or URL"
+      i18n-placeholder
+    />
+    <mat-hint i18n>Paste embed iframe tag or URL from Google Maps, Naver Maps, or Yandex Maps</mat-hint>
+    @if (urlControl.hasError('required')) {
+    <mat-error i18n>URL is required</mat-error>
+    } @else if (urlControl.hasError('invalidMapsUrl')) {
+    <mat-error i18n>Please enter a valid map URL from Google Maps, Naver Maps, or Yandex Maps</mat-error>
+    }
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" i18n>Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onInsert()"
+    [disabled]="!urlControl.valid"
+    i18n
+  >
+    Insert
+  </button>
+</mat-dialog-actions>

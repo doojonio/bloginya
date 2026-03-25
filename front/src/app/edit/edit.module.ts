@@ -37,6 +37,8 @@ import { DriveService } from './services/drive.service';
 import { EditorService } from './services/editor.service';
 import { MenuAsianHelpersComponent } from './components/menu-asian-helpers/menu-asian-helpers.component';
 import { MenuFontComponent } from './components/menu-font/menu-font.component';
+import { MenuMapsComponent } from './components/menu-maps/menu-maps.component';
+import { MapsDialogComponent } from './components/maps-dialog/maps-dialog.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +51,8 @@ import { MenuFontComponent } from './components/menu-font/menu-font.component';
     PostEditorRootComponent,
     MenuAsianHelpersComponent,
     MenuFontComponent,
+    MenuMapsComponent,
+    MapsDialogComponent,
   ],
   providers: [
     EditorService,

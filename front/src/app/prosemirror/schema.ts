@@ -54,7 +54,40 @@ const audioPlayerNode: NodeSpec = {
   ],
 };
 
+const mapsIframeNode: NodeSpec = {
+  group: 'block',
+  attrs: { src: { validate: 'string' } },
+  toDOM(node) {
+    return [
+      'div',
+      {
+        class: 'maps-container',
+        style: 'position:relative;padding-bottom:56.25%;height:0;overflow:hidden;',
+      },
+      [
+        'iframe',
+        {
+          src: node.attrs['src'],
+          style: 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;',
+          allowfullscreen: '',
+          loading: 'lazy',
+          referrerpolicy: 'no-referrer-when-downgrade',
+        },
+      ],
+    ];
+  },
+  parseDOM: [
+    {
+      tag: 'div.maps-container',
+      getAttrs(dom: HTMLElement) {
+        const iframe = dom.querySelector('iframe');
+        return iframe ? { src: iframe.getAttribute('src') } : false;
+      },
+    },
+  ],
+};
+
 export const customSchema = new Schema({
-  nodes: { ...basicNodes, ce_audio_player: audioPlayerNode },
+  nodes: { ...basicNodes, ce_audio_player: audioPlayerNode, maps_iframe: mapsIframeNode },
   marks: marks,
 });

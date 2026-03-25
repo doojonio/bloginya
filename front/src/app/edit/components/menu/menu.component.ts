@@ -8,6 +8,7 @@ import { Editor } from 'ngx-editor';
     <div class="NgxEditor__Seperator"></div>
     <!-- <app-menu-font [editor]="editor()"></app-menu-font> -->
     <app-menu-asian-helpers [editor]="editor()"></app-menu-asian-helpers>
+    <app-menu-maps [editor]="editor()"></app-menu-maps>
   `,
   styles: `
     :host {
