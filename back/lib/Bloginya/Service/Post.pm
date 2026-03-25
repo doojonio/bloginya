@@ -13,6 +13,7 @@ use List::Util                   qw(none any);
 use Time::Piece                  ();
 use Mojo::IOLoop                 ();
 
+inject 'app';
 inject 'db';
 inject 'redis';
 inject 'current_user';
@@ -345,11 +346,12 @@ async sub apply_changes_p ($self, $post_id, $meta) {
 
   # Send email notifications if post was just published
   if ($old->{status} ne POST_STATUS_PUB && $post_values{status} eq POST_STATUS_PUB) {
-    # Mojo::IOLoop->next_tick(sub {
-      await $self->se_email->send_new_post_notification_p($post_id)->catch(sub ($err) {
-        $self->log->error("Failed to send email notifications for post $post_id: $err");
+    my $app = $self->app;
+    Mojo::IOLoop->next_tick(sub ($loop) {
+      $app->service('email')->send_new_post_notification_p($post_id)->catch(sub ($err) {
+        $app->log->error("Failed to send email notifications for post $post_id: $err");
       });
-    # });
+    });
   }
 
   return 1;
