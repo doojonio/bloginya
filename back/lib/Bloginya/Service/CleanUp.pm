@@ -1,5 +1,6 @@
 package Bloginya::Service::CleanUp;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use DateTime;
 use DateTime::Duration;
@@ -7,9 +8,9 @@ use Mojo::Util qw(getopt);
 
 use Bloginya::Model::Post qw(POST_STATUS_DEL);
 
-has 'app';
-has 'db';
-has 'log';
+inject 'app';
+inject 'db';
+inject 'log';
 
 sub estimate($self) {
   my $sessions_num = $self->_process_sessions();

@@ -1,5 +1,6 @@
 package Bloginya::Service::ProseMirror;
-use Mojo::Base -base, -signatures;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures;
+use Bloginya::Plugin::Service::Util;
 
 use Bloginya::Model::ProseMirror qw(is_text is_image is_audio);
 use Bloginya::Model::Upload      qw(upload_id);

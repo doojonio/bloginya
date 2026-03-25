@@ -1,3 +1,24 @@
+-- 8 up | add subscribers table for email notifications
+
+create table
+    subscribers (
+        user_id uuid primary key references users (id) on delete cascade,
+        subscribed boolean not null default true,
+        unsubscribe_secret text not null unique,
+        created_at timestamp not null default now(),
+        updated_at timestamp not null default now()
+    );
+
+create index subscribers_subscribed_idx on subscribers (subscribed);
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Populate with all existing users
+insert into subscribers (user_id, unsubscribe_secret)
+select id, encode(gen_random_bytes(32), 'hex')
+from users
+on conflict do nothing;
+
 -- 7 up | add comment_audios table
 
 create table

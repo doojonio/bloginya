@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
     <app-backup></app-backup>
     <app-categories></app-categories>
     <app-users></app-users>
+    <app-subscriptions></app-subscriptions>
   `,
   styles: `
     :host {

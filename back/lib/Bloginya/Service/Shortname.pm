@@ -1,15 +1,16 @@
 package Bloginya::Service::Shortname;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use experimental 'try';
 
 use List::Util qw(any);
 
+inject 'db';
+inject 'redis';
+inject 'log';
 
-has 'db';
-has 'redis';
 has 'user';
-has 'log';
 
 async sub set_shortname_for_post($self, $post_id, $name) {
   $self->log->debug(qq/Setting shortname for post $post_id: / . ($name ? qq/"$name"/ : 'none'));

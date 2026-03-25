@@ -1,13 +1,14 @@
 package Bloginya::Service::Policy;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use List::Util qw(any none);
 
 use Bloginya::Model::Post qw(POST_STATUS_PUB POST_STATUS_DEL POST_STATUS_DRAFT);
 use Bloginya::Model::User qw(USER_ROLE_OWNER USER_ROLE_CREATOR USER_ROLE_VISITOR);
 
-has 'db';
-has 'current_user';
+inject 'db';
+inject 'current_user';
 
 sub can_read_post($self, $post) {
   return 1 if $post->{status} eq POST_STATUS_PUB;

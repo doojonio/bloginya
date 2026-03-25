@@ -1,8 +1,9 @@
 package Bloginya::Service::Session;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
-has 'db';
-has 'redis';
+inject 'db';
+inject 'redis';
 
 async sub create_session_p($self, $user_id, $ip, $user_agent) {
   my $sid

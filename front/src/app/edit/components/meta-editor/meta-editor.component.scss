@@ -1,6 +1,14 @@
 @use "mixins" as m;
+
 :host {
   display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @include m.for-size(handset, tablet) {
+    padding: 0 1rem;
+  }
 }
 
 .opt-row {
@@ -11,14 +19,19 @@
     padding: 0.5rem 0;
   }
 }
+
 .opt-title {
   font: var(--mat-sys-title-medium);
-  min-width: 15rem;
+
+  @include m.for-size(desktop) {
+    min-width: 15rem;
+  }
 }
+
 .opt-value {
   display: flex;
 
-  @include m.for-size(handset) {
+  @include m.for-size(handset, tablet) {
     flex-direction: column;
     gap: 1rem;
   }

@@ -1,9 +1,11 @@
 package Bloginya::Service::Admin;
-use Mojo::Base -base, -signatures, -async_await;
 
-has 'db';
-has 'redis';
-has 'current_user';
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
+
+inject 'db';
+inject 'redis';
+inject 'current_user';
 
 async sub block_p($self, $user_id) {
   die 'no rights' unless my $u = $self->current_user;

@@ -40,11 +40,7 @@ sub register {
 
       $c->log->trace('Disconnecting db');
       $c->db->disconnect;
-    }
-  );
-  $app->helper(
-    'db_lazy' => sub ($c, %args) {
-      sub { $c->db(%args) }
+      delete($c->stash->{&DB_STASH_KEY()});
     }
   );
 
@@ -66,11 +62,7 @@ sub register {
 
       $c->log->trace('Disconnecting redis');
       $c->redis->connection->disconnect;
-    }
-  );
-  $app->helper(
-    'redis_lazy' => sub ($c, %args) {
-      sub { $c->redis(%args) }
+      delete($c->stash->{&REDIS_STASH_KEY()});
     }
   );
 

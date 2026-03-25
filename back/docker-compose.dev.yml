@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    entrypoint: []
+    command: ["sleep", "infinity"]
+    volumes:
+      - .:/app
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6380:6379

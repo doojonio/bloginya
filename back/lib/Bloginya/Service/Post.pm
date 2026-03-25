@@ -1,5 +1,6 @@
 package Bloginya::Service::Post;
-use Mojo::Base -base, -signatures, -async_await;
+use Mojo::Base 'Bloginya::Plugin::Service::Base', -signatures, -async_await;
+use Bloginya::Plugin::Service::Util;
 
 use experimental 'try';
 
@@ -10,17 +11,21 @@ use Bloginya::Model::User        qw(USER_ROLE_OWNER USER_ROLE_CREATOR);
 use Iterator::Simple             qw(:all);
 use List::Util                   qw(none any);
 use Time::Piece                  ();
+use Mojo::IOLoop                 ();
 
-has 'db';
-has 'redis';
-has 'current_user';
-has 'se_tags';
-has 'se_shortname';
-has 'se_policy';
-has 'se_prose_mirror';
-has 'se_drive';
-has 'se_language';
-has 'log';
+inject 'app';
+inject 'db';
+inject 'redis';
+inject 'current_user';
+inject 'log';
+
+service se_tags         => 'tags';
+service se_shortname    => 'shortname';
+service se_policy       => 'policy';
+service se_prose_mirror => 'prose_mirror';
+service se_drive        => 'drive';
+service se_language     => 'language';
+service se_email        => 'email';
 
 async sub get_drafts_p ($self) {
   die 'not authorized' unless my $u = $self->current_user;
@@ -338,6 +343,16 @@ async sub apply_changes_p ($self, $post_id, $meta) {
   await $self->_update_meta_from_content_p($post_id);
 
   $tx->commit;
+
+  # Send email notifications if post was just published
+  if ($old->{status} ne POST_STATUS_PUB && $post_values{status} eq POST_STATUS_PUB) {
+    my $app = $self->app;
+    Mojo::IOLoop->next_tick(sub ($loop) {
+      $app->service('email')->send_new_post_notification_p($post_id)->catch(sub ($err) {
+        $app->log->error("Failed to send email notifications for post $post_id: $err");
+      });
+    });
+  }
 
   return 1;
 }

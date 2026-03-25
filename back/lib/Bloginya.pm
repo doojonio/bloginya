@@ -30,11 +30,14 @@ sub startup ($self) {
   $self->plugin(
     'Bloginya::Plugin::Service',
     {
-      'di_tokens' => [
-        qw(app config current_user log),
-        [db    => 'db_lazy',    'Bloginya::ServiceRole::LazyDB'],
-        [redis => 'redis_lazy', 'Bloginya::ServiceRole::LazyRedis']
-      ]
+      'dependencies' => {
+        app          => sub ($c) { $c->app },
+        config       => sub ($c) { $c->config },
+        current_user => sub ($c) { $c->current_user },
+        log          => sub ($c) { $c->log },
+        db           => sub ($c) { $c->db },
+        redis        => sub ($c) { $c->redis },
+      }
     }
   );
   $self->plugin('Bloginya::Plugin::CoolIO', {namespaces => ['Bloginya::Schema']});
@@ -109,7 +112,6 @@ sub _setup_routes($self) {
   $api_A->get('/posts/for_edit')->to('Post#get_for_edit');
   $api_A->post('/posts/like')->to('Post#like');
   $api_A->post('/posts/new')->to('Post#create_draft');
-  $api_A->post('/posts/publish')->to('Post#publish');
   $api_A->put('/posts/draft')->to('Post#update_draft');
   $api_A->put('posts')->to('Post#apply_changes');
   $api_U->get('/posts')->to('Post#get');
@@ -173,6 +175,17 @@ sub _setup_routes($self) {
   # Policy
   $api_U->get('/policy/can_upload_audio')->to('Policy#can_upload_audio');
   $api_A->get('/policy/can_backup')->to('Policy#can_backup');
+
+  # Subscription
+  $api_A->post('/subscription/subscribe')->to('Subscription#subscribe');
+  $api_A->post('/subscription/unsubscribe')->to('Subscription#unsubscribe');
+  $api_U->get('/subscription/unsubscribe/:secret')->to('Subscription#unsubscribe_by_secret');
+  $api_A->get('/subscription/status')->to('Subscription#status');
+
+  # Admin Subscription
+  $api_A->post('/admin/subscription/enable')->to('Subscription#admin_enable');
+  $api_A->post('/admin/subscription/disable')->to('Subscription#admin_disable');
+  $api_A->get('/admin/subscription/list')->to('Subscription#admin_list');
 
   # Clean Up
   $api_A->get('/clean-up/estimate')->to('CleanUp#estimate');

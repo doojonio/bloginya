@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: "doojonio/bloginya_config"
+          repository: "doojonio/cyberdeck"
           ssh-key: "${{ secrets.SSH_PRIVATE_KEY }}"
 
       - name: Set up SSH
@@ -30,11 +30,12 @@ jobs:
           ANSIBLE_HOST_KEY_CHECKING: False
         run: |
           ansible-playbook \
-            -i inventory \
+            -i inventory/production/hosts \
             --private-key private_key.pem \
             -u root \
             -e bloginya_cool_audio_api_key=${{ secrets.COOL_AUDIO_API_KEY }} \
             -e bloginya_google_client_id=${{ secrets.GOOGLE_CLIENT_ID }} \
             -e bloginya_google_project_id=${{ secrets.GOOGLE_PROJECT_ID }} \
             -e bloginya_google_client_secret=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-            p.deploy-polyine.yml
+            -e bloginya_smtp_password=${{ secrets.SMTP_PASSWORD }} \
+            bloginya.yml
