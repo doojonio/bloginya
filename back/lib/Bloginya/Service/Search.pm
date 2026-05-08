@@ -15,6 +15,7 @@ inject 'db';
 inject 'redis';
 inject 'log';
 inject 'current_user';
+inject 'metrics';
 
 async sub search_p ($self, $query) {
   $query = _Query->new(q => $query, log => $self->log, current_user => $self->current_user);
@@ -25,6 +26,7 @@ async sub search_p ($self, $query) {
 
   my $res = await $self->db->query_p($stmt, @binds);
 
+  $self->metrics->inc('bloginya_searches_total');
   return $res->hashes;
 }
 

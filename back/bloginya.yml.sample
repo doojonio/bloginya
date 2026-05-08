@@ -51,3 +51,9 @@ smtp:
 
   # Rate limiting (emails per minute)
   rate_limit: 10
+
+# Prometheus metrics configuration (basic_auth for /api/metrics endpoint)
+metrics:
+  basic_auth:
+    username: prometheus
+    password: REPLACE_ME

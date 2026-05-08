@@ -33,6 +33,7 @@ async sub from_google($self) {
   my $id = await $self->service('user')->find_or_create_by_google_id_p($userinfo, $token);
   await $self->create_session_p($id);
 
+  $self->metrics->inc('bloginya_oauth_logins_total');
   return $self->redirect_to($state || '/');
 }
 

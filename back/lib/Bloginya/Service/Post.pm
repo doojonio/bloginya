@@ -18,6 +18,7 @@ inject 'db';
 inject 'redis';
 inject 'current_user';
 inject 'log';
+inject 'metrics';
 
 service se_tags         => 'tags';
 service se_shortname    => 'shortname';
@@ -138,6 +139,7 @@ async sub read_p($self, $post_id) {
   # TODO: remove extra info for visitors
 
   $self->log->info("Successfully read post $post_id: '$p->{title}'");
+  $self->metrics->inc('bloginya_post_reads_total');
   return $p;
 }
 
@@ -224,6 +226,7 @@ sub _handle_society($self, $p) {
 async sub like_post_p ($self, $post_id) {
   die 'no rights' unless my $u = $self->current_user;
   await $self->db->insert_p('post_likes', {user_id => $u->{id}, post_id => $post_id}, {on_conflict => undef});
+  $self->metrics->inc('bloginya_likes_total', {type => 'post'});
 }
 async sub unlike_post_p ($self, $post_id) {
   die 'no rights' unless my $u = $self->current_user;
@@ -346,6 +349,7 @@ async sub apply_changes_p ($self, $post_id, $meta) {
 
   # Send email notifications if post was just published
   if ($old->{status} ne POST_STATUS_PUB && $post_values{status} eq POST_STATUS_PUB) {
+    $self->metrics->inc('bloginya_posts_published_total');
     my $app = $self->app;
     Mojo::IOLoop->next_tick(sub ($loop) {
       $app->service('email')->send_new_post_notification_p($post_id)->catch(sub ($err) {
@@ -419,6 +423,9 @@ async sub _update_meta_from_content_p($self, $post_id) {
   await $self->db->delete_p('post_uploads', {post_id => $post_id, upload_id => {-not_in => \@post_uploads}});
 
   my $category_status = $row->{cstatus};
+  if ($category_status eq 'private') {
+    $self->metrics->inc('bloginya_posts_private_total');
+  }
   await $self->db->update_p(
     'posts',
     {
@@ -454,6 +461,7 @@ async sub create_draft_p($self) {
     {returning => 'id'},
   );
 
+  $self->metrics->inc('bloginya_drafts_created_total');
   return $res->hashes->first->{id};
 }
 
