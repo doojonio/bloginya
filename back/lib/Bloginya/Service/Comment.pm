@@ -12,6 +12,7 @@ use Bloginya::Model::Post qw(POST_STATUS_DEL);
 inject 'db';
 inject 'redis';
 inject 'current_user';
+inject 'metrics';
 
 service se_policy => 'policy';
 
@@ -106,12 +107,14 @@ async sub add_comment_p($self, $fields) {
 
   $tx->commit;
 
+  $self->metrics->inc('bloginya_comments_added_total');
   return $comment_id;
 }
 
 async sub like_p ($self, $comment_id) {
   die 'no rights' unless my $u = $self->current_user;
   await $self->db->insert_p('comment_likes', {user_id => $u->{id}, comment_id => $comment_id}, {on_conflict => undef});
+  $self->metrics->inc('bloginya_likes_total', {type => 'comment'});
 }
 async sub unlike_p ($self, $comment_id) {
   die 'no rights' unless my $u = $self->current_user;

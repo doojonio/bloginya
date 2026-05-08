@@ -18,6 +18,7 @@ inject 'app';
 inject 'db';
 inject 'current_user';
 inject 'log';
+inject 'metrics';
 
 has 'im' => sub { Image::Magick->new };
 has 'mt' => sub { MIME::Types->new };
@@ -147,6 +148,7 @@ async sub put($self, $file_path, $extname) {
   await $self->db->insert_p('uploads', {id => $id, user_id => $self->current_user->{id}, mtype => $mtype,},);
 
   $self->log->info(qq/Successfully stored file with id "$id"/);
+  $self->metrics->inc('bloginya_file_uploads_total');
   return $id;
 }
 

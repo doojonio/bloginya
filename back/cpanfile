@@ -20,6 +20,7 @@ requires 'Email::Sender::Transport::SMTP';
 requires 'Email::Sender::Transport::Test';
 requires 'MIME::Base64';
 requires 'Authen::SASL';
+requires 'Prometheus::Tiny::Shared', '0.02';
 
 on 'develop' => sub {
   requires 'DDP';

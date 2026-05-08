@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, importProvidersFrom, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -19,6 +19,7 @@ import { routes } from './app.routes';
 import { API_CONFIG, PROSEMIRROR_SERVER_CONVERT } from './app.tokens';
 import { BreakpointMap } from './shared/services/picture.service';
 import { cookieInterceptor } from './ssr/cookie.interceptor';
+import { TelemetryErrorHandler, TelemetryService } from './shared/services/telemetry.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -85,5 +86,13 @@ export const appConfig: ApplicationConfig = {
     },
     importProvidersFrom(GalleryModule, LightboxModule),
     provideAnimations(),
+    {
+      provide: ErrorHandler,
+      useClass: TelemetryErrorHandler,
+    },
+    provideAppInitializer(() => {
+      const telemetry = inject(TelemetryService);
+      return telemetry.init();
+    }),
   ],
 };

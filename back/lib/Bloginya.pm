@@ -27,6 +27,7 @@ sub startup ($self) {
     }
   );
   $self->plugin('Bloginya::Plugin::DB');
+  $self->plugin('Bloginya::Plugin::Metrics');
   $self->plugin(
     'Bloginya::Plugin::Service',
     {
@@ -37,6 +38,7 @@ sub startup ($self) {
         log          => sub ($c) { $c->log },
         db           => sub ($c) { $c->db },
         redis        => sub ($c) { $c->redis },
+        metrics      => sub ($c) { $c->metrics },
       }
     }
   );
@@ -190,6 +192,9 @@ sub _setup_routes($self) {
   # Clean Up
   $api_A->get('/clean-up/estimate')->to('CleanUp#estimate');
   $api_A->delete('/clean-up')->to('CleanUp#cleanup');
+
+  # Telemetry (frontend metrics ingestion)
+  $api_U->post('/telemetry')->to('Telemetry#ingest');
 }
 
 
