@@ -17,7 +17,9 @@ sub register ($self, $app, $conf) {
   $app->helper(
     'metrics' => sub {
       state $metrics = do {
-        my $m = Prometheus::Tiny::Shared->new;
+        # TODO: use some memory location
+        my $m = Prometheus::Tiny::Shared->new(filename => '/tmp/bloginya_metrics');
+
         # Declare default metrics with help text
         $m->declare('http_requests_total',               help => 'Total number of HTTP requests', type => 'counter');
         $m->declare('http_request_duration_seconds',     help => 'HTTP request duration in seconds', type => 'histogram', buckets => \@DEFAULT_BUCKETS);
