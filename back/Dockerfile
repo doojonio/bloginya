@@ -6,8 +6,9 @@ ADD cpanfile* ./
 RUN carmel install && carmel rollout
 
 COPY . .
+RUN chmod +x entrypoint.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["carmel", "exec" ]
-CMD ["hypnotoad", "-f", "script/bloginya"]
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD []

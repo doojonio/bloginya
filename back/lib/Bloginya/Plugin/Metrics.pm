@@ -36,6 +36,7 @@ sub register ($self, $app, $conf) {
         $m->declare('bloginya_frontend_page_load_seconds', help => 'Frontend page load duration in seconds', type => 'histogram', buckets => [0.1, 0.25, 0.5, 1, 2, 5, 10]);
         $m->declare('bloginya_frontend_errors_total',    help => 'Total number of frontend errors', type => 'counter');
         $m->declare('bloginya_frontend_navigation_total', help => 'Total number of frontend navigations', type => 'counter');
+        $m->declare('bloginya_post_read_seconds',         help => 'Time spent reading a post in seconds', type => 'histogram', buckets => [5, 15, 30, 60, 120, 300, 600]);
         $m;
       };
     }

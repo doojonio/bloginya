@@ -24,6 +24,11 @@ async sub ingest ($self) {
     $self->metrics->inc('bloginya_frontend_navigation_total', {route => $data->{route}});
   }
 
+  # Post read time
+  if (defined $data->{post_read_seconds} && $data->{post_read_seconds} =~ /^\d+(\.\d+)?$/ && defined $data->{post_id}) {
+    $self->metrics->histogram_observe('bloginya_post_read_seconds', $data->{post_read_seconds}, {post_id => $data->{post_id}});
+  }
+
   return $self->msg('OK');
 }
 

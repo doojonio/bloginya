@@ -1,10 +1,12 @@
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   input,
   model,
+  OnDestroy,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -33,6 +35,7 @@ import { ReadPostResponse } from '../post.interface';
 import { LikerService } from '../services/liker.service';
 import { ReaderService } from '../services/reader.service';
 import { StatService } from '../services/stat.service';
+import { TelemetryService } from '../../shared/services/telemetry.service';
 
 @Component({
   selector: 'app-post-view',
@@ -40,13 +43,15 @@ import { StatService } from '../services/stat.service';
   templateUrl: './post-view.component.html',
   styleUrl: './post-view.component.scss',
 })
-export class PostViewComponent {
+export class PostViewComponent implements OnDestroy {
   private readonly readerS = inject(ReaderService);
   private readonly likerS = inject(LikerService);
   private readonly usersService = inject(UserService);
   private readonly appService = inject(AppService);
   private readonly seoService = inject(SeoService);
   private readonly statS = inject(StatService);
+  private readonly telemetryS = inject(TelemetryService);
+  private readonly destroyRef = inject(DestroyRef);
 
   UserRoles = UserRoles;
   PostStatuses = PostStatuses;
@@ -61,7 +66,9 @@ export class PostViewComponent {
       switchMap((id) => this.readerS.readPost(id))
     )
     .subscribe((postById) => {
+      this.telemetryS.trackPostReadEnd();
       this.post.set(postById);
+      this.telemetryS.trackPostReadStart(postById.id);
     });
 
   post = model.required<ReadPostResponse>();
@@ -178,5 +185,9 @@ export class PostViewComponent {
         return p;
       });
     });
+  }
+
+  ngOnDestroy(): void {
+    this.telemetryS.trackPostReadEnd();
   }
 }

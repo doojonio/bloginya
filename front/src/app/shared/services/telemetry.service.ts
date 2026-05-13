@@ -16,6 +16,8 @@ interface TelemetryPayload {
   page_load_ms?: number;
   errors?: { type: string; msg: string }[];
   route?: string;
+  post_read_seconds?: number;
+  post_id?: string;
 }
 
 @Injectable({
@@ -39,6 +41,26 @@ export class TelemetryService {
     this.trackNavigation();
     this.trackPageLoad();
     this.startFlush();
+  }
+
+  private postReadStart: number | null = null;
+  private postReadId: string | null = null;
+
+  trackPostReadStart(postId: string): void {
+    this.postReadStart = Date.now();
+    this.postReadId = postId;
+  }
+
+  trackPostReadEnd(): void {
+    if (this.postReadStart === null || this.postReadId === null) {
+      return;
+    }
+    const seconds = Math.round((Date.now() - this.postReadStart) / 1000);
+    if (seconds > 0) {
+      this.send({ post_read_seconds: seconds, post_id: this.postReadId });
+    }
+    this.postReadStart = null;
+    this.postReadId = null;
   }
 
   reportError(type: string, msg: string): void {
