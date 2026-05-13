@@ -6,6 +6,7 @@ use Bloginya::Plugin::Service::Util;
 inject 'db';
 inject 'redis';
 inject 'current_user';
+inject 'metrics';
 
 async sub block_p($self, $user_id) {
   die 'no rights' unless my $u = $self->current_user;
@@ -22,6 +23,7 @@ async sub block_p($self, $user_id) {
   await $self->db->update_p('comments', {status => 'blocked'}, {user_id => $user_id});
 
   $tx->commit;
+  $self->metrics->inc('bloginya_admin_user_blocks_total');
 }
 
 # export interface GetUsersItem {

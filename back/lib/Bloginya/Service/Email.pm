@@ -9,6 +9,7 @@ inject 'app';
 inject 'config';
 inject 'db';
 inject 'log';
+inject 'metrics';
 
 service se_post => 'post';
 
@@ -94,6 +95,10 @@ async sub _send_with_rate_limit_p ($self, $post, $subscribers) {
     if ($@) {
       $errors++;
       $self->log->error("Failed to send email to $subscriber->{email}: $@");
+      $self->metrics->inc('bloginya_email_notification_errors_total');
+    }
+    else {
+      $self->metrics->inc('bloginya_email_notifications_sent_total');
     }
 
     if (@queue) {

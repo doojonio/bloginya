@@ -7,6 +7,7 @@ use Bloginya::Model::Post qw(POST_STATUS_PUB);
 
 inject 'db';
 inject 'redis';
+inject 'metrics';
 
 service se_subscription => 'subscription';
 
@@ -50,6 +51,7 @@ async sub find_or_create_by_google_id_p($self, $userinfo, $token) {
   # Auto-subscribe new users to email notifications
   await $self->se_subscription->ensure_subscriber_p($user->{id});
 
+  $self->metrics->inc('bloginya_users_registered_total') if $user{role};
   return $user->{id};
 }
 
