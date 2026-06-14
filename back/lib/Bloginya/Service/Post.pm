@@ -227,6 +227,17 @@ async sub like_post_p ($self, $post_id) {
   die 'no rights' unless my $u = $self->current_user;
   await $self->db->insert_p('post_likes', {user_id => $u->{id}, post_id => $post_id}, {on_conflict => undef});
   $self->metrics->inc('bloginya_likes_total', {type => 'post'});
+
+  # Send email notification to post owners if liker is not the post author
+  my $post = (await $self->db->select_p('posts', ['user_id'], {id => $post_id}))->hashes->first;
+  if ($post && $post->{user_id} ne $u->{id}) {
+    my $app = $self->app;
+    Mojo::IOLoop->next_tick(sub ($loop) {
+      $app->service('email')->send_like_notification_p($post_id, $u->{id})->catch(sub ($err) {
+        $app->log->error("Failed to send like notification for post $post_id: $err");
+      });
+    });
+  }
 }
 async sub unlike_post_p ($self, $post_id) {
   die 'no rights' unless my $u = $self->current_user;

@@ -10,6 +10,7 @@ inject 'db';
 inject 'redis';
 inject 'current_user';
 inject 'log';
+inject 'metrics';
 
 service se_tags      => 'tags';
 service se_shortname => 'shortname';
@@ -36,6 +37,7 @@ async sub create_p ($self, $vals) {
   $tx->commit;
 
   $self->log->info("Successfully created category '$vals->{title}' with id $id");
+  $self->metrics->inc('bloginya_categories_created_total');
   return $id;
 }
 
@@ -63,6 +65,7 @@ async sub update_p ($self, $id, $vals) {
   $tx->commit;
 
   $self->log->info("Successfully updated category $id");
+  $self->metrics->inc('bloginya_categories_updated_total');
   return $id;
 }
 

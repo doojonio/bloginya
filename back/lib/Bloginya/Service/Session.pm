@@ -4,6 +4,7 @@ use Bloginya::Plugin::Service::Util;
 
 inject 'db';
 inject 'redis';
+inject 'metrics';
 
 async sub create_session_p($self, $user_id, $ip, $user_agent) {
   my $sid
@@ -13,6 +14,7 @@ async sub create_session_p($self, $user_id, $ip, $user_agent) {
   # Store user in cache for future requests
   await $self->redis->set_p('sid_user:' . $sid, $user_id);
 
+  $self->metrics->inc('bloginya_sessions_created_total');
   return $sid;
 }
 

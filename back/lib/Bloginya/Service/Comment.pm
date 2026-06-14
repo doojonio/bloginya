@@ -13,6 +13,7 @@ inject 'db';
 inject 'redis';
 inject 'current_user';
 inject 'metrics';
+inject 'app';
 
 service se_policy => 'policy';
 
@@ -108,6 +109,31 @@ async sub add_comment_p($self, $fields) {
   $tx->commit;
 
   $self->metrics->inc('bloginya_comments_added_total');
+
+  # Send email notification to post owners if commenter is not the post author
+  my $post = (await $self->db->select_p('posts', ['user_id'], {id => $fields->{post_id}}))->hashes->first;
+  if ($post && $post->{user_id} ne $self->current_user->{id}) {
+    my $app = $self->app;
+    Mojo::IOLoop->next_tick(sub ($loop) {
+      $app->service('email')->send_comment_notification_p($fields->{post_id}, $comment_id, $self->current_user->{id})->catch(sub ($err) {
+        $app->log->error("Failed to send comment notification for post $fields->{post_id}, comment $comment_id: $err");
+      });
+    });
+  }
+
+  # Send reply notification if this is a reply to another comment
+  if ($fields{reply_to_id}) {
+    my $parent_comment = (await $self->db->select_p('comments', ['user_id'], {id => $fields{reply_to_id}}))->hashes->first;
+    if ($parent_comment && $parent_comment->{user_id} ne $self->current_user->{id}) {
+      my $app = $self->app;
+      Mojo::IOLoop->next_tick(sub ($loop) {
+        $app->service('email')->send_reply_notification_p($fields->{post_id}, $fields{reply_to_id}, $comment_id, $self->current_user->{id})->catch(sub ($err) {
+          $app->log->error("Failed to send reply notification for post $fields->{post_id}, parent comment $fields{reply_to_id}: $err");
+        });
+      });
+    }
+  }
+
   return $comment_id;
 }
 

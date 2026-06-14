@@ -8,6 +8,7 @@ inject 'config';
 inject 'db';
 inject 'current_user';
 inject 'log';
+inject 'metrics';
 
 async sub subscribe_p ($self, $user_id = undef) {
   $user_id //= $self->current_user->{id};
@@ -20,6 +21,7 @@ async sub subscribe_p ($self, $user_id = undef) {
   );
 
   $self->log->info("User $user_id subscribed to notifications");
+  $self->metrics->inc('bloginya_subscriptions_total', {action => 'subscribe'});
   return 1;
 }
 
@@ -34,6 +36,7 @@ async sub unsubscribe_p ($self, $user_id = undef) {
   );
 
   $self->log->info("User $user_id unsubscribed from notifications");
+  $self->metrics->inc('bloginya_subscriptions_total', {action => 'unsubscribe'});
   return 1;
 }
 
@@ -52,6 +55,7 @@ async sub unsubscribe_by_secret_p ($self, $secret) {
   }
 
   $self->log->info("User $row->{user_id} unsubscribed via secret");
+  $self->metrics->inc('bloginya_subscriptions_total', {action => 'unsubscribe'});
   return 1;
 }
 

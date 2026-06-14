@@ -7,6 +7,7 @@ use Bloginya::Model::UserActionLog qw(LOG_TYPE_SHORTVIEW LOG_TYPE_MEDIUMVIEW LOG
 inject 'db';
 inject 'current_user';
 inject 'redis';
+inject 'metrics';
 
 async sub add_stat_p($self, $post_id, $view_type) {
   my $user = $self->current_user;
@@ -41,6 +42,7 @@ async sub add_stat_p($self, $post_id, $view_type) {
   }
 
   await $self->db->update_p('post_stats', \%form, {post_id => $post_id});
+  $self->metrics->inc('bloginya_post_views_total', {view_type => $view_type});
 
   # user action log
   # if ($user) {

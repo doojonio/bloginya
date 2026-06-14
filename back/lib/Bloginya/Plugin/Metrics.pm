@@ -37,6 +37,19 @@ sub register ($self, $app, $conf) {
         $m->declare('bloginya_frontend_errors_total',    help => 'Total number of frontend errors', type => 'counter');
         $m->declare('bloginya_frontend_navigation_total', help => 'Total number of frontend navigations', type => 'counter');
         $m->declare('bloginya_post_read_seconds',         help => 'Time spent reading a post in seconds', type => 'histogram', buckets => [5, 15, 30, 60, 120, 300, 600]);
+        $m->declare('bloginya_admin_user_blocks_total',   help => 'Total number of users blocked by admin', type => 'counter');
+        $m->declare('bloginya_categories_created_total',  help => 'Total number of categories created', type => 'counter');
+        $m->declare('bloginya_categories_updated_total',  help => 'Total number of categories updated', type => 'counter');
+        $m->declare('bloginya_cleanup_sessions_deleted_total',  help => 'Total number of expired sessions deleted by cleanup', type => 'counter');
+        $m->declare('bloginya_cleanup_files_deleted_total',     help => 'Total number of unused files deleted by cleanup', type => 'counter');
+        $m->declare('bloginya_cleanup_posts_deleted_total',     help => 'Total number of soft-deleted posts purged by cleanup', type => 'counter');
+        $m->declare('bloginya_cleanup_comments_deleted_total',  help => 'Total number of deleted comments purged by cleanup', type => 'counter');
+        $m->declare('bloginya_email_notifications_sent_total',  help => 'Total number of email notifications sent', type => 'counter');
+        $m->declare('bloginya_email_notification_errors_total', help => 'Total number of email notification send errors', type => 'counter');
+        $m->declare('bloginya_sessions_created_total',    help => 'Total number of user sessions created', type => 'counter');
+        $m->declare('bloginya_post_views_total',          help => 'Total number of post views by view type', type => 'counter');
+        $m->declare('bloginya_subscriptions_total',       help => 'Total number of subscription changes', type => 'counter');
+        $m->declare('bloginya_users_registered_total',    help => 'Total number of new users registered', type => 'counter');
         $m;
       };
     }

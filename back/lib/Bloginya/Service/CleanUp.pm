@@ -11,6 +11,7 @@ use Bloginya::Model::Post qw(POST_STATUS_DEL);
 inject 'app';
 inject 'db';
 inject 'log';
+inject 'metrics';
 
 sub estimate($self) {
   my $sessions_num = $self->_process_sessions();
@@ -38,6 +39,11 @@ sub cleanup ($self, @args) {
       . "$deleted_files files, $deleted_copies copies, $deleted_size overall file size");
 
   my ($del_post_count, $del_comments_count) = $self->_process_deleted_posts_n_comments(1);
+
+  $self->metrics->add('bloginya_cleanup_sessions_deleted_total',  $deleted_sessions)  if $deleted_sessions;
+  $self->metrics->add('bloginya_cleanup_files_deleted_total',     $deleted_files)     if $deleted_files;
+  $self->metrics->add('bloginya_cleanup_posts_deleted_total',     $del_post_count)    if $del_post_count;
+  $self->metrics->add('bloginya_cleanup_comments_deleted_total',  $del_comments_count) if $del_comments_count;
 
   return (
     sessions     => $deleted_sessions,
