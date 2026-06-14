@@ -561,6 +561,201 @@ You're receiving this because you're an owner of this post on $site_name.
   };
 }
 
+async sub send_reply_notification_p ($self, $post_id, $parent_comment_id, $reply_comment_id, $user_id) {
+  $self->log->info("Sending reply notification for post $post_id, parent comment $parent_comment_id");
+
+  my $post = await $self->se_post->read_p($post_id);
+  unless ($post) {
+    $self->log->error("Post $post_id not found, cannot send reply notification");
+    return;
+  }
+
+  my $parent_comment = (await $self->db->select_p('comments', ['user_id', 'content'], {id => $parent_comment_id}))->hashes->first;
+  unless ($parent_comment) {
+    $self->log->error("Parent comment $parent_comment_id not found, cannot send reply notification");
+    return;
+  }
+
+  my $reply_comment = (await $self->db->select_p('comments', ['content', 'created_at'], {id => $reply_comment_id}))->hashes->first;
+  unless ($reply_comment) {
+    $self->log->error("Reply comment $reply_comment_id not found, cannot send reply notification");
+    return;
+  }
+
+  my $replier = (await $self->db->select_p('users', ['username', 'email'], {id => $user_id}))->hashes->first;
+  unless ($replier) {
+    $self->log->error("User $user_id not found, cannot send reply notification");
+    return;
+  }
+
+  # Check if parent comment author is subscribed
+  my $parent_user = await $self->_get_subscribed_user_p($parent_comment->{user_id});
+  unless ($parent_user) {
+    $self->log->info("Parent comment author $parent_comment->{user_id} is not subscribed, skipping reply notification");
+    return;
+  }
+
+  $self->log->info("Sending reply notification to $parent_user->{email}");
+
+  await $self->_send_reply_notification_p($post, $parent_comment, $reply_comment, $replier, $parent_user);
+
+  $self->log->info("Completed sending reply notification for post $post_id");
+}
+
+async sub _get_subscribed_user_p ($self, $user_id) {
+  my $res = await $self->db->select_p(
+    [\'subscribers s', [\'users u', 'u.id' => 's.user_id']],
+    ['u.id', 'u.email', 'u.username', 's.unsubscribe_secret'],
+    {'s.user_id' => $user_id, 's.subscribed' => 1, 'u.status' => 'active'}
+  );
+
+  return $res->hashes->first;
+}
+
+async sub _send_reply_notification_p ($self, $post, $parent_comment, $reply_comment, $replier, $parent_user) {
+  my $unsubscribe_url = $parent_user->{unsubscribe_secret} ? $self->_get_unsubscribe_url($parent_user->{unsubscribe_secret}) : undef;
+
+  eval {
+    my $html = $self->_build_reply_html_email($post, $parent_comment, $reply_comment, $replier, $unsubscribe_url);
+    my $text = $self->_build_reply_text_email($post, $parent_comment, $reply_comment, $replier, $unsubscribe_url);
+
+    $self->backend->send_email(
+      $parent_user->{email},
+      sprintf('New Reply to Your Comment on: %s', $post->{title}),
+      $html,
+      $text,
+    );
+  };
+
+  if ($@) {
+    $self->log->error("Failed to send reply notification email to $parent_user->{email}: $@");
+    $self->metrics->inc('bloginya_email_notification_errors_total');
+  }
+  else {
+    $self->metrics->inc('bloginya_email_notifications_sent_total');
+  }
+}
+
+sub _build_reply_html_email ($self, $post, $parent_comment, $reply_comment, $replier, $unsubscribe_url = undef) {
+  my $site_url = $self->config->{site_url};
+  my $site_name = $self->config->{site_name};
+  my $post_url = $post->{name}
+    ? sprintf('%s/%s', $site_url, $post->{name})
+    : sprintf('%s/p/%s', $site_url, $post->{id});
+
+  my $parent_content = $parent_comment->{content} || '';
+  $parent_content =~ s/&/&amp;/g;
+  $parent_content =~ s/</&lt;/g;
+  $parent_content =~ s/>/&gt;/g;
+  $parent_content =~ s/\n/<br>/g;
+
+  my $reply_content = $reply_comment->{content} || '';
+  $reply_content =~ s/&/&amp;/g;
+  $reply_content =~ s/</&lt;/g;
+  $reply_content =~ s/>/&gt;/g;
+  $reply_content =~ s/\n/<br>/g;
+
+  my $footer_html = qq{
+              <p style="margin: 0; color: #89717a; font-size: 12px;">
+                You're receiving this because you're subscribed to notifications on $site_name
+              </p>};
+
+  if ($unsubscribe_url) {
+    $footer_html .= qq{
+              <p style="margin: 5px 0 0 0; color: #89717a; font-size: 12px;">
+                <a href="$unsubscribe_url" style="color: #ac2473; text-decoration: none; font-weight: 500;">Unsubscribe</a>
+              </p>};
+  }
+
+  return qq{
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Reply to Your Comment on: $post->{title}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f0ef;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f0ef; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #ac2473 0%, #FF6AB7 100%); padding: 40px 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 600; letter-spacing: 0.5px;">$site_name</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="margin: 0 0 20px 0; color: #1c1b1b; font-size: 28px; line-height: 1.3; font-weight: 600;">New Reply to Your Comment</h2>
+              <p style="margin: 0 0 20px 0; color: #474746; font-size: 16px; line-height: 1.6;">
+                <strong>$replier->{username}</strong> replied to your comment on:
+              </p>
+              <h3 style="margin: 0 0 15px 0; color: #1c1b1b; font-size: 22px; line-height: 1.3; font-weight: 600;">$post->{title}</h3>
+              <div style="background-color: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ccc;">
+                <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">Your Comment:</p>
+                <p style="margin: 0; color: #474746; font-size: 14px; line-height: 1.5;">$parent_content</p>
+              </div>
+              <div style="background-color: #f8f8f8; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #FF6AB7;">
+                <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">Reply:</p>
+                <p style="margin: 0; color: #474746; font-size: 15px; line-height: 1.6;">$reply_content</p>
+              </div>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="$post_url" style="display: inline-block; padding: 16px 48px; background: linear-gradient(135deg, #FF6AB7 0%, #ff81be 100%); color: #ffffff; text-decoration: none; border-radius: 28px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(255, 106, 183, 0.3);">View Post & Reply</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #fff8f8; padding: 24px 30px; text-align: center; border-top: 1px solid #f9dbe5;">
+$footer_html
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  };
+}
+
+sub _build_reply_text_email ($self, $post, $parent_comment, $reply_comment, $replier, $unsubscribe_url = undef) {
+  my $site_url = $self->config->{site_url};
+  my $site_name = $self->config->{site_name};
+  my $post_url = sprintf('%s/p/%s', $site_url, $post->{name} || $post->{id});
+
+  my $footer_text = qq{
+---
+You're receiving this because you're subscribed to notifications on $site_name.};
+
+  if ($unsubscribe_url) {
+    $footer_text .= qq{
+To unsubscribe, visit: $unsubscribe_url};
+  }
+
+  return qq{
+New Reply to Your Comment - $site_name
+
+$replier->{username} replied to your comment on:
+
+$post->{title}
+
+Your Comment:
+$parent_comment->{content}
+
+Reply:
+$reply_comment->{content}
+
+View the post and reply: $post_url
+
+$footer_text
+  };
+}
+
 sub _get_unsubscribe_url ($self, $secret) {
   my $site_url = $self->config->{site_url};
   return sprintf('%s/api/subscription/unsubscribe/%s', $site_url, $secret);
