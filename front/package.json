@@ -23,7 +23,7 @@
     "@angular/platform-browser-dynamic": "^20.3.10",
     "@angular/platform-server": "^20.3.10",
     "@angular/router": "^20.3.10",
-    "@angular/ssr": "^20.3.9",
+    "@angular/ssr": "^20.3.39",
     "@fix-webm-duration/fix": "^1.0.1",
     "express": "^5.1.0",
     "happy-dom": "^20.0.10",
